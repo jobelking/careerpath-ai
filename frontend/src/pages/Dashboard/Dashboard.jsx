@@ -6,15 +6,23 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState(null);
   const [showResults, setShowResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       setUploadedFile(file);
+    }
+  };
+
+  const handleAnalyze = () => {
+    if (uploadedFile) {
+      setIsLoading(true);
       // Simulate analysis
       setTimeout(() => {
+        setIsLoading(false);
         setShowResults(true);
-      }, 1500);
+      }, 2000);
     }
   };
 
@@ -27,9 +35,6 @@ const Dashboard = () => {
     const file = e.dataTransfer.files[0];
     if (file) {
       setUploadedFile(file);
-      setTimeout(() => {
-        setShowResults(true);
-      }, 1500);
     }
   };
 
@@ -50,8 +55,7 @@ const Dashboard = () => {
           <h1 className="dashboard-brand" onClick={() => navigate('/')}>CareerPath-AI</h1>
           <nav className="dashboard-nav">
             <button className="nav-link active">Dashboard</button>
-            <button className="nav-link">History</button>
-            <button className="nav-link">Settings</button>
+            <button className="nav-link" onClick={() => navigate('/history')}>History</button>
           </nav>
         </div>
       </header>
@@ -60,10 +64,7 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="dashboard-content">
           {/* Welcome Section */}
-          <div className="welcome-section">
-            <h2>Welcome to Your Career Dashboard</h2>
-            <p>Upload your resume to discover your ideal career path with AI-powered analysis</p>
-          </div>
+          
 
           {/* Two-Column Layout */}
           <div className="dashboard-grid">
@@ -93,9 +94,11 @@ const Dashboard = () => {
                   <label htmlFor="resume-upload" className="upload-label">
                     {uploadedFile ? (
                       <div className="file-uploaded">
+                        <span></span>
+                        <span></span>
                         <span className="file-icon">✓</span>
                         <span className="file-name">{uploadedFile.name}</span>
-                        <span className="analyzing-text">Analyzing...</span>
+                        <span></span>
                       </div>
                     ) : (
                       <div className="upload-prompt">
@@ -106,6 +109,15 @@ const Dashboard = () => {
                     )}
                   </label>
                 </div>
+
+                {/* Upload Button */}
+                <button 
+                  className="upload-button"
+                  onClick={handleAnalyze}
+                  disabled={!uploadedFile || isLoading}
+                >
+                  {isLoading ? 'Analyzing...' : 'Upload and Analyze'}
+                </button>
                 
                 {/* Privacy Note */}
                 <div className="privacy-note">
@@ -120,7 +132,7 @@ const Dashboard = () => {
                 <ul className="info-list">
                   <li>
                     <span className="step-number">1</span>
-                    <span>Upload your resume in PDF, DOC, or DOCX format</span>
+                    <span>Upload your resume in PDF format</span>
                   </li>
                   <li>
                     <span className="step-number">2</span>
@@ -136,7 +148,13 @@ const Dashboard = () => {
 
             {/* Right Column - Results Section */}
             <div className="right-column">
-              {showResults ? (
+              {isLoading ? (
+                <div className="loading-section">
+                  <div className="loading-spinner"></div>
+                  <h3>Analyzing Your Resume...</h3>
+                  <p>Please wait while our AI processes your information</p>
+                </div>
+              ) : showResults ? (
                 <div className="results-section">
                   <div className="results-header">
                     <h3>Your Top Career Matches</h3>
