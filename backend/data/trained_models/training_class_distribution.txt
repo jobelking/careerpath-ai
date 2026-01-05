@@ -3,43 +3,42 @@ TRAINING CLASS DISTRIBUTION (After Balancing)
 ================================================================================
 
 Dataset: dataset_careerpath-ai_preprocessed.csv
-Total Classes Used: 10
-Total Samples Used: 6852
-Date: 2026-01-04 17:56:14
+Total Classes Used: 8
+Total Samples Used: 6722
+Date: 2026-01-05 21:50:07
 
 ================================================================================
 CLASS NAME                                      | SAMPLE COUNT
 ================================================================================
-  1. quality assurance                             |    400
-  2. software engineer                             |    400
-  3. machine learning engineer                     |    399
-  4. business analyst                              |    393
-  5. network engineer                              |    391
-  6. devops                                        |    378
-  7. data science                                  |    342
-  8. cyber security                                |    315
-  9. mobile app developer                          |    314
- 10. data engineer                                 |    220
- 11. construction                                  |    150
- 12. engineering                                   |    150
- 13. apparel                                       |    150
- 14. designer                                      |    150
- 15. healthcare                                    |    150
- 16. accountant                                    |    150
- 17. sales                                         |    150
- 18. fitness                                       |    150
- 19. teacher                                       |    150
- 20. banking                                       |    150
- 21. digital-media                                 |    150
- 22. agriculture                                   |    150
- 23. hr                                            |    150
- 24. arts                                          |    150
- 25. advocate                                      |    150
- 26. business-development                          |    150
- 27. finance                                       |    150
- 28. chef                                          |    150
- 29. consultant                                    |    150
- 30. information-technology                        |    150
- 31. public-relations                              |    150
- 32. aviation                                      |    150
+  1. data science                                  |    400
+  2. quality assurance                             |    400
+  3. devops                                        |    400
+  4. software engineer                             |    400
+  5. machine learning engineer                     |    399
+  6. business analyst                              |    393
+  7. network engineer                              |    391
+  8. mobile app developer                          |    320
+  9. cyber security                                |    315
+ 10. information-technology                        |    154
+ 11. banking                                       |    150
+ 12. arts                                          |    150
+ 13. hr                                            |    150
+ 14. apparel                                       |    150
+ 15. chef                                          |    150
+ 16. finance                                       |    150
+ 17. engineering                                   |    150
+ 18. teacher                                       |    150
+ 19. sales                                         |    150
+ 20. accountant                                    |    150
+ 21. business-development                          |    150
+ 22. digital-media                                 |    150
+ 23. public-relations                              |    150
+ 24. fitness                                       |    150
+ 25. designer                                      |    150
+ 26. aviation                                      |    150
+ 27. consultant                                    |    150
+ 28. advocate                                      |    150
+ 29. agriculture                                   |    150
+ 30. construction                                  |    150
+ 31. healthcare                                    |    150
 ================================================================================
