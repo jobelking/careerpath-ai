@@ -281,7 +281,6 @@ class AdvancedCareerPathClassifier:
             'data science': 'Data Scientist',
             'cyber security': 'Cyber Security Specialist',
             'mobile app developer': 'Mobile App Developer',
-            'data engineer': 'Data Engineer',
             'construction': 'Construction Professional',
             'engineering': 'General Engineering Professional',
             'apparel': 'Apparel & Fashion Specialist',

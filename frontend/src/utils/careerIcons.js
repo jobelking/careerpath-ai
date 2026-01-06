@@ -1,7 +1,7 @@
 // src/utils/careerIcons.js
 
 import { 
-  FaCode, FaMobileAlt, FaRobot, FaChartLine, FaDatabase, FaServer, FaNetworkWired, FaShieldAlt,
+  FaCode, FaMobileAlt, FaRobot, FaChartLine, FaServer, FaNetworkWired, FaShieldAlt,
   FaBug, FaUserTie, FaHandshake, FaUserFriends, FaBullhorn, FaCalculator, FaMoneyCheckAlt, FaUniversity,
   FaPaintBrush, FaPhotoVideo, FaTheaterMasks, FaHeartbeat, FaDumbbell, FaChalkboardTeacher, FaUtensils,
   FaHardHat, FaTractor, FaPlane, FaTshirt, FaGavel, FaCogs, FaLaptop
@@ -12,7 +12,6 @@ export const careerIcons = {
   "Mobile App Developer": FaMobileAlt,
   "Machine Learning Engineer": FaRobot,
   "Data Scientist": FaChartLine,
-  "Data Engineer": FaDatabase,
   "DevOps Engineer": FaServer,
   "Network Engineer": FaNetworkWired,
   "Cyber Security Specialist": FaShieldAlt,
