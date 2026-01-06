@@ -6,16 +6,17 @@ This folder contains all Docker configuration files to run CareerPath AI in cont
 
 ### 1. Build and Run
 
-From the `docker` directory, run:
+**Important:** Run from the **project root directory** for best compatibility:
 
 ```bash
-docker-compose up --build
+cd careerpath-ai-main
+docker-compose -f docker/docker-compose.yml up --build
 ```
 
-Or from the project root:
+Or to run in the background:
 
 ```bash
-docker-compose -f docker/docker-compose.yml up --build
+docker-compose -f docker/docker-compose.yml up --build -d
 ```
 
 ### 2. Access the Application
@@ -27,8 +28,22 @@ docker-compose -f docker/docker-compose.yml up --build
 ### 3. Stop the Application
 
 ```bash
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 ```
+
+## Important Notes
+
+### Running from Project Root
+
+**Always run docker-compose from the project root directory** (where `backend/` and `frontend/` folders are located), not from inside the `docker/` folder. This ensures proper path resolution for the build context.
+
+### Data Persistence
+
+The trained ML models and datasets are **included in the Docker image** during build (not mounted as a volume). This approach ensures compatibility across different operating systems, especially Windows with Docker Desktop.
+
+If you need to update the models:
+1. Update the files in `backend/data/`
+2. Rebuild the images: `docker-compose -f docker/docker-compose.yml up --build`
 
 ## What's Included
 

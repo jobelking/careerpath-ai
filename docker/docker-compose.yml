@@ -6,9 +6,12 @@ services:
     container_name: careerpath-ai-backend
     ports:
       - "8000:8000"
-    volumes:
+    # volumes:
       # Mount the data directory to persist trained models
-      - ../backend/data:/app/data
+      # Path is relative to the docker-compose.yml file location
+      # NOTE: Commented out due to Docker Desktop for Windows volume mounting issues
+      # The data directory is copied into the image during build instead
+      # - ../backend/data:/app/data
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped

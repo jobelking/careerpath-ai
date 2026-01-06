@@ -22,28 +22,32 @@ docker/
 │   ├── nginx.conf          # Web server configuration
 │   └── .dockerignore       # Excludes unnecessary files
 ├── docker-compose.yml      # Orchestration configuration
-└── README.md              # Detailed documentation
+├── README.md              # Detailed documentation
+└── QUICKSTART.md          # This file
 ```
 
 ### 🎯 Basic Commands
 
-**From the `docker/` directory:**
+**Important:** Always run from the **project root directory** (where `backend/` and `frontend/` folders are):
 
 ```bash
+# Navigate to project root
+cd careerpath-ai-main
+
 # Start services
-docker-compose up -d
+    docker-compose -f docker/docker-compose.yml up -d
 
 # View logs
-docker-compose logs -f
+docker-compose -f docker/docker-compose.yml logs -f
 
 # Stop services
-docker-compose stop
+docker-compose -f docker/docker-compose.yml stop
 
 # Remove everything
-docker-compose down
+docker-compose -f docker/docker-compose.yml down
 
 # Rebuild and start
-docker-compose up --build
+docker-compose -f docker/docker-compose.yml up --build
 ```
 
 ### 📤 Sharing to Another Machine
