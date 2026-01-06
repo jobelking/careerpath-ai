@@ -1,16 +1,16 @@
 {
-  "accuracy": 0.812639405204461,
-  "weighted_precision": 0.8251882808680291,
-  "weighted_recall": 0.812639405204461,
-  "weighted_f1": 0.8088867473076733,
-  "macro_precision": 0.8219547902396014,
-  "macro_recall": 0.7975814783584412,
-  "macro_f1": 0.7964729797339866,
+  "accuracy": 0.8163568773234201,
+  "weighted_precision": 0.8304444684748522,
+  "weighted_recall": 0.8163568773234201,
+  "weighted_f1": 0.8134277781769701,
+  "macro_precision": 0.8313080211163459,
+  "macro_recall": 0.8047803290839454,
+  "macro_f1": 0.804808145975941,
   "classification_report": {
     "accountant": {
-      "precision": 0.6590909090909091,
+      "precision": 0.6744186046511628,
       "recall": 0.9666666666666667,
-      "f1-score": 0.7837837837837838,
+      "f1-score": 0.7945205479452054,
       "support": 30.0
     },
     "advocate": {
@@ -26,9 +26,9 @@
       "support": 30.0
     },
     "apparel": {
-      "precision": 0.84,
-      "recall": 0.7,
-      "f1-score": 0.7636363636363637,
+      "precision": 0.8518518518518519,
+      "recall": 0.7666666666666667,
+      "f1-score": 0.8070175438596491,
       "support": 30.0
     },
     "arts": {
@@ -38,9 +38,9 @@
       "support": 30.0
     },
     "aviation": {
-      "precision": 0.7931034482758621,
+      "precision": 0.8518518518518519,
       "recall": 0.7666666666666667,
-      "f1-score": 0.7796610169491526,
+      "f1-score": 0.8070175438596491,
       "support": 30.0
     },
     "banking": {
@@ -50,9 +50,9 @@
       "support": 30.0
     },
     "business analyst": {
-      "precision": 0.9342105263157895,
-      "recall": 0.8987341772151899,
-      "f1-score": 0.9161290322580645,
+      "precision": 0.9333333333333333,
+      "recall": 0.8860759493670886,
+      "f1-score": 0.9090909090909091,
       "support": 79.0
     },
     "business-development": {
@@ -74,27 +74,27 @@
       "support": 30.0
     },
     "consultant": {
-      "precision": 0.9285714285714286,
+      "precision": 1.0,
       "recall": 0.43333333333333335,
-      "f1-score": 0.5909090909090909,
+      "f1-score": 0.6046511627906976,
       "support": 30.0
     },
     "cyber security": {
-      "precision": 0.8888888888888888,
-      "recall": 0.7619047619047619,
-      "f1-score": 0.8205128205128205,
+      "precision": 0.8703703703703703,
+      "recall": 0.746031746031746,
+      "f1-score": 0.8034188034188035,
       "support": 63.0
     },
     "data science": {
-      "precision": 0.6891891891891891,
+      "precision": 0.68,
       "recall": 0.6375,
-      "f1-score": 0.6623376623376623,
+      "f1-score": 0.6580645161290323,
       "support": 80.0
     },
     "designer": {
-      "precision": 0.8620689655172413,
-      "recall": 0.8333333333333334,
-      "f1-score": 0.847457627118644,
+      "precision": 0.8666666666666667,
+      "recall": 0.8666666666666667,
+      "f1-score": 0.8666666666666667,
       "support": 30.0
     },
     "devops": {
@@ -104,9 +104,9 @@
       "support": 80.0
     },
     "digital-media": {
-      "precision": 0.7931034482758621,
+      "precision": 0.8518518518518519,
       "recall": 0.7666666666666667,
-      "f1-score": 0.7796610169491526,
+      "f1-score": 0.8070175438596491,
       "support": 30.0
     },
     "engineering": {
@@ -116,9 +116,9 @@
       "support": 30.0
     },
     "finance": {
-      "precision": 0.8571428571428571,
-      "recall": 0.6,
-      "f1-score": 0.7058823529411765,
+      "precision": 0.875,
+      "recall": 0.7,
+      "f1-score": 0.7777777777777778,
       "support": 30.0
     },
     "fitness": {
@@ -134,15 +134,15 @@
       "support": 30.0
     },
     "hr": {
-      "precision": 0.7142857142857143,
+      "precision": 0.75,
       "recall": 1.0,
-      "f1-score": 0.8333333333333334,
+      "f1-score": 0.8571428571428571,
       "support": 30.0
     },
     "information-technology": {
-      "precision": 0.6842105263157895,
-      "recall": 0.41935483870967744,
-      "f1-score": 0.52,
+      "precision": 0.7142857142857143,
+      "recall": 0.4838709677419355,
+      "f1-score": 0.5769230769230769,
       "support": 31.0
     },
     "machine learning engineer": {
@@ -158,15 +158,15 @@
       "support": 64.0
     },
     "network engineer": {
-      "precision": 0.7840909090909091,
-      "recall": 0.8846153846153846,
-      "f1-score": 0.8313253012048193,
+      "precision": 0.7727272727272727,
+      "recall": 0.8717948717948718,
+      "f1-score": 0.8192771084337349,
       "support": 78.0
     },
     "public-relations": {
-      "precision": 0.675,
+      "precision": 0.6428571428571429,
       "recall": 0.9,
-      "f1-score": 0.7714285714285715,
+      "f1-score": 0.75,
       "support": 30.0
     },
     "quality assurance": {
@@ -176,9 +176,9 @@
       "support": 80.0
     },
     "sales": {
-      "precision": 0.75,
+      "precision": 0.8076923076923077,
       "recall": 0.7,
-      "f1-score": 0.7241379310344828,
+      "f1-score": 0.75,
       "support": 30.0
     },
     "software engineer": {
@@ -193,21 +193,21 @@
       "f1-score": 0.7945205479452054,
       "support": 30.0
     },
-    "accuracy": 0.812639405204461,
+    "accuracy": 0.8163568773234201,
     "macro avg": {
-      "precision": 0.8219547902396014,
-      "recall": 0.7975814783584412,
-      "f1-score": 0.7964729797339866,
+      "precision": 0.8313080211163459,
+      "recall": 0.8047803290839454,
+      "f1-score": 0.804808145975941,
       "support": 1345.0
     },
     "weighted avg": {
-      "precision": 0.8251882808680291,
-      "recall": 0.812639405204461,
-      "f1-score": 0.8088867473076733,
+      "precision": 0.8304444684748522,
+      "recall": 0.8163568773234201,
+      "f1-score": 0.8134277781769701,
       "support": 1345.0
     }
   },
-  "training_date": "2026-01-05T21:50:13.998651",
+  "training_date": "2026-01-06T11:50:58.096083",
   "model_parameters": {
     "model": "ComplementNB",
     "alpha": 0.1,

@@ -208,7 +208,10 @@ class AdvancedCareerPathClassifier:
             
             # Arts
             'artist': 'arts',
-            'creative': 'arts',
+            'fine arts': 'arts',
+            'visual artist': 'arts',
+            'performing arts': 'arts',
+            'exhibition': 'arts',
             
             # Legal/Advocate
             'lawyer': 'advocate',
@@ -222,7 +225,9 @@ class AdvancedCareerPathClassifier:
             # Finance
             'financial analyst': 'finance',
             'fintech': 'finance',
-            'financial': 'finance',
+            'financial planning': 'finance',
+            'financial modeling': 'finance',
+            'fp&a': 'finance',
             
             # Culinary
             'cook': 'chef',
@@ -233,10 +238,18 @@ class AdvancedCareerPathClassifier:
             'advisor': 'consultant',
             
             # IT
-            'it': 'information technology',
-            'tech support': 'information technology',
-            'system admin': 'information technology',
-            'sysadmin': 'information technology',
+            'it support': 'information technology',
+            'it technician': 'information technology',
+            'it tech support': 'information technology',
+            'it helpdesk': 'information technology',
+            'it help desk': 'information technology',
+            'it service desk': 'information technology',
+            'service desk support': 'information technology',
+            'desktop support': 'information technology',
+            'helpdesk support': 'information technology',
+            'technical support engineer': 'information technology',
+            'it specialist': 'information technology',
+            'it administrator': 'information technology',
             
             # PR
             'pr': 'public relations',
@@ -304,47 +317,42 @@ class AdvancedCareerPathClassifier:
     def preprocess_text(self, text):
         """
         Advanced text preprocessing pipeline:
-        1. Lowercase conversion
-        2. Synonym normalization
+        1. Convert to string + lowercase
+        2. Synonym normalization (longest phrases first)
         3. Remove punctuation
         4. Tokenization
         5. Remove stopwords
         6. Lemmatization
-        
-        Args:
-            text: Raw text string
-            
-        Returns:
-            Preprocessed text string
         """
-        # Convert to string and lowercase
+
+        # Convert to string and lowercase FIRST
         text = str(text).lower()
-        
-        # Normalize synonyms
-        text = self.normalize_synonyms(text)
-        
+
+        # Normalize synonyms (match longer phrases first)
+        for term in sorted(self.synonyms.keys(), key=len, reverse=True):
+            replacement = self.synonyms[term]
+            pattern = r'\b' + re.escape(term) + r'\b'
+            text = re.sub(pattern, replacement, text)
+
         # Remove punctuation
         text = text.translate(str.maketrans('', '', string.punctuation))
-        
+
         # Tokenize
         try:
             tokens = word_tokenize(text)
-        except:
-            # Fallback to simple splitting if tokenization fails
+        except Exception:
             tokens = text.split()
-        
+
         # Remove stopwords and lemmatize
         processed_tokens = []
         for token in tokens:
-            # Skip if stopword or too short
             if token not in self.stop_words and len(token) > 2:
-                # Lemmatize
-                lemma = self.lemmatizer.lemmatize(token, pos='v')  # Try verb first
-                lemma = self.lemmatizer.lemmatize(lemma, pos='n')  # Then noun
+                lemma = self.lemmatizer.lemmatize(token, pos='v')
+                lemma = self.lemmatizer.lemmatize(lemma, pos='n')
                 processed_tokens.append(lemma)
-        
-        # Join tokens back into string
+
         return ' '.join(processed_tokens)
+
         
     def load_data(self, filepath, text_col='text_needed', label_col='path'):
         """
