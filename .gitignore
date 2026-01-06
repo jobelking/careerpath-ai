@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+sdist/
+develop-eggs/
+.tox/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.pylint.d/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Node modules
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+frontend/build/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# OS files
+frontend/.DS_Store
+frontend/Thumbs.db
+
+# Environment files
+frontend/.env
+frontend/.env.*
+
+# Vite cache
+frontend/.vite/
+
+# Temporary files
+*.tmp
+
+# Coverage
+frontend/coverage/
+
+# IDE files
+.vscode/
+.idea/
+
+# Misc
+*.log
+
+# Static assets (optional, if generated)
+frontend/public/assets/
