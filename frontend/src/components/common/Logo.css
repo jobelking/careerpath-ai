@@ -1,0 +1,99 @@
+/* src/components/common/Logo.css */
+
+.logo-container {
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.logo-container:hover {
+  transform: translateY(-1px);
+}
+
+/* --- OPTION 1: MODERN (Default) --- 
+   Font: Montserrat (Clean, geometric sans-serif)
+   Vibe: SaaS, Professional, Accessible
+*/
+.logo-modern {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+}
+
+.logo-modern .text-primary {
+  font-weight: 700; /* Bold */
+  color: #1e293b;   /* Dark Slate */
+}
+
+.logo-modern .text-accent {
+  font-weight: 800; /* Extra Bold */
+  color: #2563eb;   /* Brand Blue */
+}
+
+/* --- OPTION 2: TECH --- 
+   Font: Exo 2 (Futuristic) or Fira Code (Coding)
+   Vibe: Developer tools, AI, Code-heavy
+*/
+.logo-tech {
+  font-family: 'Exo 2', sans-serif; /* or 'Fira Code' */
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+.logo-tech .text-primary {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.logo-tech .text-accent {
+  font-weight: 800;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-tech .tech-bracket,
+.logo-tech .tech-slash {
+  color: #cbd5e1; /* Light gray for syntax characters */
+  font-weight: 400;
+  margin: 0 2px;
+}
+
+/* --- OPTION 3: CLASSIC --- 
+   Font: Playfair Display (Serif)
+   Vibe: High-end consultancy, Editorial, Serious
+*/
+.logo-classic {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+}
+
+.logo-classic .text-primary {
+  font-weight: 700;
+  color: #1a202c;
+  font-style: italic;
+}
+
+.logo-classic .text-accent {
+  font-family: 'Montserrat', sans-serif; /* Mix serif with sans */
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  background-color: #2563eb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transform: translateY(-4px); /* Slight lift */
+  display: inline-block;
+}
+
+/* Responsive Scaling */
+@media (max-width: 768px) {
+  .logo-modern { font-size: 1.5rem; }
+  .logo-tech { font-size: 1.5rem; }
+  .logo-classic { font-size: 1.75rem; }
+}
