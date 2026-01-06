@@ -1,0 +1,31 @@
+1. accountant
+2. advocate
+3. agriculture
+4. apparel
+5. arts
+6. aviation
+7. banking
+8. business analyst
+9. business-development
+10. chef
+11. construction
+12. consultant
+13. cyber security
+14. data science
+15. designer
+16. devops
+17. digital-media
+18. engineering
+19. finance
+20. fitness
+21. healthcare
+22. hr
+23. information-technology
+24. machine learning engineer
+25. mobile app developer
+26. network engineer
+27. public-relations
+28. quality assurance
+29. sales
+30. software engineer
+31. teacher

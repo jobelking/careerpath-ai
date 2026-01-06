@@ -1,0 +1,8 @@
+1. from datasets import load_dataset
+ds = load_dataset("Sachinkelenjaguri/Resume_dataset")
+
+2. from datasets import load_dataset
+ds = load_dataset("fazni/role-based-on-skills-2.0")
+
+3. https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset
+
