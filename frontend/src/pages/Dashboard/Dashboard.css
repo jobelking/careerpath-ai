@@ -685,10 +685,21 @@
   animation: scaleIn 0.5s ease-out backwards;
 }
 
-.secondary-prediction-card:nth-child(1) { animation-delay: 0.8s; }
-.secondary-prediction-card:nth-child(2) { animation-delay: 0.9s; }
-.secondary-prediction-card:nth-child(3) { animation-delay: 1s; }
-.secondary-prediction-card:nth-child(4) { animation-delay: 1.1s; }
+.secondary-prediction-card:nth-child(1) {
+  animation-delay: 0.8s;
+}
+
+.secondary-prediction-card:nth-child(2) {
+  animation-delay: 0.9s;
+}
+
+.secondary-prediction-card:nth-child(3) {
+  animation-delay: 1s;
+}
+
+.secondary-prediction-card:nth-child(4) {
+  animation-delay: 1.1s;
+}
 
 .secondary-prediction-card:hover {
   transform: translateY(-2px);
@@ -930,6 +941,7 @@
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -941,6 +953,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -952,6 +965,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -965,9 +979,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -984,7 +1001,7 @@
   .dashboard-brand {
     font-size: 1.5rem;
   }
-  
+
   .dashboard-main {
     padding: 1.5rem 1.5rem;
   }
@@ -1006,7 +1023,7 @@
     height: auto;
     min-height: 100vh;
   }
-  
+
   .dashboard-main {
     padding: 1rem;
     height: auto;
@@ -1248,7 +1265,7 @@
   .dashboard-main {
     padding: 1.5rem 4rem;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 520px 1fr;
     gap: 3rem;

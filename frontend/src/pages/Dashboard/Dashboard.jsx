@@ -22,14 +22,14 @@ const Dashboard = () => {
         setError('Only PDF files are supported. Please upload a PDF resume.');
         return;
       }
-      
+
       // Validate file size (10MB max)
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         setError(`File size exceeds 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
         return;
       }
-      
+
       setUploadedFile(file);
       setError(null);
       setShowResults(false);
@@ -49,7 +49,7 @@ const Dashboard = () => {
     try {
       // Call API to predict career path
       const result = await apiService.predictCareerPath(uploadedFile);
-      
+
       if (result.success) {
         setPredictionResults(result);
         setShowResults(true);
@@ -77,14 +77,14 @@ const Dashboard = () => {
         setError('Only PDF files are supported. Please upload a PDF resume.');
         return;
       }
-      
+
       // Validate file size
       const maxSize = 10 * 1024 * 1024; // 10MB
       if (file.size > maxSize) {
         setError(`File size exceeds 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
         return;
       }
-      
+
       setUploadedFile(file);
       setError(null);
       setShowResults(false);
@@ -100,11 +100,11 @@ const Dashboard = () => {
   // Calculate confidence level based on probability distribution
   const calculateConfidenceLevel = (predictions) => {
     if (!predictions || predictions.length < 2) return "High Confidence";
-    
+
     const topProb = predictions[0].confidence;
     const secondProb = predictions[1].confidence;
     const gap = topProb - secondProb;
-    
+
     // High confidence: large gap between top 2
     if (gap > 15) return "High Confidence";
     // Mixed profile: moderate gap, distributed probabilities
@@ -132,7 +132,7 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="dashboard-content">
           {/* Welcome Section */}
-          
+
 
           {/* Two-Column Layout */}
           <div className="dashboard-grid">
@@ -143,15 +143,15 @@ const Dashboard = () => {
                   <div className="upload-icon-wrapper">
                     <span className="upload-icon">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="#2563eb">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
                       </svg>
                     </span>
                   </div>
                   <h3>Upload Your Resume</h3>
                   <p>Drag and drop your resume or click to browse</p>
                 </div>
-                
-                <div 
+
+                <div
                   className="upload-area"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
@@ -174,7 +174,7 @@ const Dashboard = () => {
                     ) : (
                       <div className="upload-prompt">
                         <div className="upload-cloud">
-                          {React.createElement(otherIcons["FaUpload"], {color: "#2563eb"})}
+                          {React.createElement(otherIcons["FaUpload"], { color: "#2563eb" })}
                         </div>
                         <span className="upload-text">Click to upload or drag and drop</span>
                         <span className="upload-formats">PDF, DOC, DOCX (Max 10MB)</span>
@@ -184,7 +184,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Upload Button */}
-                <button 
+                <button
                   className="upload-button"
                   onClick={handleAnalyze}
                   disabled={!uploadedFile || isLoading}
@@ -199,12 +199,12 @@ const Dashboard = () => {
                     <span>{error}</span>
                   </div>
                 )}
-                
+
                 {/* Privacy Note */}
                 <div className="privacy-note">
                   <span className="info-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
                     </svg>
                   </span>
                   <p>Please remove sensitive information (e.g., address, SSN, personal contact details) before uploading your resume.</p>
@@ -250,7 +250,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <p className="results-context">
-                      Your resume shows strengths across multiple career areas. The primary match reflects 
+                      Your resume shows strengths across multiple career areas. The primary match reflects
                       your strongest overall alignment, while others indicate overlapping skill sets.
                     </p>
                   </div>
@@ -272,10 +272,10 @@ const Dashboard = () => {
                               <span className="primary-label">Strongest Overall Alignment</span>
                             </div>
                           </div>
-                          
+
                           <div className="primary-match-bar">
                             <div className="match-bar-bg">
-                              <div 
+                              <div
                                 className="match-bar-fill primary"
                                 style={{ width: `${predictionResults.top_predictions[0].confidence}%` }}
                               ></div>
@@ -305,10 +305,10 @@ const Dashboard = () => {
                                       <span className="secondary-label">Alternative Path</span>
                                     </div>
                                   </div>
-                                  
+
                                   <div className="secondary-right">
                                     <div className="secondary-bar-container">
-                                      <div 
+                                      <div
                                         className="secondary-bar-fill"
                                         style={{ width: `${career.confidence}%` }}
                                         title={`${Math.round(career.confidence)}% match`}
@@ -331,7 +331,7 @@ const Dashboard = () => {
                 <div className="placeholder-section">
                   <div className="placeholder-icon">
                     <svg width="64" height="64" viewBox="0 0 24 24" fill="#2563eb">
-                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
                     </svg>
                   </div>
                   <h3>Your Career Predictions Will Appear Here</h3>
