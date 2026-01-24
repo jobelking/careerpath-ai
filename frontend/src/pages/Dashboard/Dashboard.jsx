@@ -37,6 +37,48 @@ const Dashboard = () => {
     }
   };
 
+
+
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+
+  // Manage object URL lifecycle
+  React.useEffect(() => {
+    let objectUrl = null;
+    if (uploadedFile) {
+      objectUrl = URL.createObjectURL(uploadedFile);
+      setPreviewUrl(objectUrl);
+    } else {
+      setPreviewUrl(null);
+    }
+    // Reset preview state when file changes
+    setShowPreview(false);
+    setIsClosing(false);
+
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [uploadedFile]);
+
+  const handleClosePreview = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowPreview(false);
+      setIsClosing(false);
+    }, 400);
+  };
+
+  const handleTogglePreview = () => {
+    if (showPreview) {
+      handleClosePreview();
+    } else if (previewUrl) {
+      setShowPreview(true);
+    }
+  };
+
   const handleAnalyze = async () => {
     if (!uploadedFile) {
       setError('Please upload a resume first');
@@ -46,6 +88,7 @@ const Dashboard = () => {
     setIsLoading(true);
     setError(null);
     setShowResults(false);
+    setShowPreview(false);
 
     try {
       // Call API to predict career path
@@ -56,10 +99,12 @@ const Dashboard = () => {
         setShowResults(true);
       } else {
         setError('Failed to analyze resume. Please try again.');
+        setShowResults(false);
       }
     } catch (err) {
       console.error('Prediction error:', err);
       setError(err.message || 'An error occurred while analyzing your resume. Please ensure the backend server is running.');
+      setShowResults(false);
     } finally {
       setIsLoading(false);
     }
@@ -231,14 +276,25 @@ const Dashboard = () => {
                   </label>
                 </div>
 
-                {/* Upload Button */}
-                <button
-                  className="upload-button"
-                  onClick={handleAnalyze}
-                  disabled={!uploadedFile || isLoading}
-                >
-                  {isLoading ? 'Analyzing...' : 'Upload and Analyze'}
-                </button>
+                <div className="upload-actions">
+                  {/* Upload Button */}
+                  <button
+                    className="upload-button"
+                    onClick={handleAnalyze}
+                    disabled={!uploadedFile || isLoading}
+                  >
+                    {isLoading ? 'Analyzing...' : 'Upload and Analyze'}
+                  </button>
+
+                  {/* View Resume Button (Secondary) */}
+                  <button
+                    className="preview-button"
+                    onClick={handleTogglePreview}
+                    disabled={isLoading || !uploadedFile}
+                  >
+                    {showPreview ? 'Close Resume PDF' : 'View Resume PDF'}
+                  </button>
+                </div>
 
                 {/* Error Message */}
                 {error && (
@@ -258,6 +314,7 @@ const Dashboard = () => {
                   <p>Please remove sensitive information (e.g., address, SSN, personal contact details) before uploading your resume.</p>
                 </div>
               </div>
+
 
               {/* Analysis Info Card */}
               <div className="info-card">
@@ -286,6 +343,25 @@ const Dashboard = () => {
                   <div className="loading-spinner"></div>
                   <h3>Analyzing Your Resume...</h3>
                   <p>Please wait while our AI processes your information</p>
+                </div>
+              ) : showPreview ? (
+                // Resume Preview Mode
+                <div className={`results-section preview-mode ${isClosing ? 'closing' : ''}`}>
+                  <div className="results-header">
+                    <div className="results-title-row">
+                      <h3>Resume Preview</h3>
+                      <button className="close-preview-btn" onClick={handleClosePreview}>
+                        ✕ Close
+                      </button>
+                    </div>
+                  </div>
+                  <div className="preview-content-full">
+                    <iframe
+                      src={previewUrl}
+                      className="preview-iframe-full"
+                      title="Resume Preview"
+                    />
+                  </div>
                 </div>
               ) : showResults ? (
                 <div className="results-section">
