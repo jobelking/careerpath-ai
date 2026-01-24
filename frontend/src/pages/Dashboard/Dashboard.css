@@ -80,7 +80,7 @@
 
 /* Main Content */
 .dashboard-main {
-  padding: 1.5rem 3rem;
+  padding: 1.5rem 1rem;
   height: calc(100vh - 74px);
   overflow: auto;
 }
@@ -115,11 +115,50 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: 450px 1fr;
-  gap: 2rem;
+  /* Left column width | Right column takes remaining space */
+  gap: 1rem;
+  /* Controls the size of the space (gap) between the two columns */
   align-items: start;
   height: 100%;
-  max-width: 1800px;
+  max-width: 100%;
   margin: 0 auto;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    gap: 1rem;
+  }
+
+  .left-column {
+    height: auto;
+  }
+
+  .right-column {
+    height: auto;
+    min-height: 500px;
+  }
+
+  .dashboard-main {
+    padding: 1rem;
+    height: calc(100vh - 74px);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 1rem;
+  }
+
+  .dashboard-brand {
+    font-size: 1.5rem;
+  }
+
+  .upload-area {
+    padding: 1.5rem 1rem;
+  }
 }
 
 /* Left Column */
@@ -190,6 +229,10 @@
   text-align: center;
   background: linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%);
   transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .upload-area:hover {
@@ -491,8 +534,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e2e8f0;
   animation: fadeInUp 0.6s ease-out 0.4s both;
-  height: 100%;
-  overflow-y: auto;
+  min-height: 500px;
 }
 
 .results-header {
@@ -535,21 +577,24 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  position: relative;
+  cursor: help;
+
 }
 
-.confidence-badge.high-confidence {
+.confidence-badge.clear-match {
   background: linear-gradient(135deg, #d1fae5, #a7f3d0);
   color: #065f46;
   border: 1.5px solid #10b981;
 }
 
-.confidence-badge.mixed-profile {
+.confidence-badge.shared-fit {
   background: linear-gradient(135deg, #fef3c7, #fde68a);
   color: #92400e;
   border: 1.5px solid #f59e0b;
 }
 
-.confidence-badge.exploratory-match {
+.confidence-badge.exploratory {
   background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
   color: #5b21b6;
   border: 1.5px solid #8b5cf6;
@@ -794,6 +839,95 @@
   color: #64748b;
 }
 
+/* Transparency Section */
+.transparency-section {
+  margin-top: 2.5rem;
+  border-top: 2px solid #f0f4f8;
+  padding-top: 1.5rem;
+}
+
+.transparency-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.expand-button {
+  background: white;
+  border: 2px solid #e2e8f0;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.expand-button:hover {
+  border-color: #cbd5e1;
+  color: #475569;
+  background: #f8fafc;
+}
+
+.all-paths-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.paths-header-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.path-item {
+  display: grid;
+  grid-template-columns: 60px 1fr 100px;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 8px;
+  align-items: center;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.path-item:hover {
+  border-color: #cbd5e1;
+  transform: translateX(4px);
+}
+
+.path-rank {
+  font-weight: 700;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.path-name {
+  color: #334155;
+  font-weight: 600;
+}
+
+.path-percent {
+  color: #64748b;
+  font-weight: 700;
+  text-align: right;
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
 /* Old Predictions List styles - keeping for backwards compatibility */
 .predictions-list {
   display: flex;
@@ -1003,12 +1137,12 @@
   }
 
   .dashboard-main {
-    padding: 1.5rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .dashboard-grid {
     grid-template-columns: 380px 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
   }
 
   .upload-card,
@@ -1056,7 +1190,7 @@
 
   .dashboard-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
     height: auto;
   }
 
@@ -1255,20 +1389,99 @@
 /* Desktop Large (min-width: 1440px) */
 @media (min-width: 1440px) {
   .dashboard-grid {
-    grid-template-columns: 480px 1fr;
-    gap: 2.5rem;
+    grid-template-columns: 550px 1fr;
+    gap: 1rem;
   }
 }
 
 /* Extra Large Monitors (min-width: 1920px) */
 @media (min-width: 1920px) {
   .dashboard-main {
-    padding: 1.5rem 4rem;
+    padding: 1.5rem 1rem;
   }
 
   .dashboard-grid {
     grid-template-columns: 520px 1fr;
-    gap: 3rem;
+    gap: 1rem;
     max-width: 2000px;
+  }
+}
+
+/* Tooltip Styles */
+.confidence-badge[data-tooltip] {
+  position: relative;
+}
+
+.confidence-badge[data-tooltip]::before,
+.confidence-badge[data-tooltip]::after {
+  position: absolute;
+  right: 0;
+  left: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.confidence-badge[data-tooltip]::before {
+  content: '';
+  top: 100%;
+  margin-top: 5px;
+  right: 20px;
+  border: 6px solid transparent;
+  border-bottom-color: #1e293b;
+}
+
+.confidence-badge[data-tooltip]::after {
+  content: attr(data-tooltip);
+  top: 100%;
+  margin-top: 17px;
+  background: #1e293b;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: normal;
+  width: max-content;
+  max-width: 280px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  line-height: 1.5;
+}
+
+.confidence-badge[data-tooltip]:hover::before,
+.confidence-badge[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confidence-badge[data-tooltip]:hover::after {
+  transform: translateY(5px);
+}
+
+/* Responsive Tooltip Styles */
+@media (max-width: 768px) {
+  .confidence-badge[data-tooltip]::before {
+    left: 1.5rem;
+    transform: none;
+  }
+
+  .confidence-badge[data-tooltip]::after {
+    width: 260px;
+    left: 0;
+    transform: none;
+    text-align: left;
+  }
+
+  .confidence-badge[data-tooltip]:hover::after {
+    transform: translateY(5px);
+  }
+}
+
+@media (max-width: 480px) {
+  .confidence-badge[data-tooltip]::after {
+    width: 220px;
   }
 }

@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [predictionResults, setPredictionResults] = useState(null);
+  const [showAllPaths, setShowAllPaths] = useState(false);
   const [error, setError] = useState(null);
 
   const handleFileUpload = (event) => {
@@ -97,21 +98,71 @@ const Dashboard = () => {
     return <Icon size={32} color="#2563eb" />;
   };
 
-  // Calculate confidence level based on probability distribution
-  const calculateConfidenceLevel = (predictions) => {
-    if (!predictions || predictions.length < 2) return "High Confidence";
+  // --------------------
+  // Confidence (31 classes) - Non-technical UI text
+  // --------------------
 
-    const topProb = predictions[0].confidence;
-    const secondProb = predictions[1].confidence;
-    const gap = topProb - secondProb;
+  const NUM_CLASSES = 31;
 
-    // High confidence: large gap between top 2
-    if (gap > 15) return "High Confidence";
-    // Mixed profile: moderate gap, distributed probabilities
-    if (gap > 8) return "Mixed Profile";
-    // Exploratory: small gaps, very distributed
-    return "Exploratory Match";
+  const toNum = (v) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
   };
+
+  /**
+   * IMPORTANT:
+   * - Confidence LABEL is computed using RAW probabilities (across all 31 careers).
+   * - NO normalization allowed.
+   */
+  const calculateConfidenceLevel = (predictions, numClasses = NUM_CLASSES) => {
+    if (!predictions || predictions.length === 0) return "Exploratory";
+    if (predictions.length === 1) return "Shared Fit";
+
+    const chance = 100 / numClasses; // ~3.23% for 31
+
+    // Prefer raw_confidence; fallback to confidence if needed
+    const p1 = toNum(predictions[0].raw_confidence ?? predictions[0].confidence);
+    const p2 = toNum(predictions[1].raw_confidence ?? predictions[1].confidence);
+    const p3 = toNum(predictions[2]?.raw_confidence ?? predictions[2]?.confidence);
+
+    const margin = p1 - p2;
+    const mass3 = p1 + p2 + p3;
+
+    // Clear Match: very strong top match OR clearly stands out
+    if (p1 >= 6 * chance) return "Clear Match";                 // ~19%+
+    if (margin >= 8 && p1 >= 4 * chance) return "Clear Match";  // gap 8%+ and top1 ~13%+
+
+    // Shared Fit: strong top match but close alternatives OR focused in top-3
+    if (p1 >= 3 * chance && margin >= 3) return "Shared Fit";    // top1 ~9.7%+ and gap 3%+
+    if (mass3 >= 28 && p1 >= 3 * chance) return "Shared Fit";    // top-3 raw ~28%+ indicates focus
+
+    // Exploratory: no single role clearly stands out
+    return "Exploratory";
+  };
+
+  /**
+   * User-facing explanation (non-technical, honest, and consistent with the logic).
+   */
+  const getConfidenceExplanation = (predictions, numClasses = NUM_CLASSES) => {
+    if (!predictions || predictions.length === 0) {
+      return "This result is based on how closely your background matches different career paths.";
+    }
+
+    const level = calculateConfidenceLevel(predictions, numClasses);
+
+    const topCareer = predictions[0]?.career_path || "this role";
+
+    if (level === "Clear Match") {
+      return `Clear Match: Your background strongly aligns with "${topCareer}". This path stands out as a primary fit based on your current skills.`;
+    }
+
+    if (level === "Shared Fit") {
+      return `Shared Fit: You show strong potential in "${topCareer}" and other related fields. Your skills overlap across multiple career paths.`;
+    }
+
+    return `Exploratory: Your skills apply to many different areas without a single dominant match. Use these results as a starting point for exploration.`;
+  };
+
 
   return (
     <div className="dashboard-container">
@@ -121,10 +172,7 @@ const Dashboard = () => {
           <h1 className="dashboard-brand" onClick={() => navigate('/')}>
             <Logo variant="modern" />
           </h1>
-          <nav className="dashboard-nav">
-            <button className="nav-link active">Dashboard</button>
-            <button className="nav-link" onClick={() => navigate('/history')}>History</button>
-          </nav>
+
         </div>
       </header>
 
@@ -244,22 +292,24 @@ const Dashboard = () => {
                   <div className="results-header">
                     <div className="results-title-row">
                       <h3>Your Career Analysis</h3>
-                      <div className={`confidence-badge ${calculateConfidenceLevel(predictionResults.top_predictions).toLowerCase().replace(' ', '-')}`}>
-                        <span className="confidence-icon">●</span>
+                      <div
+                        className={`confidence-badge ${calculateConfidenceLevel(predictionResults.top_predictions).toLowerCase().replace(' ', '-')}`}
+                        data-tooltip={getConfidenceExplanation(predictionResults.top_predictions)}
+                      >
+                        <span className="confidence-icon">i</span>
                         {calculateConfidenceLevel(predictionResults.top_predictions)}
                       </div>
                     </div>
                     <p className="results-context">
-                      Your resume shows strengths across multiple career areas. The primary match reflects
-                      your strongest overall alignment, while others indicate overlapping skill sets.
+                      These results are based on an analysis of your skills and experience. The percentages shown are raw probabilities across 31 potential career paths.
                     </p>
                   </div>
 
                   {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (
                     <>
-                      {/* Primary Career Match */}
+                      {/* 1. Summary Section (Primary Match) */}
                       <div className="primary-match-section">
-                        <h4 className="section-label">Primary Career Match</h4>
+                        <h4 className="section-label">Summary: Primary Match</h4>
                         <div className="primary-prediction-card">
                           <div className="primary-card-header">
                             <div className="primary-icon-wrapper">
@@ -269,7 +319,7 @@ const Dashboard = () => {
                               <h3 className="primary-career-name">
                                 {predictionResults.top_predictions[0].career_path}
                               </h3>
-                              <span className="primary-label">Strongest Overall Alignment</span>
+                              <span className="primary-label">Top Ranked Result</span>
                             </div>
                           </div>
 
@@ -277,20 +327,23 @@ const Dashboard = () => {
                             <div className="match-bar-bg">
                               <div
                                 className="match-bar-fill primary"
-                                style={{ width: `${predictionResults.top_predictions[0].confidence}%` }}
+                                style={{ width: `${predictionResults.top_predictions[0].raw_confidence || predictionResults.top_predictions[0].confidence}%` }}
                               ></div>
                             </div>
                             <span className="match-percentage">
-                              {Math.round(predictionResults.top_predictions[0].confidence)}% Relative Match
+                              {(predictionResults.top_predictions[0].raw_confidence || predictionResults.top_predictions[0].confidence).toFixed(1)}% Raw Confidence
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Secondary Matches */}
+
+
+
+                      {/* 2. Next Best Matches (Rank 2 & 3) */}
                       {predictionResults.top_predictions.length > 1 && (
                         <div className="secondary-matches-section">
-                          <h4 className="section-label">Also Strong Matches</h4>
+                          <h4 className="section-label">Next Best Matches</h4>
                           <div className="secondary-predictions-list">
                             {predictionResults.top_predictions.slice(1, 3).map((career, index) => (
                               <div key={index + 1} className="secondary-prediction-card">
@@ -302,7 +355,6 @@ const Dashboard = () => {
                                     </div>
                                     <div className="secondary-info">
                                       <h5 className="secondary-career-name">{career.career_path}</h5>
-                                      <span className="secondary-label">Alternative Path</span>
                                     </div>
                                   </div>
 
@@ -310,12 +362,11 @@ const Dashboard = () => {
                                     <div className="secondary-bar-container">
                                       <div
                                         className="secondary-bar-fill"
-                                        style={{ width: `${career.confidence}%` }}
-                                        title={`${Math.round(career.confidence)}% match`}
+                                        style={{ width: `${career.raw_confidence || career.confidence}%` }}
                                       ></div>
                                     </div>
                                     <span className="secondary-percentage">
-                                      {Math.round(career.confidence)}%
+                                      {(career.raw_confidence || career.confidence).toFixed(1)}%
                                     </span>
                                   </div>
                                 </div>
@@ -324,6 +375,37 @@ const Dashboard = () => {
                           </div>
                         </div>
                       )}
+
+                      {/* 3. Full Transparency Section */}
+                      <div className="transparency-section">
+                        <div className="transparency-header">
+                          <button
+                            className="expand-button"
+                            onClick={() => setShowAllPaths(!showAllPaths)}
+                          >
+                            {showAllPaths ? "Hide All Career Paths" : "View All Career Paths (31)"}
+                          </button>
+                        </div>
+
+                        {showAllPaths && (
+                          <div className="all-paths-grid">
+                            <div className="paths-header-row">
+                              <span>Rank</span>
+                              <span>Career Path</span>
+                              <span>Confidence</span>
+                            </div>
+                            {predictionResults.top_predictions.map((career, index) => (
+                              <div key={index} className="path-item">
+                                <span className="path-rank">#{index + 1}</span>
+                                <span className="path-name">{career.career_path}</span>
+                                <span className="path-percent">
+                                  {(career.raw_confidence || career.confidence).toFixed(1)}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
