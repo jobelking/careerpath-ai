@@ -99,36 +99,34 @@ async def predict_career_path(file: UploadFile = File(...)):
                     detail="Could not extract sufficient text from the PDF. Please ensure the PDF contains readable text (not scanned images)."
                 )
             
-            # Get prediction from model (top 3)
-            prediction_result = predictor.predict(resume_text, top_n=3)
+            # Get prediction from model (return all classes, max 100 safe limit)
+            prediction_result = predictor.predict(resume_text, top_n=100)
 
-            # Normalize top 3 predictions so their sum is 100%
-            top_preds = prediction_result["top_predictions"][:3]
-            total = sum(pred["confidence"] for pred in top_preds)
-            if total > 0:
-                normalized_top_preds = [
-                    {
-                        "career_path": pred["career_path"],
-                        "confidence": round((pred["confidence"] / total) * 100, 2)
-                    }
-                    for pred in top_preds
-                ]
-                normalized_confidence = round((prediction_result["confidence"] / total) * 100, 2) if prediction_result["prediction"] == top_preds[0]["career_path"] else round(prediction_result["confidence"] * 100, 2)
-            else:
-                normalized_top_preds = [
-                    {
-                        "career_path": pred["career_path"],
-                        "confidence": round(pred["confidence"] * 100, 2)
-                    }
-                    for pred in top_preds
-                ]
-                normalized_confidence = round(prediction_result["confidence"] * 100, 2)
+            # Use all predictions returned by the model
+            top_preds = prediction_result["top_predictions"]
+            
+            # Prepare detailed predictions with raw scores
+            detailed_predictions = []
+            for pred in top_preds:
+                raw_score = pred["confidence"]
+                
+                detailed_predictions.append({
+                    "career_path": pred["career_path"],
+                    "raw_confidence": round(raw_score * 100, 2),
+                    "normalized_confidence": round(raw_score * 100, 2), # Keeping field but using raw value
+                    "confidence": round(raw_score * 100, 2)  # Keeping field but using raw value
+                })
+
+            # Get main prediction confidence
+            main_pred_raw = prediction_result["confidence"]
 
             return JSONResponse(content={
                 "success": True,
                 "prediction": prediction_result["prediction"],
-                "confidence": normalized_confidence,
-                "top_predictions": normalized_top_preds,
+                "confidence": round(main_pred_raw * 100, 2),
+                "raw_confidence": round(main_pred_raw * 100, 2),
+                "normalized_confidence": round(main_pred_raw * 100, 2),
+                "top_predictions": detailed_predictions,
                 "filename": file.filename
             })
             
