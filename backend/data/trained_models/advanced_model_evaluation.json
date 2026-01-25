@@ -1,64 +1,64 @@
 {
-  "accuracy": 0.8163568773234201,
-  "weighted_precision": 0.8304444684748522,
-  "weighted_recall": 0.8163568773234201,
-  "weighted_f1": 0.8134277781769701,
-  "macro_precision": 0.8313080211163459,
-  "macro_recall": 0.8047803290839454,
-  "macro_f1": 0.804808145975941,
+  "accuracy": 0.8341232227488151,
+  "weighted_precision": 0.851917979416911,
+  "weighted_recall": 0.8341232227488151,
+  "weighted_f1": 0.83323032921471,
+  "macro_precision": 0.8420454473082001,
+  "macro_recall": 0.816164299688825,
+  "macro_f1": 0.817033993539713,
   "classification_report": {
     "accountant": {
-      "precision": 0.6744186046511628,
+      "precision": 0.5918367346938775,
       "recall": 0.9666666666666667,
-      "f1-score": 0.7945205479452054,
+      "f1-score": 0.7341772151898734,
       "support": 30.0
     },
     "advocate": {
-      "precision": 0.9130434782608695,
-      "recall": 0.7,
-      "f1-score": 0.7924528301886793,
-      "support": 30.0
-    },
-    "agriculture": {
-      "precision": 0.96,
-      "recall": 0.8,
-      "f1-score": 0.8727272727272727,
-      "support": 30.0
-    },
-    "apparel": {
       "precision": 0.8518518518518519,
       "recall": 0.7666666666666667,
       "f1-score": 0.8070175438596491,
+      "support": 30.0
+    },
+    "agriculture": {
+      "precision": 0.9545454545454546,
+      "recall": 0.7,
+      "f1-score": 0.8076923076923077,
+      "support": 30.0
+    },
+    "apparel": {
+      "precision": 0.8571428571428571,
+      "recall": 0.6,
+      "f1-score": 0.7058823529411765,
       "support": 30.0
     },
     "arts": {
       "precision": 1.0,
-      "recall": 0.5666666666666667,
-      "f1-score": 0.723404255319149,
+      "recall": 0.5333333333333333,
+      "f1-score": 0.6956521739130435,
       "support": 30.0
     },
     "aviation": {
-      "precision": 0.8518518518518519,
-      "recall": 0.7666666666666667,
-      "f1-score": 0.8070175438596491,
+      "precision": 0.8275862068965517,
+      "recall": 0.8,
+      "f1-score": 0.8135593220338984,
       "support": 30.0
     },
     "banking": {
-      "precision": 1.0,
+      "precision": 0.9545454545454546,
       "recall": 0.7,
-      "f1-score": 0.8235294117647058,
+      "f1-score": 0.8076923076923077,
       "support": 30.0
     },
     "business analyst": {
-      "precision": 0.9333333333333333,
-      "recall": 0.8860759493670886,
-      "f1-score": 0.9090909090909091,
+      "precision": 1.0,
+      "recall": 0.9240506329113924,
+      "f1-score": 0.9605263157894737,
       "support": 79.0
     },
     "business-development": {
-      "precision": 0.8387096774193549,
+      "precision": 0.8666666666666667,
       "recall": 0.8666666666666667,
-      "f1-score": 0.8524590163934426,
+      "f1-score": 0.8666666666666667,
       "support": 30.0
     },
     "chef": {
@@ -68,146 +68,140 @@
       "support": 30.0
     },
     "construction": {
-      "precision": 0.84375,
-      "recall": 0.9,
-      "f1-score": 0.8709677419354839,
+      "precision": 0.9285714285714286,
+      "recall": 0.8666666666666667,
+      "f1-score": 0.896551724137931,
       "support": 30.0
     },
     "consultant": {
-      "precision": 1.0,
-      "recall": 0.43333333333333335,
-      "f1-score": 0.6046511627906976,
+      "precision": 0.8421052631578947,
+      "recall": 0.5333333333333333,
+      "f1-score": 0.6530612244897959,
       "support": 30.0
     },
     "cyber security": {
-      "precision": 0.8703703703703703,
-      "recall": 0.746031746031746,
-      "f1-score": 0.8034188034188035,
+      "precision": 0.9259259259259259,
+      "recall": 0.7936507936507936,
+      "f1-score": 0.8547008547008547,
       "support": 63.0
     },
-    "data science": {
-      "precision": 0.68,
-      "recall": 0.6375,
-      "f1-score": 0.6580645161290323,
+    "datascience": {
+      "precision": 0.6915887850467289,
+      "recall": 0.925,
+      "f1-score": 0.7914438502673797,
       "support": 80.0
     },
     "designer": {
-      "precision": 0.8666666666666667,
+      "precision": 0.9285714285714286,
       "recall": 0.8666666666666667,
-      "f1-score": 0.8666666666666667,
+      "f1-score": 0.896551724137931,
       "support": 30.0
     },
     "devops": {
-      "precision": 0.8873239436619719,
-      "recall": 0.7875,
-      "f1-score": 0.8344370860927153,
+      "precision": 0.881578947368421,
+      "recall": 0.8375,
+      "f1-score": 0.8589743589743589,
       "support": 80.0
     },
     "digital-media": {
-      "precision": 0.8518518518518519,
-      "recall": 0.7666666666666667,
-      "f1-score": 0.8070175438596491,
+      "precision": 0.88,
+      "recall": 0.7333333333333333,
+      "f1-score": 0.8,
       "support": 30.0
     },
     "engineering": {
-      "precision": 0.8928571428571429,
-      "recall": 0.8333333333333334,
-      "f1-score": 0.8620689655172413,
+      "precision": 0.8125,
+      "recall": 0.8666666666666667,
+      "f1-score": 0.8387096774193549,
       "support": 30.0
     },
     "finance": {
-      "precision": 0.875,
-      "recall": 0.7,
-      "f1-score": 0.7777777777777778,
+      "precision": 0.9090909090909091,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.7692307692307693,
       "support": 30.0
     },
     "fitness": {
-      "precision": 0.8709677419354839,
-      "recall": 0.9,
-      "f1-score": 0.8852459016393442,
+      "precision": 0.8620689655172413,
+      "recall": 0.8333333333333334,
+      "f1-score": 0.847457627118644,
       "support": 30.0
     },
     "healthcare": {
-      "precision": 0.7272727272727273,
-      "recall": 0.8,
-      "f1-score": 0.7619047619047619,
+      "precision": 0.7419354838709677,
+      "recall": 0.7666666666666667,
+      "f1-score": 0.7540983606557377,
       "support": 30.0
     },
     "hr": {
-      "precision": 0.75,
-      "recall": 1.0,
-      "f1-score": 0.8571428571428571,
+      "precision": 0.8235294117647058,
+      "recall": 0.9333333333333333,
+      "f1-score": 0.875,
       "support": 30.0
     },
-    "information-technology": {
-      "precision": 0.7142857142857143,
-      "recall": 0.4838709677419355,
-      "f1-score": 0.5769230769230769,
-      "support": 31.0
-    },
-    "machine learning engineer": {
-      "precision": 0.7346938775510204,
-      "recall": 0.9,
-      "f1-score": 0.8089887640449438,
-      "support": 80.0
+    "it-support": {
+      "precision": 0.7619047619047619,
+      "recall": 1.0,
+      "f1-score": 0.8648648648648649,
+      "support": 32.0
     },
     "mobile app developer": {
-      "precision": 0.9253731343283582,
-      "recall": 0.96875,
-      "f1-score": 0.9465648854961832,
+      "precision": 0.9242424242424242,
+      "recall": 0.953125,
+      "f1-score": 0.9384615384615385,
       "support": 64.0
     },
     "network engineer": {
-      "precision": 0.7727272727272727,
-      "recall": 0.8717948717948718,
-      "f1-score": 0.8192771084337349,
+      "precision": 0.8333333333333334,
+      "recall": 0.8974358974358975,
+      "f1-score": 0.8641975308641975,
       "support": 78.0
     },
     "public-relations": {
-      "precision": 0.6428571428571429,
+      "precision": 0.6136363636363636,
       "recall": 0.9,
-      "f1-score": 0.75,
+      "f1-score": 0.7297297297297297,
       "support": 30.0
     },
     "quality assurance": {
-      "precision": 0.8876404494382022,
-      "recall": 0.9875,
-      "f1-score": 0.9349112426035503,
+      "precision": 0.9397590361445783,
+      "recall": 0.975,
+      "f1-score": 0.9570552147239264,
       "support": 80.0
     },
     "sales": {
-      "precision": 0.8076923076923077,
-      "recall": 0.7,
-      "f1-score": 0.75,
+      "precision": 0.7692307692307693,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.7142857142857143,
       "support": 30.0
     },
     "software engineer": {
-      "precision": 0.8125,
-      "recall": 0.8125,
-      "f1-score": 0.8125,
+      "precision": 0.8507462686567164,
+      "recall": 0.7125,
+      "f1-score": 0.7755102040816326,
       "support": 80.0
     },
     "teacher": {
-      "precision": 0.6744186046511628,
-      "recall": 0.9666666666666667,
-      "f1-score": 0.7945205479452054,
+      "precision": 0.7777777777777778,
+      "recall": 0.9333333333333333,
+      "f1-score": 0.8484848484848485,
       "support": 30.0
     },
-    "accuracy": 0.8163568773234201,
+    "accuracy": 0.8341232227488151,
     "macro avg": {
-      "precision": 0.8313080211163459,
-      "recall": 0.8047803290839454,
-      "f1-score": 0.804808145975941,
-      "support": 1345.0
+      "precision": 0.8420454473082001,
+      "recall": 0.816164299688825,
+      "f1-score": 0.817033993539713,
+      "support": 1266.0
     },
     "weighted avg": {
-      "precision": 0.8304444684748522,
-      "recall": 0.8163568773234201,
-      "f1-score": 0.8134277781769701,
-      "support": 1345.0
+      "precision": 0.851917979416911,
+      "recall": 0.8341232227488151,
+      "f1-score": 0.83323032921471,
+      "support": 1266.0
     }
   },
-  "training_date": "2026-01-23T15:45:16.616551",
+  "training_date": "2026-01-25T15:55:18.537193",
   "model_parameters": {
     "model": "ComplementNB",
     "alpha": 0.1,
