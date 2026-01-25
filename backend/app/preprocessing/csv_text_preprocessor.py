@@ -213,8 +213,8 @@ def preprocess_dataset(input_path: str, output_path: str,
 if __name__ == "__main__":
     # Define paths
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-    input_file = os.path.join(base_dir, 'data', 'datasets', 'finance_resume.csv')
-    output_file = os.path.join(base_dir, 'data', 'datasets', 'finance_resume_preprocessed.csv')
+    input_file = os.path.join(base_dir, 'data', 'datasets', '<datasetname>.csv')
+    output_file = os.path.join(base_dir, 'data', 'datasets', '<datasetname>_preprocessed.csv')
     
     # Run preprocessing
     preprocess_dataset(
