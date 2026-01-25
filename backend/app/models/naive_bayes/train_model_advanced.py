@@ -103,9 +103,10 @@ class AdvancedCareerPathClassifier:
             'coder': 'software engineer',
             
             # Machine Learning
-            'ml engineer': 'machine learning engineer',
+            'machine learning engineer': 'datascience',
+            'ml engineer': 'datascience',
             'ml': 'machine learning',
-            'ai engineer': 'machine learning engineer',
+            'ai engineer': 'datascience',
             'ai': 'artificial intelligence',
             'dl': 'deep learning',
             'nlp': 'natural language processing',
@@ -126,8 +127,9 @@ class AdvancedCareerPathClassifier:
             'site reliability engineer': 'devops',
             
             # Data Science
-            'data scientist': 'data science',
-            'ds': 'data science',
+            'data science': 'datascience',
+            'data scientist': 'datascience',
+            'ds': 'datascience',
             
             # Cyber Security
             'cybersecurity': 'cyber security',
@@ -238,18 +240,18 @@ class AdvancedCareerPathClassifier:
             'advisor': 'consultant',
             
             # IT
-            'it support': 'information technology',
-            'it technician': 'information technology',
-            'it tech support': 'information technology',
-            'it helpdesk': 'information technology',
-            'it help desk': 'information technology',
-            'it service desk': 'information technology',
-            'service desk support': 'information technology',
-            'desktop support': 'information technology',
-            'helpdesk support': 'information technology',
-            'technical support engineer': 'information technology',
-            'it specialist': 'information technology',
-            'it administrator': 'information technology',
+            'it support': 'it-support',
+            'it technician': 'it-support',
+            'it tech support': 'it-support',
+            'it helpdesk': 'it-support',
+            'it help desk': 'it-support',
+            'it service desk': 'it-support',
+            'service desk support': 'it-support',
+            'desktop support': 'it-support',
+            'helpdesk support': 'it-support',
+            'technical support engineer': 'it-support',
+            'it specialist': 'it-support',
+            'it administrator': 'it-support',
             
             # PR
             'pr': 'public relations',
@@ -274,11 +276,10 @@ class AdvancedCareerPathClassifier:
         self.display_names = {
             'quality assurance': 'Quality Assurance Engineer',
             'software engineer': 'Software Engineer',
-            'machine learning engineer': 'Machine Learning Engineer',
             'business analyst': 'Business Analyst',
             'network engineer': 'Network Engineer',
             'devops': 'DevOps Engineer',
-            'data science': 'Data Scientist',
+            'datascience': 'Data & Machine Learning Professional',
             'cyber security': 'Cyber Security Specialist',
             'mobile app developer': 'Mobile App Developer',
             'construction': 'Construction Professional',
@@ -300,7 +301,7 @@ class AdvancedCareerPathClassifier:
             'finance': 'Finance Analyst',
             'chef': 'Chef',
             'consultant': 'Consultant',
-            'information-technology': 'IT Support Specialist',
+            'it-support': 'IT Support Specialist',
             'public-relations': 'Public Relations Officer',
             'aviation': 'Aviation Professional'
         }
