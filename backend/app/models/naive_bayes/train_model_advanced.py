@@ -476,7 +476,8 @@ class AdvancedCareerPathClassifier:
             random_state: Random seed for reproducibility
             
         Returns:
-            Tuple of (X_train, X_test, y_train, y_test)
+            Tuple of (X_train, X_test, y_train, y_test, X_test_text)
+            - X_test_text is included for saving raw test data for calibration
         """
         print("\n" + "="*80)
         print("PREPARING DATA")
@@ -506,7 +507,7 @@ class AdvancedCareerPathClassifier:
         self.classes_ = np.unique(labels)
         print(f"  Number of classes: {len(self.classes_)}")
         
-        return X_train, X_test, y_train, y_test
+        return X_train, X_test, y_train, y_test, X_test_text
     
     def train(self, X_train, y_train, use_sample_weight=False):
         """
@@ -847,9 +848,18 @@ def main():
     print("\n" + "-"*80)
     print("STEP 3: Preparing Data for Training")
     print("-"*80)
-    X_train, X_test, y_train, y_test = classifier.prepare_data(
+    X_train, X_test, y_train, y_test, X_test_text = classifier.prepare_data(
         texts_balanced, labels_balanced, test_size=0.2, random_state=42
     )
+    
+    # Save test split data for calibration script
+    test_data_path = os.path.join(model_dir, 'test_split_data.pkl')
+    test_data = {
+        'X_test_text': X_test_text.tolist() if hasattr(X_test_text, 'tolist') else list(X_test_text),
+        'y_test': y_test.tolist() if hasattr(y_test, 'tolist') else list(y_test)
+    }
+    joblib.dump(test_data, test_data_path)
+    print(f"✓ Test split data saved to: {test_data_path}")
     
     # Step 4: Train model
     print("\n" + "-"*80)
