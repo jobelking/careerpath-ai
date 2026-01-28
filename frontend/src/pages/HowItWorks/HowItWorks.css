@@ -1,0 +1,135 @@
+/* HowItWorks Page - Complete Rewrite */
+
+.hiw-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, #e8ecf0 0%, #f0f4f8 100%);
+    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.hiw-header {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.hiw-brand {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.hiw-back-btn {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border: none;
+    color: white;
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.hiw-back-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+/* Main Content */
+.hiw-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+}
+
+.hiw-title {
+    font-size: 2.25rem;
+    color: #1a202c;
+    margin: 0 0 0.5rem 0;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-align: center;
+}
+
+.hiw-subtitle {
+    color: #4a5568;
+    font-size: 1.1rem;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Placeholder Box - Full Width & Height */
+.hiw-placeholder {
+    flex: 1;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.hiw-placeholder-icon {
+    opacity: 0.4;
+    margin-bottom: 1.5rem;
+}
+
+.hiw-placeholder h3 {
+    font-size: 1.5rem;
+    color: #2d3748;
+    margin: 0 0 0.75rem 0;
+    font-weight: 700;
+}
+
+.hiw-placeholder p {
+    color: #718096;
+    font-size: 1rem;
+    max-width: 400px;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hiw-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .hiw-back-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .hiw-main {
+        padding: 1rem;
+    }
+
+    .hiw-title {
+        font-size: 1.75rem;
+    }
+
+    .hiw-placeholder {
+        padding: 1.5rem;
+    }
+}
