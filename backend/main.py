@@ -112,9 +112,7 @@ async def predict_career_path(file: UploadFile = File(...)):
                 
                 detailed_predictions.append({
                     "career_path": pred["career_path"],
-                    "raw_confidence": round(raw_score * 100, 2),
-                    "normalized_confidence": round(raw_score * 100, 2), # Keeping field but using raw value
-                    "confidence": round(raw_score * 100, 2)  # Keeping field but using raw value
+                    "raw_confidence": round(raw_score * 100, 2)
                 })
 
             # Get main prediction confidence
@@ -123,9 +121,7 @@ async def predict_career_path(file: UploadFile = File(...)):
             return JSONResponse(content={
                 "success": True,
                 "prediction": prediction_result["prediction"],
-                "confidence": round(main_pred_raw * 100, 2),
                 "raw_confidence": round(main_pred_raw * 100, 2),
-                "normalized_confidence": round(main_pred_raw * 100, 2),
                 "top_predictions": detailed_predictions,
                 "filename": file.filename
             })
