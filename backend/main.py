@@ -117,12 +117,16 @@ async def predict_career_path(file: UploadFile = File(...)):
 
             # Get main prediction confidence
             main_pred_raw = prediction_result["confidence"]
+            
+            # Get extracted keywords from resume
+            extracted_keywords = prediction_result.get("extracted_keywords", [])
 
             return JSONResponse(content={
                 "success": True,
                 "prediction": prediction_result["prediction"],
                 "raw_confidence": round(main_pred_raw * 100, 2),
                 "top_predictions": detailed_predictions,
+                "extracted_keywords": extracted_keywords,
                 "filename": file.filename
             })
             
