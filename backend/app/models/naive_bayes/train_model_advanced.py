@@ -19,6 +19,7 @@ from sklearn.metrics import (
 from sklearn.utils.class_weight import compute_sample_weight
 import joblib
 import os
+import sys
 import json
 from datetime import datetime
 import re
@@ -27,6 +28,13 @@ import warnings
 import matplotlib.pyplot as plt
 import seaborn as sns
 warnings.filterwarnings('ignore')
+
+# Add backend directory to path for imports
+backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+sys.path.insert(0, backend_dir)
+
+# Import NER location removal utilities
+from app.preprocessing.ner_location_remover import NERLocationRemover, LocationLeakageValidator
 
 # Import NLP libraries for advanced preprocessing
 try:
@@ -85,6 +93,14 @@ class AdvancedCareerPathClassifier:
         self.classes_ = None
         self.lemmatizer = WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
+        
+        # Initialize NER location remover (prevents geographic leakage)
+        print("Initializing NER location remover...")
+        self.location_remover = NERLocationRemover(placeholder="<LOCATION>")
+        print("✓ NER location remover initialized")
+        
+        # Initialize location leakage validator
+        self.leakage_validator = LocationLeakageValidator()
         
         # Synonym normalization dictionary for career-related terms
         self.synonyms = {
@@ -317,6 +333,7 @@ class AdvancedCareerPathClassifier:
     def preprocess_text(self, text):
         """
         Advanced text preprocessing pipeline:
+        0. Remove geographic entities using NER (PREVENTS LOCATION LEAKAGE)
         1. Convert to string + lowercase
         2. Synonym normalization (longest phrases first)
         3. Remove punctuation
@@ -325,8 +342,13 @@ class AdvancedCareerPathClassifier:
         6. Lemmatization
         """
 
-        # Convert to string and lowercase FIRST
-        text = str(text).lower()
+        # STEP 0: Remove geographic entities BEFORE any other processing
+        # This prevents location-based bias in the model
+        text = str(text)
+        text = self.location_remover.remove_locations(text)
+        
+        # Convert to lowercase
+        text = text.lower()
 
         # Normalize synonyms (match longer phrases first)
         for term in sorted(self.synonyms.keys(), key=len, reverse=True):
@@ -866,6 +888,43 @@ def main():
     print("STEP 4: Training Model")
     print("-"*80)
     classifier.train(X_train, y_train, use_sample_weight=False)
+    
+    # Step 4.5: VALIDATE NO GEOGRAPHIC LEAKAGE (Critical!)
+    print("\n" + "-"*80)
+    print("STEP 4.5: Validating Geographic Leakage Prevention")
+    print("-"*80)
+    print("Checking vocabulary for location-related terms...")
+    
+    try:
+        # Assert no leakage - will raise exception if any location terms found
+        classifier.leakage_validator.assert_no_leakage(
+            classifier.vectorizer.vocabulary_,
+            fail_on_leakage=True  # Abort training if leakage detected
+        )
+        
+        # Additional feature name check
+        feature_names = classifier.vectorizer.get_feature_names_out()
+        is_valid, leaked_features = classifier.leakage_validator.validate_features(feature_names)
+        
+        if not is_valid:
+            print(f"\n{'='*80}")
+            print(f"WARNING: {len(leaked_features)} location terms found in features!")
+            print(f"{'='*80}")
+            print(f"Leaked features: {', '.join(sorted(leaked_features)[:20])}")
+            if len(leaked_features) > 20:
+                print(f"... and {len(leaked_features) - 20} more")
+            print(f"{'='*80}\n")
+            raise AssertionError(
+                f"Training aborted: {len(leaked_features)} location terms found in features. "
+                f"Geographic leakage must be eliminated before deployment."
+            )
+        
+        print("✓ No geographic leakage detected - validation PASSED")
+        
+    except AssertionError as e:
+        print(f"\n❌ TRAINING ABORTED: {str(e)}")
+        print("Please investigate and fix location leakage before proceeding.")
+        raise
     
     # Step 5: Evaluate model
     print("\n" + "-"*80)
