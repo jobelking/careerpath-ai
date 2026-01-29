@@ -201,7 +201,7 @@
       "support": 1266.0
     }
   },
-  "training_date": "2026-01-25T15:55:18.537193",
+  "training_date": "2026-01-29T20:49:56.617446",
   "model_parameters": {
     "model": "ComplementNB",
     "alpha": 0.1,

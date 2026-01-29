@@ -5,7 +5,7 @@ TRAINING CLASS DISTRIBUTION (After Balancing)
 Dataset: dataset_careerpath-ai_preprocessed.csv
 Total Classes Used: 7
 Total Samples Used: 6329
-Date: 2026-01-25 15:55:12
+Date: 2026-01-29 20:49:51
 
 ================================================================================
 CLASS NAME                                      | SAMPLE COUNT
