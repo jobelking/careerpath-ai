@@ -120,6 +120,7 @@ async def predict_career_path(file: UploadFile = File(...)):
             
             # Get extracted keywords from resume
             extracted_keywords = prediction_result.get("extracted_keywords", [])
+            total_distinctive_keywords = prediction_result.get("total_distinctive_keywords", 0)
 
             return JSONResponse(content={
                 "success": True,
@@ -127,6 +128,7 @@ async def predict_career_path(file: UploadFile = File(...)):
                 "raw_confidence": round(main_pred_raw * 100, 2),
                 "top_predictions": detailed_predictions,
                 "extracted_keywords": extracted_keywords,
+                "total_distinctive_keywords": total_distinctive_keywords,
                 "filename": file.filename
             })
             

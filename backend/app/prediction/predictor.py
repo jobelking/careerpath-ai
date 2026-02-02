@@ -124,10 +124,48 @@ class CareerPathPredictor:
                 for idx in top_indices
             ]
             
+            # Extract keywords from resume that are DISTINCTIVE for the predicted career path
+            feature_names = self.classifier.vectorizer.get_feature_names_out()
+            tfidf_scores = text_vectorized.toarray()[0]
+            
+            # Get feature weights from the Naive Bayes classifier
+            feature_weights = self.classifier.classifier.feature_log_prob_
+            mean_weights = np.mean(feature_weights, axis=0)
+            
+            # Get distinctiveness scores for the TOP PREDICTED career path
+            class_weights = feature_weights[top_idx]
+            distinctiveness = class_weights - mean_weights
+            
+            # Get non-zero features (keywords present in resume)
+            non_zero_indices = np.where(tfidf_scores > 0)[0]
+            
+            # Filter to only keywords that are DISTINCTIVE for the predicted career
+            # (positive distinctiveness = more common in this career than average)
+            career_distinctive_keywords = []
+            for idx in non_zero_indices:
+                if distinctiveness[idx] > 0:  # Only include career-distinctive keywords
+                    career_distinctive_keywords.append({
+                        "keyword": feature_names[idx],
+                        "score": float(distinctiveness[idx]),  # Use distinctiveness as score
+                        "tfidf": float(tfidf_scores[idx])
+                    })
+            
+            # Sort by distinctiveness score (highest first) and take top 12
+            extracted_keywords = sorted(
+                career_distinctive_keywords, 
+                key=lambda x: x["score"], 
+                reverse=True
+            )[:12]
+            
+            # Total count of all distinctive keywords found
+            total_distinctive_keywords = len(career_distinctive_keywords)
+            
             return {
                 "prediction": top_prediction_display,
                 "confidence": float(top_confidence),
-                "top_predictions": top_predictions
+                "top_predictions": top_predictions,
+                "extracted_keywords": extracted_keywords,
+                "total_distinctive_keywords": total_distinctive_keywords
             }
             
         except Exception as e:
