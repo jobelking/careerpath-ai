@@ -44,7 +44,7 @@ class NERLocationRemover:
         """
         keywords = set()
         
-        # Major US cities
+        # Major US cities (including multi-word cities)
         us_cities = [
             'seattle', 'portland', 'boston', 'miami', 'denver', 'dallas', 
             'houston', 'austin', 'phoenix', 'philadelphia', 'detroit',
@@ -54,7 +54,14 @@ class NERLocationRemover:
             'indianapolis', 'columbus', 'jacksonville', 'tampa', 'orlando',
             'francisco', 'diego', 'jose', 'antonio',  # Partial city names
             'chicago', 'omaha', 'tulsa', 'wichita', 'albuquerque', 'tucson',
-            'fresno', 'bakersfield', 'kansas'
+            'fresno', 'bakersfield', 'kansas',
+            # Multi-word city names (full)
+            'los angeles', 'san francisco', 'new york', 'san diego', 'san jose',
+            'san antonio', 'las vegas', 'kansas city', 'new orleans', 'fort worth',
+            'el paso', 'long beach', 'colorado springs', 'virginia beach',
+            'salt lake', 'santa ana', 'santa clara', 'santa monica', 'santa cruz',
+            # Partial for word-by-word matching
+            'los', 'angeles', 'san'
         ]
         
         # Major international cities
@@ -168,8 +175,22 @@ class NERLocationRemover:
         for start, end, entity_text in entities_to_remove:
             result = result[:start] + self.placeholder + result[end:]
         
-        # Additional keyword-based cleanup
-        # This catches locations that NER might miss
+        # Multi-word location pattern cleanup (BEFORE word-by-word)
+        # This catches compound city names that spaCy might miss
+        multi_word_locations = [
+            r'\blos\s+angeles\b', r'\bsan\s+francisco\b', r'\bnew\s+york\b',
+            r'\bsan\s+diego\b', r'\bsan\s+jose\b', r'\bsan\s+antonio\b',
+            r'\blas\s+vegas\b', r'\bkansas\s+city\b', r'\bnew\s+orleans\b',
+            r'\bfort\s+worth\b', r'\bel\s+paso\b', r'\blong\s+beach\b',
+            r'\bcolorado\s+springs\b', r'\bvirginia\s+beach\b', r'\bsalt\s+lake\b',
+            r'\bsanta\s+ana\b', r'\bsanta\s+clara\b', r'\bsanta\s+monica\b',
+            r'\bsanta\s+cruz\b', r'\bsilicon\s+valley\b'
+        ]
+        for pattern in multi_word_locations:
+            result = re.sub(pattern, self.placeholder, result, flags=re.IGNORECASE)
+        
+        # Additional keyword-based cleanup (word-by-word)
+        # This catches single-word locations that NER might miss
         words = result.split()
         cleaned_words = []
         for word in words:
