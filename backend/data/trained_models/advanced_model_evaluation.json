@@ -1,207 +1,183 @@
 {
-  "accuracy": 0.8364928909952607,
-  "weighted_precision": 0.8554335342360351,
-  "weighted_recall": 0.8364928909952607,
-  "weighted_f1": 0.8358966132857476,
-  "macro_precision": 0.8470944346709354,
-  "macro_recall": 0.819508316782842,
-  "macro_f1": 0.8209127969306451,
+  "accuracy": 0.8239549839228296,
+  "weighted_precision": 0.8349981332902318,
+  "weighted_recall": 0.8239549839228296,
+  "weighted_f1": 0.8174693920674732,
+  "macro_precision": 0.7720547027535629,
+  "macro_recall": 0.7454657131007486,
+  "macro_f1": 0.7373981809012687,
   "classification_report": {
-    "accountant": {
-      "precision": 0.5918367346938775,
-      "recall": 0.9666666666666667,
-      "f1-score": 0.7341772151898734,
-      "support": 30.0
-    },
     "advocate": {
-      "precision": 0.8,
-      "recall": 0.8,
-      "f1-score": 0.8,
-      "support": 30.0
+      "precision": 0.6111111111111112,
+      "recall": 0.44,
+      "f1-score": 0.5116279069767442,
+      "support": 25.0
     },
     "agriculture": {
-      "precision": 0.9565217391304348,
-      "recall": 0.7333333333333333,
-      "f1-score": 0.8301886792452831,
-      "support": 30.0
-    },
-    "apparel": {
-      "precision": 0.9047619047619048,
-      "recall": 0.6333333333333333,
-      "f1-score": 0.7450980392156863,
-      "support": 30.0
-    },
-    "arts": {
       "precision": 1.0,
-      "recall": 0.5333333333333333,
-      "f1-score": 0.6956521739130435,
-      "support": 30.0
+      "recall": 0.25,
+      "f1-score": 0.4,
+      "support": 12.0
     },
     "aviation": {
-      "precision": 0.8275862068965517,
-      "recall": 0.8,
-      "f1-score": 0.8135593220338984,
-      "support": 30.0
-    },
-    "banking": {
-      "precision": 0.9545454545454546,
-      "recall": 0.7,
-      "f1-score": 0.8076923076923077,
-      "support": 30.0
+      "precision": 0.6153846153846154,
+      "recall": 0.6956521739130435,
+      "f1-score": 0.6530612244897959,
+      "support": 23.0
     },
     "business analyst": {
-      "precision": 0.9864864864864865,
+      "precision": 0.9733333333333334,
       "recall": 0.9240506329113924,
-      "f1-score": 0.954248366013072,
+      "f1-score": 0.948051948051948,
       "support": 79.0
     },
     "business-development": {
-      "precision": 0.9285714285714286,
-      "recall": 0.8666666666666667,
-      "f1-score": 0.896551724137931,
-      "support": 30.0
+      "precision": 0.6666666666666666,
+      "recall": 0.75,
+      "f1-score": 0.7058823529411765,
+      "support": 24.0
     },
     "chef": {
-      "precision": 0.6444444444444445,
-      "recall": 0.9666666666666667,
-      "f1-score": 0.7733333333333333,
-      "support": 30.0
+      "precision": 0.6875,
+      "recall": 0.9565217391304348,
+      "f1-score": 0.8,
+      "support": 23.0
     },
     "construction": {
-      "precision": 0.9285714285714286,
-      "recall": 0.8666666666666667,
-      "f1-score": 0.896551724137931,
-      "support": 30.0
+      "precision": 0.6296296296296297,
+      "recall": 0.7727272727272727,
+      "f1-score": 0.6938775510204082,
+      "support": 22.0
     },
     "consultant": {
-      "precision": 0.8421052631578947,
-      "recall": 0.5333333333333333,
-      "f1-score": 0.6530612244897959,
-      "support": 30.0
+      "precision": 0.9,
+      "recall": 0.3103448275862069,
+      "f1-score": 0.46153846153846156,
+      "support": 29.0
     },
     "cyber security": {
-      "precision": 0.9259259259259259,
-      "recall": 0.7936507936507936,
-      "f1-score": 0.8547008547008547,
+      "precision": 0.9642857142857143,
+      "recall": 0.8571428571428571,
+      "f1-score": 0.907563025210084,
       "support": 63.0
     },
     "datascience": {
-      "precision": 0.6915887850467289,
-      "recall": 0.925,
-      "f1-score": 0.7914438502673797,
-      "support": 80.0
+      "precision": 0.8666666666666667,
+      "recall": 0.9941176470588236,
+      "f1-score": 0.9260273972602739,
+      "support": 170.0
     },
-    "designer": {
-      "precision": 0.896551724137931,
-      "recall": 0.8666666666666667,
-      "f1-score": 0.8813559322033898,
-      "support": 30.0
+    "design-creative": {
+      "precision": 0.8780487804878049,
+      "recall": 0.5142857142857142,
+      "f1-score": 0.6486486486486487,
+      "support": 70.0
     },
     "devops": {
-      "precision": 0.8933333333333333,
-      "recall": 0.8375,
-      "f1-score": 0.864516129032258,
-      "support": 80.0
+      "precision": 0.95,
+      "recall": 0.8837209302325582,
+      "f1-score": 0.9156626506024096,
+      "support": 86.0
     },
     "digital-media": {
-      "precision": 0.88,
-      "recall": 0.7333333333333333,
-      "f1-score": 0.8,
-      "support": 30.0
+      "precision": 0.5789473684210527,
+      "recall": 0.5789473684210527,
+      "f1-score": 0.5789473684210527,
+      "support": 19.0
     },
     "engineering": {
-      "precision": 0.8666666666666667,
-      "recall": 0.8666666666666667,
-      "f1-score": 0.8666666666666667,
-      "support": 30.0
+      "precision": 0.6363636363636364,
+      "recall": 0.6086956521739131,
+      "f1-score": 0.6222222222222222,
+      "support": 23.0
     },
-    "finance": {
-      "precision": 0.9523809523809523,
-      "recall": 0.6666666666666666,
-      "f1-score": 0.7843137254901961,
-      "support": 30.0
+    "finance-accounting": {
+      "precision": 0.7142857142857143,
+      "recall": 0.9154929577464789,
+      "f1-score": 0.8024691358024691,
+      "support": 71.0
     },
     "fitness": {
-      "precision": 0.8620689655172413,
-      "recall": 0.8333333333333334,
-      "f1-score": 0.847457627118644,
-      "support": 30.0
+      "precision": 0.85,
+      "recall": 0.7391304347826086,
+      "f1-score": 0.7906976744186046,
+      "support": 23.0
     },
     "healthcare": {
-      "precision": 0.7272727272727273,
-      "recall": 0.8,
-      "f1-score": 0.7619047619047619,
-      "support": 30.0
+      "precision": 0.7,
+      "recall": 0.6086956521739131,
+      "f1-score": 0.6511627906976745,
+      "support": 23.0
     },
     "hr": {
-      "precision": 0.8235294117647058,
-      "recall": 0.9333333333333333,
-      "f1-score": 0.875,
-      "support": 30.0
+      "precision": 0.7037037037037037,
+      "recall": 0.7916666666666666,
+      "f1-score": 0.7450980392156863,
+      "support": 24.0
     },
     "it-support": {
-      "precision": 0.7619047619047619,
+      "precision": 0.8,
       "recall": 1.0,
-      "f1-score": 0.8648648648648649,
+      "f1-score": 0.8888888888888888,
       "support": 32.0
     },
     "mobile app developer": {
-      "precision": 0.9242424242424242,
-      "recall": 0.953125,
-      "f1-score": 0.9384615384615385,
+      "precision": 0.9516129032258065,
+      "recall": 0.921875,
+      "f1-score": 0.9365079365079365,
       "support": 64.0
     },
     "network engineer": {
-      "precision": 0.8352941176470589,
-      "recall": 0.9102564102564102,
-      "f1-score": 0.8711656441717791,
+      "precision": 0.8518518518518519,
+      "recall": 0.8846153846153846,
+      "f1-score": 0.8679245283018868,
       "support": 78.0
     },
     "public-relations": {
-      "precision": 0.6136363636363636,
-      "recall": 0.9,
-      "f1-score": 0.7297297297297297,
-      "support": 30.0
+      "precision": 0.7037037037037037,
+      "recall": 0.8636363636363636,
+      "f1-score": 0.7755102040816326,
+      "support": 22.0
     },
     "quality assurance": {
-      "precision": 0.9397590361445783,
-      "recall": 0.975,
-      "f1-score": 0.9570552147239264,
-      "support": 80.0
+      "precision": 0.9634146341463414,
+      "recall": 0.9634146341463414,
+      "f1-score": 0.9634146341463414,
+      "support": 82.0
     },
     "sales": {
-      "precision": 0.8333333333333334,
-      "recall": 0.6666666666666666,
-      "f1-score": 0.7407407407407407,
-      "support": 30.0
+      "precision": 0.43478260869565216,
+      "recall": 0.4166666666666667,
+      "f1-score": 0.425531914893617,
+      "support": 24.0
     },
     "software engineer": {
-      "precision": 0.8484848484848485,
-      "recall": 0.7,
-      "f1-score": 0.7671232876712328,
-      "support": 80.0
+      "precision": 0.8796296296296297,
+      "recall": 0.8407079646017699,
+      "f1-score": 0.8597285067873304,
+      "support": 113.0
     },
     "teacher": {
-      "precision": 0.7714285714285715,
+      "precision": 0.5625,
       "recall": 0.9,
-      "f1-score": 0.8307692307692308,
-      "support": 30.0
+      "f1-score": 0.6923076923076923,
+      "support": 20.0
     },
-    "accuracy": 0.8364928909952607,
+    "accuracy": 0.8239549839228296,
     "macro avg": {
-      "precision": 0.8470944346709354,
-      "recall": 0.819508316782842,
-      "f1-score": 0.8209127969306451,
-      "support": 1266.0
+      "precision": 0.7720547027535629,
+      "recall": 0.7454657131007486,
+      "f1-score": 0.7373981809012687,
+      "support": 1244.0
     },
     "weighted avg": {
-      "precision": 0.8554335342360351,
-      "recall": 0.8364928909952607,
-      "f1-score": 0.8358966132857476,
-      "support": 1266.0
+      "precision": 0.8349981332902318,
+      "recall": 0.8239549839228296,
+      "f1-score": 0.8174693920674732,
+      "support": 1244.0
     }
   },
-  "training_date": "2026-01-29T21:50:21.843261",
+  "training_date": "2026-02-06T15:54:41.354915",
   "model_parameters": {
     "model": "ComplementNB",
     "alpha": 0.1,

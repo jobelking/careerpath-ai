@@ -1,43 +1,86 @@
 ================================================================================
-TRAINING CLASS DISTRIBUTION (After Balancing)
+TRAINING CLASS DISTRIBUTION (After Balancing - Train Set Only)
 ================================================================================
 
-Dataset: dataset_careerpath-ai_preprocessed.csv
-Total Classes Used: 7
-Total Samples Used: 6329
-Date: 2026-01-29 21:50:16
+Dataset: merged_dataset_careerpath-ai_preprocessed.csv
+Pipeline: Split → Balance Train Only → Vectorize
+Total Classes Used: 26
+Total Training Samples (after balancing): 5568
+Total Test Samples (untouched): 1244
+Date: 2026-02-06 15:54:39
 
+================================================================================
+REMOVED CLASSES (0 classes with <50 samples)
+================================================================================
+  (None - all classes met minimum threshold)
+
+================================================================================
+OVERSAMPLED CLASSES (16 classes boosted to 150)
+================================================================================
+  ↑ it-support: 128 → 150 samples
+  ↑ consultant: 116 → 150 samples
+  ↑ advocate: 100 → 150 samples
+  ↑ sales: 96 → 150 samples
+  ↑ hr: 95 → 150 samples
+  ↑ chef: 94 → 150 samples
+  ↑ business-development: 94 → 150 samples
+  ↑ fitness: 94 → 150 samples
+  ↑ aviation: 93 → 150 samples
+  ↑ engineering: 93 → 150 samples
+  ↑ healthcare: 90 → 150 samples
+  ↑ public-relations: 88 → 150 samples
+  ↑ construction: 86 → 150 samples
+  ↑ teacher: 82 → 150 samples
+  ↑ digital-media: 76 → 150 samples
+  ↑ agriculture: 51 → 150 samples
+
+================================================================================
+DOWNSAMPLED CLASSES (2 classes reduced to 400)
+================================================================================
+  ↓ datascience: 678 → 400 samples
+  ↓ software engineer: 452 → 400 samples
+
+================================================================================
+UNCHANGED CLASSES (8 classes with 150-400 samples)
+================================================================================
+  = devops: 342 samples
+  = quality assurance: 327 samples
+  = business analyst: 314 samples
+  = network engineer: 313 samples
+  = finance-accounting: 285 samples
+  = design-creative: 279 samples
+  = mobile app developer: 256 samples
+  = cyber security: 252 samples
+
+================================================================================
+FINAL BALANCED CLASS DISTRIBUTION
 ================================================================================
 CLASS NAME                                      | SAMPLE COUNT
-================================================================================
-  1. devops                                        |    400
-  2. software engineer                             |    400
-  3. quality assurance                             |    400
-  4. datascience                                   |    400
-  5. business analyst                              |    393
-  6. network engineer                              |    391
-  7. mobile app developer                          |    320
-  8. cyber security                                |    315
-  9. it-support                                    |    160
- 10. aviation                                      |    150
- 11. teacher                                       |    150
- 12. fitness                                       |    150
- 13. finance                                       |    150
- 14. business-development                          |    150
- 15. public-relations                              |    150
- 16. hr                                            |    150
- 17. designer                                      |    150
- 18. banking                                       |    150
- 19. advocate                                      |    150
+--------------------------------------------------------------------------------
+  1. software engineer                             |    400
+  2. datascience                                   |    400
+  3. devops                                        |    342
+  4. quality assurance                             |    327
+  5. business analyst                              |    314
+  6. network engineer                              |    313
+  7. finance-accounting                            |    285
+  8. design-creative                               |    279
+  9. mobile app developer                          |    256
+ 10. cyber security                                |    252
+ 11. sales                                         |    150
+ 12. it-support                                    |    150
+ 13. digital-media                                 |    150
+ 14. teacher                                       |    150
+ 15. consultant                                    |    150
+ 16. aviation                                      |    150
+ 17. business-development                          |    150
+ 18. agriculture                                   |    150
+ 19. construction                                  |    150
  20. healthcare                                    |    150
- 21. digital-media                                 |    150
- 22. engineering                                   |    150
- 23. apparel                                       |    150
- 24. consultant                                    |    150
- 25. agriculture                                   |    150
- 26. sales                                         |    150
- 27. accountant                                    |    150
- 28. arts                                          |    150
- 29. construction                                  |    150
- 30. chef                                          |    150
+ 21. engineering                                   |    150
+ 22. chef                                          |    150
+ 23. fitness                                       |    150
+ 24. advocate                                      |    150
+ 25. public-relations                              |    150
+ 26. hr                                            |    150
 ================================================================================
