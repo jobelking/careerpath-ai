@@ -6,6 +6,7 @@ Extracts text content from PDF resume files
 import PyPDF2
 from typing import Optional
 import os
+import re
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
@@ -52,11 +53,11 @@ def extract_text_from_pdf(pdf_path: str) -> str:
         # Combine all text
         full_text = "\n".join(text_content)
         
-        # Clean up text
+        # Clean up text - preserve structure for preprocessing
+        # Only collapse multiple consecutive spaces/newlines, don't remove all formatting
+        full_text = re.sub(r' +', ' ', full_text)  # Multiple spaces → single space
+        full_text = re.sub(r'\n+', '\n', full_text)  # Multiple newlines → single newline
         full_text = full_text.strip()
-        
-        # Remove excessive whitespace
-        full_text = " ".join(full_text.split())
         
         return full_text
         

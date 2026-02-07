@@ -18,18 +18,15 @@ sys.path.insert(0, backend_dir)
 
 # Direct import to avoid __init__.py issues
 from app.models.naive_bayes.train_model_advanced import AdvancedCareerPathClassifier
+from app.utils.pdf_extractor import extract_text_from_pdf as extract_pdf_text
 
 # PDF processing
 try:
     import PyPDF2
     PDF_AVAILABLE = True
 except ImportError:
-    try:
-        import pdfplumber
-        PDF_AVAILABLE = True
-    except ImportError:
-        PDF_AVAILABLE = False
-        print("Warning: PDF support not available. Install PyPDF2 or pdfplumber: pip install PyPDF2")
+    PDF_AVAILABLE = False
+    print("Warning: PDF support not available. Install PyPDF2: pip install PyPDF2")
 
 
 def load_model():
@@ -62,7 +59,8 @@ def load_model():
 
 def extract_text_from_pdf(pdf_path):
     """
-    Extract text from a PDF file.
+    Extract text from a PDF file using the same method as the frontend.
+    This ensures consistency between test script and production predictions.
     
     Args:
         pdf_path: Path to PDF file
@@ -76,23 +74,9 @@ def extract_text_from_pdf(pdf_path):
         return None
     
     try:
-        # Try PyPDF2 first
-        try:
-            import PyPDF2
-            with open(pdf_path, 'rb') as file:
-                pdf_reader = PyPDF2.PdfReader(file)
-                text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text()
-                return text.strip()
-        except:
-            # Fallback to pdfplumber
-            import pdfplumber
-            text = ""
-            with pdfplumber.open(pdf_path) as pdf:
-                for page in pdf.pages:
-                    text += page.extract_text() or ""
-            return text.strip()
+        # Use the same extraction method as frontend (from app.utils.pdf_extractor)
+        text = extract_pdf_text(pdf_path)
+        return text
     
     except FileNotFoundError:
         print(f"✗ File not found: {pdf_path}")
