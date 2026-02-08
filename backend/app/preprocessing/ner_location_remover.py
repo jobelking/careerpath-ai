@@ -52,9 +52,13 @@ class NERLocationRemover:
             'baltimore', 'milwaukee', 'vegas', 'sacramento', 'oakland',
             'raleigh', 'charlotte', 'nashville', 'memphis', 'louisville',
             'indianapolis', 'columbus', 'jacksonville', 'tampa', 'orlando',
-            'francisco', 'diego', 'jose', 'antonio',  # Partial city names
+            'francisco', 'diego', 'jose', 'antonio', 'angeles', 'los',  # Partial city names
             'chicago', 'omaha', 'tulsa', 'wichita', 'albuquerque', 'tucson',
-            'fresno', 'bakersfield', 'kansas'
+            'fresno', 'bakersfield', 'kansas',
+            # Multi-word cities (these need explicit listing for keyword matching)
+            'los angeles', 'san francisco', 'san diego', 'san jose', 'san antonio',
+            'new york', 'new orleans', 'las vegas', 'kansas city', 'fort worth',
+            'silicon valley'
         ]
         
         # Major international cities
@@ -168,7 +172,14 @@ class NERLocationRemover:
         for start, end, entity_text in entities_to_remove:
             result = result[:start] + self.placeholder + result[end:]
         
-        # Additional keyword-based cleanup
+        # Multi-word phrase matching (for cities like "los angeles", "san francisco")
+        # This needs to happen BEFORE single-word matching
+        multi_word_locations = [kw for kw in self.location_keywords if ' ' in kw]
+        for phrase in sorted(multi_word_locations, key=len, reverse=True):  # Longest first
+            pattern = r'\b' + re.escape(phrase) + r'\b'
+            result = re.sub(pattern, self.placeholder, result, flags=re.IGNORECASE)
+        
+        # Additional single-word keyword-based cleanup
         # This catches locations that NER might miss
         words = result.split()
         cleaned_words = []
