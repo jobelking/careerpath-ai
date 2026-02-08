@@ -103,7 +103,6 @@ class AdvancedCareerPathClassifier:
         self.leakage_validator = LocationLeakageValidator()
         
         # Synonym normalization dictionary for career-related terms
-        # Updated to reflect 26 merged career paths
         self.synonyms = {
             # Quality Assurance
             'qa': 'quality assurance',
@@ -119,7 +118,7 @@ class AdvancedCareerPathClassifier:
             'programmer': 'software engineer',
             'coder': 'software engineer',
             
-            # Machine Learning / Data Science
+            # Machine Learning
             'machine learning engineer': 'datascience',
             'ml engineer': 'datascience',
             'ml': 'machine learning',
@@ -127,9 +126,6 @@ class AdvancedCareerPathClassifier:
             'ai': 'artificial intelligence',
             'dl': 'deep learning',
             'nlp': 'natural language processing',
-            'data science': 'datascience',
-            'data scientist': 'datascience',
-            'ds': 'datascience',
             
             # Business Analysis
             'ba': 'business analyst',
@@ -146,6 +142,11 @@ class AdvancedCareerPathClassifier:
             'sre': 'devops',
             'site reliability engineer': 'devops',
             
+            # Data Science
+            'data science': 'datascience',
+            'data scientist': 'datascience',
+            'ds': 'datascience',
+            
             # Cyber Security
             'cybersecurity': 'cyber security',
             'infosec': 'cyber security',
@@ -158,32 +159,25 @@ class AdvancedCareerPathClassifier:
             'ios developer': 'mobile app developer',
             'android developer': 'mobile app developer',
             
-            # Data Engineering (maps to datascience)
-            'de': 'datascience',
-            'etl engineer': 'datascience',
-            'big data engineer': 'datascience',
-            'data engineer': 'datascience',
+            # Data Engineering
+            'de': 'data engineer',
+            'etl engineer': 'data engineer',
+            'big data engineer': 'data engineer',
             
             # Construction
             'construction worker': 'construction',
             'builder': 'construction',
             
-            # Design & Creative (merged: designer + arts + apparel/fashion)
-            'graphic designer': 'design-creative',
-            'ui designer': 'design-creative',
-            'ux designer': 'design-creative',
-            'web designer': 'design-creative',
-            'designer': 'design-creative',
-            'artist': 'design-creative',
-            'fine arts': 'design-creative',
-            'visual artist': 'design-creative',
-            'performing arts': 'design-creative',
-            'exhibition': 'design-creative',
-            'arts': 'design-creative',
-            'fashion': 'design-creative',
-            'clothing': 'design-creative',
-            'textile': 'design-creative',
-            'apparel': 'design-creative',
+            # Apparel/Fashion
+            'fashion': 'apparel',
+            'clothing': 'apparel',
+            'textile': 'apparel',
+            
+            # Design
+            'graphic designer': 'designer',
+            'ui designer': 'designer',
+            'ux designer': 'designer',
+            'web designer': 'designer',
             
             # Healthcare
             'medical': 'healthcare',
@@ -192,24 +186,17 @@ class AdvancedCareerPathClassifier:
             'doctor': 'healthcare',
             'physician': 'healthcare',
             
-            # Finance & Accounting (merged: accountant + banking + finance)
-            'accounting': 'finance-accounting',
-            'cpa': 'finance-accounting',
-            'accountant': 'finance-accounting',
-            'banker': 'finance-accounting',
-            'banking': 'finance-accounting',
-            'financial services': 'finance-accounting',
-            'financial analyst': 'finance-accounting',
-            'fintech': 'finance-accounting',
-            'financial planning': 'finance-accounting',
-            'financial modeling': 'finance-accounting',
-            'fp&a': 'finance-accounting',
-            'finance': 'finance-accounting',
+            # Accounting
+            'accounting': 'accountant',
+            'cpa': 'accountant',
             
             # Sales
             'salesperson': 'sales',
             'sales rep': 'sales',
             'sales representative': 'sales',
+            'account executive': 'sales',
+            'sales manager': 'sales',
+            'client acquisition': 'sales',
             
             # Fitness
             'personal trainer': 'fitness',
@@ -221,20 +208,36 @@ class AdvancedCareerPathClassifier:
             'professor': 'teacher',
             'instructor': 'teacher',
             
+            # Banking/Finance
+            'banker': 'banking',
+            'financial services': 'banking',
+            
             # Digital Media
-            'digital marketing': 'digital-media',
-            'social media': 'digital-media',
-            'content creator': 'digital-media',
+            'digital marketing': 'digital media',
+            'social media': 'digital media',
+            'content creator': 'digital media',
             
             # Agriculture
             'farming': 'agriculture',
             'agricultural': 'agriculture',
             'farmer': 'agriculture',
+            'agronomist': 'agriculture',
+            'farm manager': 'agriculture',
+            'crop specialist': 'agriculture',
+            'soil scientist': 'agriculture',
+            'livestock': 'agriculture',
             
             # HR
             'human resources': 'hr',
             'recruiter': 'hr',
             'talent acquisition': 'hr',
+            
+            # Arts
+            'artist': 'arts',
+            'fine arts': 'arts',
+            'visual artist': 'arts',
+            'performing arts': 'arts',
+            'exhibition': 'arts',
             
             # Legal/Advocate
             'lawyer': 'advocate',
@@ -242,8 +245,15 @@ class AdvancedCareerPathClassifier:
             'legal': 'advocate',
             
             # Business Development
-            'bd': 'business-development',
-            'biz dev': 'business-development',
+            'bd': 'business development',
+            'biz dev': 'business development',
+            
+            # Finance
+            'financial analyst': 'finance',
+            'fintech': 'finance',
+            'financial planning': 'finance',
+            'financial modeling': 'finance',
+            'fp&a': 'finance',
             
             # Culinary
             'cook': 'chef',
@@ -252,8 +262,11 @@ class AdvancedCareerPathClassifier:
             # Consulting
             'consulting': 'consultant',
             'advisor': 'consultant',
+            'management consultant': 'consultant',
+            'strategy consultant': 'consultant',
+            'advisory services': 'consultant',
             
-            # IT Support
+            # IT
             'it support': 'it-support',
             'it technician': 'it-support',
             'it tech support': 'it-support',
@@ -267,9 +280,9 @@ class AdvancedCareerPathClassifier:
             'it specialist': 'it-support',
             'it administrator': 'it-support',
             
-            # Public Relations
-            'pr': 'public-relations',
-            'communications': 'public-relations',
+            # PR
+            'pr': 'public relations',
+            'communications': 'public relations',
             
             # Aviation
             'pilot': 'aviation',
@@ -287,24 +300,17 @@ class AdvancedCareerPathClassifier:
         }
         
         # Display name mapping for professional output (Career Path focused)
-        # Total: 26 career paths (after merging similar categories)
         self.display_names = {
-            'advocate': 'Law & Legal Services Careers',
-            'agriculture': 'Agriculture & Agribusiness Careers',
-            'aviation': 'Aviation & Aerospace Careers',
+            'quality assurance': 'Quality Assurance & Testing Careers',
+            'software engineer': 'Software Development Careers',
             'business analyst': 'Business Analysis Careers',
-            'business-development': 'Business Development Careers',
-            'chef': 'Culinary Arts Careers',
-            'construction': 'Construction Careers',
-            'consultant': 'Consulting & Advisory Careers',
-            'cyber security': 'Cybersecurity Careers',
-            'datascience': 'Data Science & AI Careers',
-            'design-creative': 'Design & Creative Careers',
+            'network engineer': 'Network Administration Careers',
             'devops': 'DevOps & Site Reliability Careers',
-            'digital-media': 'Digital Media & Marketing Careers',
+            'datascience': 'Data Science & AI Careers',
+            'cyber security': 'Cybersecurity Careers',
+            'mobile app developer': 'Mobile Development Careers',
+            'construction': 'Construction Careers',
             'engineering': 'Engineering Careers',
-            'apparel': 'Fashion & Apparel Careers',
-            'designer': 'Design & Creative Careers',
             'healthcare': 'Healthcare Careers',
             'sales': 'Sales Careers',
             'fitness': 'Fitness & Wellness Careers',
@@ -317,8 +323,6 @@ class AdvancedCareerPathClassifier:
             'chef': 'Culinary Arts Careers',
             'consultant': 'Consulting & Advisory Careers',
             'it-support': 'IT Support & Services Careers',
-            'mobile app developer': 'Mobile Development Careers',
-            'network engineer': 'Network Administration Careers',
             'public-relations': 'Public Relations & Communications Careers',
             'aviation': 'Aviation & Aerospace Careers',
             # Merged classes (Feb 2026)
@@ -417,24 +421,39 @@ class AdvancedCareerPathClassifier:
         
         return texts, df[label_col]
     
-    def balance_dataset(self, texts, labels):
+    def balance_dataset(self, texts, labels, use_augmentation: bool = False):
         """
-        Balance the dataset using intelligent oversampling and downsampling:
+        Balance the dataset using intelligent oversampling and downsampling.
+        
+        NEW STRATEGY (Feb 2026) - Optimized for macro F1 and minority recall:
         - Remove classes with fewer than 50 samples
-        - Oversample classes with 50-150 samples to 150 samples
+        - Oversample classes with 50-149 samples to 200 samples
         - Downsample classes with >400 samples to 400 samples
-        - Leave other classes (151-400 samples) unchanged
+        - Leave other classes (200-400 samples) unchanged
+        - Optionally use text augmentation for oversampling
         
         Args:
             texts: Series or list of text samples
             labels: Series or list of labels
+            use_augmentation: If True, use synonym replacement for oversampling
+                            (back-translation is too slow for training)
             
         Returns:
             Tuple of (balanced_texts, balanced_labels)
         """
+        # Configuration thresholds
+        MIN_SAMPLES = 50      # Minimum to include class
+        TARGET_FLOOR = 200    # Oversample minority classes to this
+        TARGET_CEILING = 400  # Downsample dominant classes to this
+        
         print("\n" + "="*80)
         print("BALANCING DATASET")
         print("="*80)
+        print(f"\nBalancing strategy:")
+        print(f"  Floor: {TARGET_FLOOR} samples (oversample minority classes)")
+        print(f"  Ceiling: {TARGET_CEILING} samples (downsample dominant classes)")
+        print(f"  Remove: classes with <{MIN_SAMPLES} samples")
+        print(f"  Augmentation: {'ENABLED (synonym replacement)' if use_augmentation else 'DISABLED (random oversampling)'}")
         
         # Convert to pandas for easier manipulation
         df = pd.DataFrame({'text': texts, 'label': labels})
@@ -444,32 +463,72 @@ class AdvancedCareerPathClassifier:
         print(f"\nOriginal class distribution:")
         print(f"  Total classes: {len(class_counts)}")
         print(f"  Total samples: {len(df)}")
+        print(f"  Class ratio (max/min): {class_counts.max() / class_counts.min():.2f}x")
+        
+        # Initialize augmenter if needed
+        augmenter = None
+        if use_augmentation:
+            try:
+                from app.utils.text_augmenter import TextAugmenter
+                augmenter = TextAugmenter(use_gpu=False, back_translation=False)
+                print("  Text augmenter initialized (synonym replacement mode)")
+            except ImportError as e:
+                print(f"  Warning: Could not load augmenter ({e}). Using random oversampling.")
+                use_augmentation = False
         
         balanced_dfs = []
+        stats = {
+            'removed': [],       # List of (class_name, original_count)
+            'oversampled': [],   # List of (class_name, original_count, new_count)
+            'downsampled': [],   # List of (class_name, original_count, new_count)
+            'unchanged': []      # List of (class_name, count)
+        }
         
         for label, count in class_counts.items():
             class_df = df[df['label'] == label]
             
-            if count < 50:
-                # Remove classes with fewer than 50 samples
-                print(f"  {label}: {count} samples → REMOVED (insufficient samples)")
+            if count < MIN_SAMPLES:
+                # Remove classes with fewer than MIN_SAMPLES samples
+                print(f"  {label}: {count} → REMOVED (< {MIN_SAMPLES})")
+                stats['removed'].append((label, count))
                 continue
-            elif 50 <= count <= 150:
-                # Oversample to 150 samples
-                target_samples = 150
-                oversampled = class_df.sample(n=target_samples, replace=True, random_state=42)
-                balanced_dfs.append(oversampled)
-                print(f"  {label}: {count} samples → OVERSAMPLED to {target_samples}")
-            elif count > 400:
-                # Downsample to 400 samples
-                target_samples = 400
-                downsampled = class_df.sample(n=target_samples, replace=False, random_state=42)
+                
+            elif count < TARGET_FLOOR:
+                # Oversample to TARGET_FLOOR samples
+                if use_augmentation and augmenter:
+                    # Use augmentation for diversity
+                    original_texts = class_df['text'].tolist()
+                    augmented_texts = augmenter.augment_batch(
+                        original_texts, 
+                        target_count=TARGET_FLOOR,
+                        technique='synonym',
+                        max_augment_ratio=4.0
+                    )
+                    augmented_df = pd.DataFrame({
+                        'text': augmented_texts,
+                        'label': [label] * len(augmented_texts)
+                    })
+                    balanced_dfs.append(augmented_df)
+                    print(f"  {label}: {count} → AUGMENTED to {TARGET_FLOOR}")
+                else:
+                    # Random oversampling (with replacement)
+                    oversampled = class_df.sample(n=TARGET_FLOOR, replace=True, random_state=42)
+                    balanced_dfs.append(oversampled)
+                    print(f"  {label}: {count} → OVERSAMPLED to {TARGET_FLOOR}")
+                stats['oversampled'].append((label, count, TARGET_FLOOR))
+                
+            elif count > TARGET_CEILING:
+                # Downsample to TARGET_CEILING samples
+                downsampled = class_df.sample(n=TARGET_CEILING, replace=False, random_state=42)
                 balanced_dfs.append(downsampled)
-                print(f"  {label}: {count} samples → DOWNSAMPLED to {target_samples}")
+                print(f"  {label}: {count} → DOWNSAMPLED to {TARGET_CEILING}")
+                stats['downsampled'].append((label, count, TARGET_CEILING))
+                
             else:
-                # Keep as is (151-400 samples)
+                # Keep as is (TARGET_FLOOR to TARGET_CEILING samples)
                 balanced_dfs.append(class_df)
-                print(f"  {label}: {count} samples → UNCHANGED")
+                print(f"  {label}: {count} → UNCHANGED")
+                stats['unchanged'].append((label, count))
         
         # Concatenate all balanced classes
         balanced_df = pd.concat(balanced_dfs, ignore_index=True)
@@ -477,23 +536,34 @@ class AdvancedCareerPathClassifier:
         # Shuffle the dataset
         balanced_df = balanced_df.sample(frac=1, random_state=42).reset_index(drop=True)
         
+        new_class_counts = balanced_df['label'].value_counts().sort_values(ascending=False)
+        new_ratio = new_class_counts.max() / new_class_counts.min()
+        
         print(f"\nBalanced dataset:")
         print(f"  Total classes: {balanced_df['label'].nunique()}")
         print(f"  Total samples: {len(balanced_df)}")
-        
-        new_class_counts = balanced_df['label'].value_counts().sort_values(ascending=False)
         print(f"  Min samples per class: {new_class_counts.min()}")
         print(f"  Max samples per class: {new_class_counts.max()}")
         print(f"  Mean samples per class: {new_class_counts.mean():.1f}")
+        print(f"  New class ratio: {new_ratio:.2f}x (was {class_counts.max() / class_counts.min():.2f}x)")
+        print(f"\nBalancing summary:")
+        print(f"  Classes oversampled: {len(stats['oversampled'])}")
+        print(f"  Classes downsampled: {len(stats['downsampled'])}")
+        print(f"  Classes unchanged: {len(stats['unchanged'])}")
+        print(f"  Classes removed: {len(stats['removed'])}")
         
-        # Save balanced class distribution for reference
+        # Save balanced class distribution and stats for reference
         self.balanced_class_counts = new_class_counts
+        self.balancing_stats = stats  # Save for export
         
         return balanced_df['text'], balanced_df['label']
     
     def prepare_data(self, texts, labels, test_size=0.2, random_state=42):
         """
-        Prepare data for training: split and vectorize.
+        Prepare data for training with CORRECT pipeline order:
+        1. Split data into train/test FIRST (test set never touched)
+        2. Balance/oversample ONLY the training set
+        3. Fit vectorizer on balanced training set
         
         Args:
             texts: Preprocessed text samples
@@ -506,32 +576,47 @@ class AdvancedCareerPathClassifier:
             - X_test_text is included for saving raw test data for calibration
         """
         print("\n" + "="*80)
-        print("PREPARING DATA")
+        print("PREPARING DATA (Split → Balance Train Only → Vectorize)")
         print("="*80)
         
-        # Split data (stratified to maintain class distribution)
+        # STEP 1: Split data FIRST (stratified to maintain class distribution)
+        print("\n[STEP 1] Splitting data into train/test sets...")
         X_train_text, X_test_text, y_train, y_test = train_test_split(
             texts, labels, test_size=test_size, random_state=random_state, stratify=labels
         )
         
-        print(f"\nData split:")
-        print(f"  Training set size: {len(X_train_text)} ({(1-test_size)*100:.0f}%)")
-        print(f"  Test set size: {len(X_test_text)} ({test_size*100:.0f}%)")
+        print(f"  Training set size (before balancing): {len(X_train_text)} ({(1-test_size)*100:.0f}%)")
+        print(f"  Test set size (untouched): {len(X_test_text)} ({test_size*100:.0f}%)")
         
-        # Vectorize using TF-IDF
-        print(f"\nVectorizing text using TF-IDF...")
+        # STEP 2: Balance ONLY the training set (test set remains untouched!)
+        # Using augmentation for minority classes to improve recall
+        print("\n[STEP 2] Balancing ONLY the training set...")
+        X_train_text_balanced, y_train_balanced = self.balance_dataset(
+            X_train_text, y_train, use_augmentation=True
+        )
+        
+        print(f"\n  Training set size (after balancing): {len(X_train_text_balanced)}")
+        print(f"  Test set remains: {len(X_test_text)} (never oversampled!)")
+        
+        # STEP 3: Fit vectorizer on BALANCED training set
+        print("\n[STEP 3] Vectorizing text using TF-IDF...")
         print(f"  Max features: {self.vectorizer.max_features}")
         print(f"  N-gram range: {self.vectorizer.ngram_range}")
         
-        X_train = self.vectorizer.fit_transform(X_train_text)
+        # Fit on balanced training data, transform both
+        X_train = self.vectorizer.fit_transform(X_train_text_balanced)
         X_test = self.vectorizer.transform(X_test_text)
         
-        print(f"  Feature matrix shape: {X_train.shape}")
+        print(f"  Training feature matrix shape: {X_train.shape}")
+        print(f"  Test feature matrix shape: {X_test.shape}")
         print(f"  Vocabulary size: {len(self.vectorizer.vocabulary_)}")
         
-        # Store classes for later use
+        # Store classes for later use (from original labels, not balanced)
         self.classes_ = np.unique(labels)
         print(f"  Number of classes: {len(self.classes_)}")
+        
+        # Update y_train to the balanced version
+        y_train = y_train_balanced
         
         return X_train, X_test, y_train, y_test, X_test_text
     
@@ -860,9 +945,57 @@ def main():
         f.write(f"Total Training Samples (after balancing): {len(y_train)}\n")
         f.write(f"Total Test Samples (untouched): {len(y_test)}\n")
         f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        
+        # Write balancing strategy info
+        if hasattr(classifier, 'balancing_stats'):
+            stats = classifier.balancing_stats
+            
+            # Removed classes section
+            f.write("\n" + "="*80 + "\n")
+            f.write(f"REMOVED CLASSES ({len(stats['removed'])} classes with <50 samples)\n")
+            f.write("="*80 + "\n")
+            if stats['removed']:
+                for class_name, count in stats['removed']:
+                    f.write(f"  ✗ {class_name}: {count} samples\n")
+            else:
+                f.write("  (None - all classes met minimum threshold)\n")
+            
+            # Oversampled classes section
+            f.write("\n" + "="*80 + "\n")
+            f.write(f"OVERSAMPLED CLASSES ({len(stats['oversampled'])} classes boosted to 200)\n")
+            f.write("="*80 + "\n")
+            if stats['oversampled']:
+                for class_name, orig, new in stats['oversampled']:
+                    f.write(f"  ↑ {class_name}: {orig} → {new} samples\n")
+            else:
+                f.write("  (None)\n")
+            
+            # Downsampled classes section
+            f.write("\n" + "="*80 + "\n")
+            f.write(f"DOWNSAMPLED CLASSES ({len(stats['downsampled'])} classes reduced to 400)\n")
+            f.write("="*80 + "\n")
+            if stats['downsampled']:
+                for class_name, orig, new in stats['downsampled']:
+                    f.write(f"  ↓ {class_name}: {orig} → {new} samples\n")
+            else:
+                f.write("  (None)\n")
+            
+            # Unchanged classes section
+            f.write("\n" + "="*80 + "\n")
+            f.write(f"UNCHANGED CLASSES ({len(stats['unchanged'])} classes with 200-400 samples)\n")
+            f.write("="*80 + "\n")
+            if stats['unchanged']:
+                for class_name, count in stats['unchanged']:
+                    f.write(f"  = {class_name}: {count} samples\n")
+            else:
+                f.write("  (None)\n")
+        
+        # Final balanced class distribution
         f.write("\n" + "="*80 + "\n")
-        f.write("CLASS NAME                                      | SAMPLE COUNT\n")
+        f.write("FINAL BALANCED CLASS DISTRIBUTION\n")
         f.write("="*80 + "\n")
+        f.write("CLASS NAME                                      | SAMPLE COUNT\n")
+        f.write("-"*80 + "\n")
         
         if hasattr(classifier, 'balanced_class_counts'):
             for idx, (class_name, count) in enumerate(classifier.balanced_class_counts.items(), 1):
