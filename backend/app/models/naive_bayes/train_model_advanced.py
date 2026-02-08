@@ -829,21 +829,38 @@ def main():
     print("-"*80)
     texts, labels = classifier.load_data(data_path)
     
-    # Step 2: Balance dataset
+    # Step 2: SPLIT DATA FIRST (before any balancing to prevent data leakage!)
     print("\n" + "-"*80)
-    print("STEP 2: Balancing Dataset")
+    print("STEP 2: Train/Test Split (BEFORE Balancing - Prevents Data Leakage)")
     print("-"*80)
-    texts_balanced, labels_balanced = classifier.balance_dataset(texts, labels)
+    print("Splitting data into train/test sets BEFORE balancing...")
+    print("This ensures test set remains pure and uncontaminated by oversampled duplicates.")
+    
+    X_train_text, X_test_text, y_train_raw, y_test = train_test_split(
+        texts, labels, test_size=0.2, random_state=42, stratify=labels
+    )
+    
+    print(f"\nData split (BEFORE balancing):")
+    print(f"  Training set size: {len(X_train_text)} (80%)")
+    print(f"  Test set size: {len(X_test_text)} (20%)")
+    print(f"  Test set is CLEAN - no oversampled duplicates!")
+    
+    # Step 3: Balance ONLY TRAINING DATA (after split)
+    print("\n" + "-"*80)
+    print("STEP 3: Balancing ONLY Training Data (Test Set Untouched)")
+    print("-"*80)
+    X_train_balanced, y_train_balanced = classifier.balance_dataset(X_train_text, y_train_raw)
     
     # Save class distribution used for training
     class_dist_path = os.path.join(model_dir, 'training_class_distribution.txt')
     with open(class_dist_path, 'w', encoding='utf-8') as f:
         f.write("="*80 + "\n")
-        f.write("TRAINING CLASS DISTRIBUTION (After Balancing)\n")
+        f.write("TRAINING CLASS DISTRIBUTION (After Balancing - Training Set Only)\n")
         f.write("="*80 + "\n")
         f.write(f"\nDataset: merged_dataset_careerpath-ai_preprocessed.csv\n")
-        f.write(f"Total Classes Used: {classifier.balanced_class_counts.nunique() if hasattr(classifier, 'balanced_class_counts') else labels_balanced.nunique()}\n")
-        f.write(f"Total Samples Used: {len(labels_balanced)}\n")
+        f.write(f"Total Classes Used: {classifier.balanced_class_counts.nunique() if hasattr(classifier, 'balanced_class_counts') else y_train_balanced.nunique()}\n")
+        f.write(f"Training Samples (balanced): {len(y_train_balanced)}\n")
+        f.write(f"Test Samples (unbalanced/clean): {len(y_test)}\n")
         f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("\n" + "="*80 + "\n")
         f.write("CLASS NAME                                      | SAMPLE COUNT\n")
@@ -853,7 +870,7 @@ def main():
             for idx, (class_name, count) in enumerate(classifier.balanced_class_counts.items(), 1):
                 f.write(f"{idx:3d}. {class_name:<45} | {count:>6d}\n")
         else:
-            class_counts = labels_balanced.value_counts().sort_values(ascending=False)
+            class_counts = y_train_balanced.value_counts().sort_values(ascending=False)
             for idx, (class_name, count) in enumerate(class_counts.items(), 1):
                 f.write(f"{idx:3d}. {class_name:<45} | {count:>6d}\n")
         
@@ -861,13 +878,29 @@ def main():
     
     print(f"✓ Training class distribution saved to: {class_dist_path}")
     
-    # Step 3: Prepare data (split and vectorize)
+    # Step 4: Vectorize (fit on balanced training data, transform clean test data)
     print("\n" + "-"*80)
-    print("STEP 3: Preparing Data for Training")
+    print("STEP 4: TF-IDF Vectorization")
     print("-"*80)
-    X_train, X_test, y_train, y_test, X_test_text = classifier.prepare_data(
-        texts_balanced, labels_balanced, test_size=0.2, random_state=42
-    )
+    print("Vectorizing text using TF-IDF...")
+    print(f"  Max features: {classifier.vectorizer.max_features}")
+    print(f"  N-gram range: {classifier.vectorizer.ngram_range}")
+    
+    # Fit TF-IDF on balanced training data only
+    X_train = classifier.vectorizer.fit_transform(X_train_balanced)
+    # Transform test data (do NOT fit on test data!)
+    X_test = classifier.vectorizer.transform(X_test_text)
+    
+    print(f"  Training feature matrix shape: {X_train.shape}")
+    print(f"  Test feature matrix shape: {X_test.shape}")
+    print(f"  Vocabulary size: {len(classifier.vectorizer.vocabulary_)}")
+    
+    # Store classes for later use
+    classifier.classes_ = np.unique(y_train_balanced)
+    print(f"  Number of classes: {len(classifier.classes_)}")
+    
+    # Assign y_train for downstream compatibility
+    y_train = y_train_balanced
     
     # Save test split data for calibration script
     test_data_path = os.path.join(model_dir, 'test_split_data.pkl')
@@ -878,15 +911,15 @@ def main():
     joblib.dump(test_data, test_data_path)
     print(f"✓ Test split data saved to: {test_data_path}")
     
-    # Step 4: Train model
+    # Step 5: Train model
     print("\n" + "-"*80)
-    print("STEP 4: Training Model")
+    print("STEP 5: Training Model")
     print("-"*80)
     classifier.train(X_train, y_train, use_sample_weight=False)
     
-    # Step 4.5: VALIDATE NO GEOGRAPHIC LEAKAGE (Critical!)
+    # Step 5.5: VALIDATE NO GEOGRAPHIC LEAKAGE (Critical!)
     print("\n" + "-"*80)
-    print("STEP 4.5: Validating Geographic Leakage Prevention")
+    print("STEP 5.5: Validating Geographic Leakage Prevention")
     print("-"*80)
     print("Checking vocabulary for location-related terms...")
     
@@ -921,16 +954,16 @@ def main():
         print("Please investigate and fix location leakage before proceeding.")
         raise
     
-    # Step 5: Evaluate model
+    # Step 6: Evaluate model
     print("\n" + "-"*80)
-    print("STEP 5: Evaluating Model")
+    print("STEP 6: Evaluating Model")
     print("-"*80)
     confusion_matrix_path = os.path.join(model_dir, 'confusion_matrix.png')
     results = classifier.evaluate(X_test, y_test, save_confusion_matrix=confusion_matrix_path)
     
-    # Step 6: Save model
+    # Step 7: Save model
     print("\n" + "-"*80)
-    print("STEP 6: Saving Model")
+    print("STEP 7: Saving Model")
     print("-"*80)
     classifier.save_model(model_dir, 'advanced_career_path_cnb')
     
@@ -940,7 +973,7 @@ def main():
         json.dump(results, f, indent=2)
     print(f"✓ Evaluation results saved to: {results_path}")
     
-    # Step 7: Test predictions
+    # Step 8: Test predictions
     print("\n" + "="*80)
     print("SAMPLE PREDICTIONS")
     print("="*80)
