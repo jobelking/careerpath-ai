@@ -592,7 +592,7 @@ class AdvancedCareerPathClassifier:
         # Using augmentation for minority classes to improve recall
         print("\n[STEP 2] Balancing ONLY the training set...")
         X_train_text_balanced, y_train_balanced = self.balance_dataset(
-            X_train_text, y_train, use_augmentation=True
+            X_train_text, y_train, use_augmentation=False
         )
         
         print(f"\n  Training set size (after balancing): {len(X_train_text_balanced)}")
