@@ -303,18 +303,27 @@ class AdvancedCareerPathClassifier:
             'devops': 'DevOps & Site Reliability Careers',
             'digital-media': 'Digital Media & Marketing Careers',
             'engineering': 'Engineering Careers',
-            'finance-accounting': 'Finance & Accounting Careers',
-            'fitness': 'Fitness & Wellness Careers',
+            'apparel': 'Fashion & Apparel Careers',
+            'designer': 'Design & Creative Careers',
             'healthcare': 'Healthcare Careers',
+            'sales': 'Sales Careers',
+            'fitness': 'Fitness & Wellness Careers',
+            'teacher': 'Education & Teaching Careers',
+            'digital-media': 'Digital Media & Marketing Careers',
+            'agriculture': 'Agriculture & Agribusiness Careers',
             'hr': 'Human Resources Careers',
+            'advocate': 'Law & Legal Services Careers',
+            'business-development': 'Business Development Careers',
+            'chef': 'Culinary Arts Careers',
+            'consultant': 'Consulting & Advisory Careers',
             'it-support': 'IT Support & Services Careers',
             'mobile app developer': 'Mobile Development Careers',
             'network engineer': 'Network Administration Careers',
             'public-relations': 'Public Relations & Communications Careers',
-            'quality assurance': 'Quality Assurance & Testing Careers',
-            'sales': 'Sales Careers',
-            'software engineer': 'Software Development Careers',
-            'teacher': 'Education & Teaching Careers'
+            'aviation': 'Aviation & Aerospace Careers',
+            # Merged classes (Feb 2026)
+            'finance-accounting': 'Finance & Accounting Careers',
+            'design-creative': 'Design & Creative Careers'
         }
         
     def normalize_synonyms(self, text):
@@ -811,6 +820,7 @@ def main():
     
     # Define paths
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    # Using merged dataset (26 classes) - finance/accountant/banking merged, arts/designer/apparel merged
     data_path = os.path.join(base_dir, 'data', 'datasets', 'merged_dataset_careerpath-ai_preprocessed.csv')
     model_dir = os.path.join(base_dir, 'data', 'trained_models')
     
@@ -829,38 +839,26 @@ def main():
     print("-"*80)
     texts, labels = classifier.load_data(data_path)
     
-    # Step 2: SPLIT DATA FIRST (before any balancing to prevent data leakage!)
+    # Step 2: Prepare data (Split FIRST → Balance Train Only → Vectorize)
+    # NOTE: Balancing is now done INSIDE prepare_data, only on training set!
     print("\n" + "-"*80)
-    print("STEP 2: Train/Test Split (BEFORE Balancing - Prevents Data Leakage)")
+    print("STEP 2: Preparing Data (Split → Balance Train Only → Vectorize)")
     print("-"*80)
-    print("Splitting data into train/test sets BEFORE balancing...")
-    print("This ensures test set remains pure and uncontaminated by oversampled duplicates.")
-    
-    X_train_text, X_test_text, y_train_raw, y_test = train_test_split(
-        texts, labels, test_size=0.2, random_state=42, stratify=labels
+    X_train, X_test, y_train, y_test, X_test_text = classifier.prepare_data(
+        texts, labels, test_size=0.2, random_state=42
     )
     
-    print(f"\nData split (BEFORE balancing):")
-    print(f"  Training set size: {len(X_train_text)} (80%)")
-    print(f"  Test set size: {len(X_test_text)} (20%)")
-    print(f"  Test set is CLEAN - no oversampled duplicates!")
-    
-    # Step 3: Balance ONLY TRAINING DATA (after split)
-    print("\n" + "-"*80)
-    print("STEP 3: Balancing ONLY Training Data (Test Set Untouched)")
-    print("-"*80)
-    X_train_balanced, y_train_balanced = classifier.balance_dataset(X_train_text, y_train_raw)
-    
-    # Save class distribution used for training
+    # Save class distribution used for training (after balancing)
     class_dist_path = os.path.join(model_dir, 'training_class_distribution.txt')
     with open(class_dist_path, 'w', encoding='utf-8') as f:
         f.write("="*80 + "\n")
-        f.write("TRAINING CLASS DISTRIBUTION (After Balancing - Training Set Only)\n")
+        f.write("TRAINING CLASS DISTRIBUTION (After Balancing - Train Set Only)\n")
         f.write("="*80 + "\n")
         f.write(f"\nDataset: merged_dataset_careerpath-ai_preprocessed.csv\n")
-        f.write(f"Total Classes Used: {classifier.balanced_class_counts.nunique() if hasattr(classifier, 'balanced_class_counts') else y_train_balanced.nunique()}\n")
-        f.write(f"Training Samples (balanced): {len(y_train_balanced)}\n")
-        f.write(f"Test Samples (unbalanced/clean): {len(y_test)}\n")
+        f.write(f"Pipeline: Split → Balance Train Only → Vectorize\n")
+        f.write(f"Total Classes Used: {len(classifier.balanced_class_counts) if hasattr(classifier, 'balanced_class_counts') else y_train.nunique() if hasattr(y_train, 'nunique') else len(set(y_train))}\n")
+        f.write(f"Total Training Samples (after balancing): {len(y_train)}\n")
+        f.write(f"Total Test Samples (untouched): {len(y_test)}\n")
         f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("\n" + "="*80 + "\n")
         f.write("CLASS NAME                                      | SAMPLE COUNT\n")
@@ -870,37 +868,17 @@ def main():
             for idx, (class_name, count) in enumerate(classifier.balanced_class_counts.items(), 1):
                 f.write(f"{idx:3d}. {class_name:<45} | {count:>6d}\n")
         else:
-            class_counts = y_train_balanced.value_counts().sort_values(ascending=False)
+            if hasattr(y_train, 'value_counts'):
+                class_counts = y_train.value_counts().sort_values(ascending=False)
+            else:
+                from collections import Counter
+                class_counts = pd.Series(Counter(y_train)).sort_values(ascending=False)
             for idx, (class_name, count) in enumerate(class_counts.items(), 1):
                 f.write(f"{idx:3d}. {class_name:<45} | {count:>6d}\n")
         
         f.write("="*80 + "\n")
     
     print(f"✓ Training class distribution saved to: {class_dist_path}")
-    
-    # Step 4: Vectorize (fit on balanced training data, transform clean test data)
-    print("\n" + "-"*80)
-    print("STEP 4: TF-IDF Vectorization")
-    print("-"*80)
-    print("Vectorizing text using TF-IDF...")
-    print(f"  Max features: {classifier.vectorizer.max_features}")
-    print(f"  N-gram range: {classifier.vectorizer.ngram_range}")
-    
-    # Fit TF-IDF on balanced training data only
-    X_train = classifier.vectorizer.fit_transform(X_train_balanced)
-    # Transform test data (do NOT fit on test data!)
-    X_test = classifier.vectorizer.transform(X_test_text)
-    
-    print(f"  Training feature matrix shape: {X_train.shape}")
-    print(f"  Test feature matrix shape: {X_test.shape}")
-    print(f"  Vocabulary size: {len(classifier.vectorizer.vocabulary_)}")
-    
-    # Store classes for later use
-    classifier.classes_ = np.unique(y_train_balanced)
-    print(f"  Number of classes: {len(classifier.classes_)}")
-    
-    # Assign y_train for downstream compatibility
-    y_train = y_train_balanced
     
     # Save test split data for calibration script
     test_data_path = os.path.join(model_dir, 'test_split_data.pkl')
@@ -911,15 +889,15 @@ def main():
     joblib.dump(test_data, test_data_path)
     print(f"✓ Test split data saved to: {test_data_path}")
     
-    # Step 5: Train model
+    # Step 3: Train model
     print("\n" + "-"*80)
-    print("STEP 5: Training Model")
+    print("STEP 3: Training Model")
     print("-"*80)
     classifier.train(X_train, y_train, use_sample_weight=False)
     
-    # Step 5.5: VALIDATE NO GEOGRAPHIC LEAKAGE (Critical!)
+    # Step 3.5: VALIDATE NO GEOGRAPHIC LEAKAGE (Critical!)
     print("\n" + "-"*80)
-    print("STEP 5.5: Validating Geographic Leakage Prevention")
+    print("STEP 3.5: Validating Geographic Leakage Prevention")
     print("-"*80)
     print("Checking vocabulary for location-related terms...")
     
@@ -954,16 +932,16 @@ def main():
         print("Please investigate and fix location leakage before proceeding.")
         raise
     
-    # Step 6: Evaluate model
+    # Step 4: Evaluate model
     print("\n" + "-"*80)
-    print("STEP 6: Evaluating Model")
+    print("STEP 4: Evaluating Model")
     print("-"*80)
     confusion_matrix_path = os.path.join(model_dir, 'confusion_matrix.png')
     results = classifier.evaluate(X_test, y_test, save_confusion_matrix=confusion_matrix_path)
     
-    # Step 7: Save model
+    # Step 5: Save model
     print("\n" + "-"*80)
-    print("STEP 7: Saving Model")
+    print("STEP 5: Saving Model")
     print("-"*80)
     classifier.save_model(model_dir, 'advanced_career_path_cnb')
     
@@ -973,7 +951,7 @@ def main():
         json.dump(results, f, indent=2)
     print(f"✓ Evaluation results saved to: {results_path}")
     
-    # Step 8: Test predictions
+    # Step 6: Test predictions
     print("\n" + "="*80)
     print("SAMPLE PREDICTIONS")
     print("="*80)
