@@ -94,6 +94,21 @@ class AdvancedCareerPathClassifier:
         self.lemmatizer = WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
         
+        # Add generic resume terms that cause class confusion (Feb 2026)
+        # TUNED: Only the most generic placeholder terms that appear in ALL resumes
+        # Kept terms that may discriminate between career types (e.g., data, development)
+        generic_resume_terms = {
+            # Company/location placeholders (these are template artifacts, not meaningful)
+            'company', 'company name', 'name', 'name location', 'location',
+            # Education credentials (appears in nearly all resumes, non-discriminating)
+            'bachelor', 'master', 'degree', 'graduate', 'college', 'university',
+            # Generic time/experience placeholders
+            'year', 'month', 'experience',
+            # MS Office (appears everywhere, not career-specific)
+            'microsoft', 'office', 'excel', 'word', 'powerpoint',
+        }
+        self.stop_words.update(generic_resume_terms)
+        
         # Initialize NER location remover (prevents geographic leakage)
         print("Initializing NER location remover...")
         self.location_remover = NERLocationRemover(placeholder="<LOCATION>")
@@ -168,16 +183,18 @@ class AdvancedCareerPathClassifier:
             'construction worker': 'construction',
             'builder': 'construction',
             
-            # Apparel/Fashion
-            'fashion': 'apparel',
-            'clothing': 'apparel',
-            'textile': 'apparel',
+            # Apparel/Fashion (merged into design-creative)
+            'fashion': 'design-creative',
+            'clothing': 'design-creative',
+            'textile': 'design-creative',
+            'apparel': 'design-creative',
             
-            # Design
-            'graphic designer': 'designer',
-            'ui designer': 'designer',
-            'ux designer': 'designer',
-            'web designer': 'designer',
+            # Design (merged into design-creative)
+            'graphic designer': 'design-creative',
+            'ui designer': 'design-creative',
+            'ux designer': 'design-creative',
+            'web designer': 'design-creative',
+            'designer': 'design-creative',
             
             # Healthcare
             'medical': 'healthcare',
@@ -186,9 +203,10 @@ class AdvancedCareerPathClassifier:
             'doctor': 'healthcare',
             'physician': 'healthcare',
             
-            # Accounting
-            'accounting': 'accountant',
-            'cpa': 'accountant',
+            # Accounting (merged into finance-accounting)
+            'accounting': 'finance-accounting',
+            'cpa': 'finance-accounting',
+            'accountant': 'finance-accounting',
             
             # Sales
             'salesperson': 'sales',
@@ -208,16 +226,17 @@ class AdvancedCareerPathClassifier:
             'professor': 'teacher',
             'instructor': 'teacher',
             
-            # Banking/Finance
-            'banker': 'banking',
-            'financial services': 'banking',
+            # Banking (merged into finance-accounting)
+            'banker': 'finance-accounting',
+            'financial services': 'finance-accounting',
+            'banking': 'finance-accounting',
             
             # Digital Media
             'digital marketing': 'digital media',
             'social media': 'digital media',
             'content creator': 'digital media',
             
-            # Agriculture
+            # Agriculture - EXPANDED to discriminate from construction (Feb 2026)
             'farming': 'agriculture',
             'agricultural': 'agriculture',
             'farmer': 'agriculture',
@@ -226,45 +245,113 @@ class AdvancedCareerPathClassifier:
             'crop specialist': 'agriculture',
             'soil scientist': 'agriculture',
             'livestock': 'agriculture',
+            'harvest': 'agriculture',
+            'irrigation': 'agriculture',
+            'cultivate': 'agriculture',
+            'plantation': 'agriculture',
+            'greenhouse': 'agriculture',
+            'horticulture': 'agriculture',
+            'agronomy': 'agriculture',
+            'cattle': 'agriculture',
+            'dairy': 'agriculture',
+            'poultry': 'agriculture',
+            'organic farming': 'agriculture',
+            'crop rotation': 'agriculture',
+            'fertilizer': 'agriculture',
+            'pesticide': 'agriculture',
             
             # HR
             'human resources': 'hr',
             'recruiter': 'hr',
             'talent acquisition': 'hr',
+            'onboarding': 'hr',
+            'employee relations': 'hr',
+            'compensation benefits': 'hr',
+            'hris': 'hr',
+            'payroll': 'hr',
+            'workforce planning': 'hr',
             
-            # Arts
-            'artist': 'arts',
-            'fine arts': 'arts',
-            'visual artist': 'arts',
-            'performing arts': 'arts',
-            'exhibition': 'arts',
+            # Arts (merged into design-creative)
+            'artist': 'design-creative',
+            'fine arts': 'design-creative',
+            'visual artist': 'design-creative',
+            'performing arts': 'design-creative',
+            'exhibition': 'design-creative',
+            'arts': 'design-creative',
             
-            # Legal/Advocate
+            # Legal/Advocate - EXPANDED to discriminate from HR/PR (Feb 2026)
             'lawyer': 'advocate',
             'attorney': 'advocate',
             'legal': 'advocate',
+            'litigation': 'advocate',
+            'court': 'advocate',
+            'case law': 'advocate',
+            'statute': 'advocate',
+            'jury': 'advocate',
+            'paralegal': 'advocate',
+            'law firm': 'advocate',
+            'legal counsel': 'advocate',
+            'contract law': 'advocate',
+            'tort': 'advocate',
+            'deposition': 'advocate',
+            'plaintiff': 'advocate',
+            'defendant': 'advocate',
+            'legal brief': 'advocate',
+            'bar exam': 'advocate',
+            'juris doctor': 'advocate',
+            'jd': 'advocate',
             
-            # Business Development
-            'bd': 'business development',
-            'biz dev': 'business development',
+            # Business Development - EXPANDED to discriminate from sales (Feb 2026)
+            'bd': 'business-development',
+            'biz dev': 'business-development',
+            'partnership': 'business-development',
+            'strategic alliance': 'business-development',
+            'market expansion': 'business-development',
+            'b2b relationship': 'business-development',
+            'channel partner': 'business-development',
+            'joint venture': 'business-development',
+            'ecosystem': 'business-development',
             
-            # Finance
-            'financial analyst': 'finance',
-            'fintech': 'finance',
-            'financial planning': 'finance',
-            'financial modeling': 'finance',
-            'fp&a': 'finance',
+            # Sales - EXPANDED to discriminate from business development (Feb 2026)
+            'quota': 'sales',
+            'cold call': 'sales',
+            'cold calling': 'sales',
+            'prospecting': 'sales',
+            'closing deal': 'sales',
+            'sales pipeline': 'sales',
+            'crm': 'sales',
+            'salesforce': 'sales',
+            'commission': 'sales',
+            'revenue target': 'sales',
+            'outbound': 'sales',
+            'inbound sales': 'sales',
+            'upselling': 'sales',
+            'cross selling': 'sales',
+            
+            # Finance (merged into finance-accounting)
+            'financial analyst': 'finance-accounting',
+            'fintech': 'finance-accounting',
+            'financial planning': 'finance-accounting',
+            'financial modeling': 'finance-accounting',
+            'fp&a': 'finance-accounting',
+            'finance': 'finance-accounting',
             
             # Culinary
             'cook': 'chef',
             'culinary': 'chef',
             
-            # Consulting
+            # Consulting - EXPANDED to discriminate from business analyst (Feb 2026)
             'consulting': 'consultant',
             'advisor': 'consultant',
             'management consultant': 'consultant',
             'strategy consultant': 'consultant',
             'advisory services': 'consultant',
+            'engagement': 'consultant',
+            'deliverable': 'consultant',
+            'stakeholder management': 'consultant',
+            'change management': 'consultant',
+            'transformation': 'consultant',
+            'due diligence': 'consultant',
             
             # IT
             'it support': 'it-support',
@@ -280,9 +367,46 @@ class AdvancedCareerPathClassifier:
             'it specialist': 'it-support',
             'it administrator': 'it-support',
             
-            # PR
-            'pr': 'public relations',
-            'communications': 'public relations',
+            # PR - EXPANDED to discriminate from digital-media (Feb 2026)
+            'pr': 'public-relations',
+            'communications': 'public-relations',
+            'press release': 'public-relations',
+            'media relations': 'public-relations',
+            'crisis communication': 'public-relations',
+            'spokesperson': 'public-relations',
+            'press conference': 'public-relations',
+            'media coverage': 'public-relations',
+            'earned media': 'public-relations',
+            
+            # Digital Media - EXPANDED to discriminate from PR (Feb 2026)
+            'social media marketing': 'digital-media',
+            'content marketing': 'digital-media',
+            'seo': 'digital-media',
+            'sem': 'digital-media',
+            'google ads': 'digital-media',
+            'facebook ads': 'digital-media',
+            'instagram': 'digital-media',
+            'tiktok': 'digital-media',
+            'influencer': 'digital-media',
+            'viral': 'digital-media',
+            'engagement rate': 'digital-media',
+            
+            # Design - EXPANDED to discriminate from software engineer (Feb 2026)
+            'figma': 'design-creative',
+            'photoshop': 'design-creative',
+            'illustrator': 'design-creative',
+            'sketch app': 'design-creative',
+            'wireframe': 'design-creative',
+            'mockup': 'design-creative',
+            'prototype': 'design-creative',
+            'branding': 'design-creative',
+            'typography': 'design-creative',
+            'color theory': 'design-creative',
+            'adobe creative': 'design-creative',
+            'indesign': 'design-creative',
+            'visual design': 'design-creative',
+            'art direction': 'design-creative',
+            'creative director': 'design-creative',
             
             # Aviation
             'pilot': 'aviation',
@@ -904,10 +1028,14 @@ def main():
     print("="*80)
     
     # Define paths
-    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     # Using merged dataset (26 classes) - finance/accountant/banking merged, arts/designer/apparel merged
-    data_path = os.path.join(base_dir, 'data', 'datasets', 'merged_dataset_careerpath-ai_preprocessed.csv')
+    data_path = os.path.join(base_dir, 'data', 'datasets', 'final_dataset_careerpath-ai_preprocessed.csv')
     model_dir = os.path.join(base_dir, 'data', 'trained_models')
+    
+    # Ensure model directory exists
+    os.makedirs(model_dir, exist_ok=True)
+    print(f"Model directory: {model_dir}")
     
     # Initialize classifier with optimized parameters
     print("\nInitializing classifier...")
@@ -939,7 +1067,7 @@ def main():
         f.write("="*80 + "\n")
         f.write("TRAINING CLASS DISTRIBUTION (After Balancing - Train Set Only)\n")
         f.write("="*80 + "\n")
-        f.write(f"\nDataset: merged_dataset_careerpath-ai_preprocessed.csv\n")
+        f.write(f"\nDataset: final_dataset_careerpath-ai_preprocessed.csv\n")
         f.write(f"Pipeline: Split → Balance Train Only → Vectorize\n")
         f.write(f"Total Classes Used: {len(classifier.balanced_class_counts) if hasattr(classifier, 'balanced_class_counts') else y_train.nunique() if hasattr(y_train, 'nunique') else len(set(y_train))}\n")
         f.write(f"Total Training Samples (after balancing): {len(y_train)}\n")
