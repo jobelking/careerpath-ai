@@ -103,7 +103,9 @@ class NERLocationRemover:
             'thailand', 'indonesia', 'malaysia', 'philippines', 'australia',
             'zealand', 'bangladesh', 'colombia', 'peru', 'chile', 'venezuela',
             'ecuador', 'bolivia', 'paraguay', 'uruguay', 'iran', 'iraq',
-            'afghanistan', 'nepal', 'srilanka', 'myanmar', 'cambodia', 'laos'
+            'afghanistan', 'nepal', 'srilanka', 'myanmar', 'cambodia', 'laos',
+            'greece', 'romania', 'hungary', 'czechia', 'slovakia', 'croatia',
+            'bulgaria', 'serbia', 'slovenia', 'iceland', 'ireland', 'scotland'
         ]
         
         keywords.update([k.lower() for k in us_cities])
