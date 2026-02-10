@@ -1,13 +1,13 @@
-import { 
-    FaBolt, FaCheckCircle, FaLock, FaUpload
+import {
+  FaBolt, FaCheckCircle, FaLock, FaUpload, FaArrowLeft, FaArrowRight
 } from "react-icons/fa";
 
-import { 
-    MdInsights 
+import {
+  MdInsights
 } from "react-icons/md";
 
-import { 
-  FcDocument 
+import {
+  FcDocument
 } from "react-icons/fc";
 
 export const otherIcons = {
@@ -17,4 +17,6 @@ export const otherIcons = {
   "FaUpload": FaUpload,
   "MdInsights": MdInsights,
   "FcDocument": FcDocument,
+  "FaArrowLeft": FaArrowLeft,
+  "FaArrowRight": FaArrowRight
 };
