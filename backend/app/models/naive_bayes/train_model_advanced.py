@@ -1,12 +1,3 @@
-"""
-ADVANCED Complement Naive Bayes Pipeline for Career Path Prediction
-- Handles imbalanced dataset with strategic oversampling/downsampling
-- Advanced text preprocessing with lemmatization and synonym normalization
-- TF-IDF vectorization with unigrams and bigrams (top 15,000 features)
-- Comprehensive evaluation with confusion matrix
-- Expected accuracy: 76-80%+
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -94,7 +85,7 @@ class AdvancedCareerPathClassifier:
         self.lemmatizer = WordNetLemmatizer()
         self.stop_words = set(stopwords.words('english'))
         
-        # Add generic resume terms that cause class confusion (Feb 2026)
+        # Add generic resume terms that cause class confusion
         # TUNED: Only the most generic placeholder terms that appear in ALL resumes
         # Kept terms that may discriminate between career types (e.g., data, development)
         generic_resume_terms = {
@@ -177,9 +168,68 @@ class AdvancedCareerPathClassifier:
             'ios developer': 'mobile app developer',
             'android developer': 'mobile app developer',
             
-            # Construction
+            # Construction - EXPANDED to reduce overfitting
             'construction worker': 'construction',
             'builder': 'construction',
+            'contractor': 'construction',
+            'site manager': 'construction',
+            'construction manager': 'construction',
+            'foreman': 'construction',
+            'general contractor': 'construction',
+            'construction superintendent': 'construction',
+            'project manager construction': 'construction',
+            'building': 'construction',
+            'carpentry': 'construction',
+            'masonry': 'construction',
+            'plumbing': 'construction',
+            'hvac': 'construction',
+            'electrical work': 'construction',
+            'welding': 'construction',
+            'scaffolding': 'construction',
+            'blueprint reading': 'construction',
+            
+            # Engineering - Critical weak class (F1: 0.654, 59% precision)
+            'mechanical engineer': 'engineering',
+            'civil engineer': 'engineering',
+            'electrical engineer': 'engineering',
+            'chemical engineer': 'engineering',
+            'industrial engineer': 'engineering',
+            'manufacturing engineer': 'engineering',
+            'structural engineer': 'engineering',
+            'project engineer': 'engineering',
+            'design engineer': 'engineering',
+            'process engineer': 'engineering',
+            'quality engineer': 'engineering',
+            'production engineer': 'engineering',
+            'maintenance engineer': 'engineering',
+            'plant engineer': 'engineering',
+            'field engineer': 'engineering',
+            'test engineer': 'engineering',
+            'systems engineer': 'engineering',
+            'reliability engineer': 'engineering',
+            'automation engineer': 'engineering',
+            'cad': 'engineering',
+            'autocad': 'engineering',
+            'solidworks': 'engineering',
+            'catia': 'engineering',
+            'ansys': 'engineering',
+            'matlab': 'engineering',
+            'plc': 'engineering',
+            'scada': 'engineering',
+            'hvac design': 'engineering',
+            'piping': 'engineering',
+            'mep': 'engineering',
+            'structural analysis': 'engineering',
+            'fea': 'engineering',
+            'gd&t': 'engineering',
+            'bom': 'engineering',
+            'dfm': 'engineering',
+            'dfma': 'engineering',
+            'lean manufacturing': 'engineering',
+            'six sigma': 'engineering',
+            'root cause analysis': 'engineering',
+            'failure mode': 'engineering',
+            'tolerancing': 'engineering',
             
             # Apparel/Fashion (merged into design-creative)
             'fashion': 'design-creative',
@@ -194,12 +244,28 @@ class AdvancedCareerPathClassifier:
             'web designer': 'design-creative',
             'designer': 'design-creative',
             
-            # Healthcare
-            'medical': 'healthcare',
-            'health': 'healthcare',
-            'nurse': 'healthcare',
-            'doctor': 'healthcare',
-            'physician': 'healthcare',
+            # Healthcare - FIXED: Only use highly specific terms
+            # Removed generic terms (medical, health, doctor) that appear in benefits/insurance
+            'registered nurse': 'healthcare',
+            'rn': 'healthcare',
+            'nurse practitioner': 'healthcare',
+            'physician assistant': 'healthcare',
+            'medical doctor': 'healthcare',
+            'clinical': 'healthcare',
+            'patient care': 'healthcare',
+            'hospital': 'healthcare',
+            'clinic': 'healthcare',
+            'emergency room': 'healthcare',
+            'icu': 'healthcare',
+            'surgery': 'healthcare',
+            'radiology': 'healthcare',
+            'pharmacy': 'healthcare',
+            'pharmacist': 'healthcare',
+            'paramedic': 'healthcare',
+            'emt': 'healthcare',
+            'therapist': 'healthcare',
+            'physical therapy': 'healthcare',
+            'occupational therapy': 'healthcare',
             
             # Accounting (merged into finance-accounting)
             'accounting': 'finance-accounting',
@@ -234,7 +300,7 @@ class AdvancedCareerPathClassifier:
             'social media': 'digital-media',
             'content creator': 'digital-media',
             
-            # Agriculture - EXPANDED to discriminate from construction (Feb 2026)
+            # Agriculture - EXPANDED to discriminate from construction
             'farming': 'agriculture',
             'agricultural': 'agriculture',
             'farmer': 'agriculture',
@@ -258,16 +324,48 @@ class AdvancedCareerPathClassifier:
             'fertilizer': 'agriculture',
             'pesticide': 'agriculture',
             
-            # HR
+            # HR - EXPANDED to reduce false positives
+            # Was: 56% precision, 83% recall (F1: 0.667) - too many false positives
             'human resources': 'hr',
+            'human resource': 'hr',
+            'hr manager': 'hr',
+            'hr generalist': 'hr',
+            'hr specialist': 'hr',
+            'hr coordinator': 'hr',
+            'hr business partner': 'hr',
+            'hrbp': 'hr',
             'recruiter': 'hr',
+            'recruitment': 'hr',
             'talent acquisition': 'hr',
+            'talent acquisition specialist': 'hr',
             'onboarding': 'hr',
+            'offboarding': 'hr',
             'employee relations': 'hr',
+            'employee engagement': 'hr',
             'compensation benefits': 'hr',
+            'compensation analyst': 'hr',
+            'benefits administrator': 'hr',
             'hris': 'hr',
+            'hris analyst': 'hr',
+            'workday': 'hr',
+            'adp': 'hr',
             'payroll': 'hr',
+            'payroll specialist': 'hr',
             'workforce planning': 'hr',
+            'hr analytics': 'hr',
+            'people operations': 'hr',
+            'people ops': 'hr',
+            'learning development': 'hr',
+            'training coordinator': 'hr',
+            'organizational development': 'hr',
+            'talent management': 'hr',
+            'succession planning': 'hr',
+            'performance management': 'hr',
+            'employee handbook': 'hr',
+            'hr policy': 'hr',
+            'hr compliance': 'hr',
+            'labor relations': 'hr',
+            'hr metrics': 'hr',
             
             # Arts (merged into design-creative)
             'artist': 'design-creative',
@@ -277,7 +375,7 @@ class AdvancedCareerPathClassifier:
             'exhibition': 'design-creative',
             'arts': 'design-creative',
             
-            # Legal/Advocate - EXPANDED to discriminate from HR/PR (Feb 2026)
+            # Legal/Advocate - EXPANDED to discriminate from HR/PR
             'lawyer': 'advocate',
             'attorney': 'advocate',
             'legal': 'advocate',
@@ -299,16 +397,46 @@ class AdvancedCareerPathClassifier:
             'juris doctor': 'advocate',
             'jd': 'advocate',
             
-            # Business Development - EXPANDED to discriminate from sales (Feb 2026)
+            # Business Development - EXPANDED to discriminate from sales/consultant
+            # Was: 62% precision, 66% recall (F1: 0.637) - confusion with sales and consultant
             'bd': 'business-development',
             'biz dev': 'business-development',
+            'business development': 'business-development',
+            'business dev': 'business-development',
             'partnership': 'business-development',
+            'partnerships': 'business-development',
+            'strategic partnership': 'business-development',
+            'strategic partnerships': 'business-development',
             'strategic alliance': 'business-development',
+            'strategic alliances': 'business-development',
             'market expansion': 'business-development',
+            'market development': 'business-development',
             'b2b relationship': 'business-development',
+            'b2b partnerships': 'business-development',
             'channel partner': 'business-development',
+            'channel development': 'business-development',
+            'channel sales': 'business-development',
+            'partner management': 'business-development',
             'joint venture': 'business-development',
             'ecosystem': 'business-development',
+            'ecosystem development': 'business-development',
+            'alliance manager': 'business-development',
+            'partnership manager': 'business-development',
+            'partner program': 'business-development',
+            'channel enablement': 'business-development',
+            'go to market': 'business-development',
+            'gtm strategy': 'business-development',
+            'enterprise partnerships': 'business-development',
+            'corporate development': 'business-development',
+            'new market entry': 'business-development',
+            'reseller': 'business-development',
+            'distributor': 'business-development',
+            'var': 'business-development',
+            'value added reseller': 'business-development',
+            'oem': 'business-development',
+            'licensing': 'business-development',
+            'co marketing': 'business-development',
+            'co selling': 'business-development',
             
             # Sales - EXPANDED to discriminate from business development (Feb 2026)
             'quota': 'sales',
@@ -447,7 +575,6 @@ class AdvancedCareerPathClassifier:
             'it-support': 'IT Support & Services Careers',
             'public-relations': 'Public Relations & Communications Careers',
             'aviation': 'Aviation & Aerospace Careers',
-            # Merged classes (Feb 2026)
             'finance-accounting': 'Finance & Accounting Careers',
             'design-creative': 'Design & Creative Careers'
         }
@@ -547,9 +674,9 @@ class AdvancedCareerPathClassifier:
         """
         Balance the dataset using intelligent oversampling and downsampling.
         
-        NEW STRATEGY (Feb 2026) - Optimized for macro F1 and minority recall:
+        Optimized for macro F1 and minority recall:
         - Remove classes with fewer than 50 samples
-        - Oversample classes with 50-149 samples to 200 samples
+        - Oversample classes with 50-199 samples to 200 samples
         - Downsample classes with >400 samples to 400 samples
         - Leave other classes (200-400 samples) unchanged
         - Optionally use text augmentation for oversampling
@@ -1027,7 +1154,6 @@ def main():
     
     # Define paths
     base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    # Using merged dataset (26 classes) - finance/accountant/banking merged, arts/designer/apparel merged
     data_path = os.path.join(base_dir, 'data', 'datasets', 'final_dataset_careerpath-ai_preprocessed.csv')
     model_dir = os.path.join(base_dir, 'data', 'trained_models')
     
