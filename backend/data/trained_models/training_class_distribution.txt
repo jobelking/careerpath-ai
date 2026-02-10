@@ -2,12 +2,12 @@
 TRAINING CLASS DISTRIBUTION (After Balancing - Train Set Only)
 ================================================================================
 
-Dataset: merged_dataset_careerpath-ai_preprocessed.csv
+Dataset: final_dataset_careerpath-ai_preprocessed.csv
 Pipeline: Split → Balance Train Only → Vectorize
 Total Classes Used: 26
-Total Training Samples (after balancing): 5568
-Total Test Samples (untouched): 1244
-Date: 2026-02-08 16:34:02
+Total Training Samples (after balancing): 6547
+Total Test Samples (untouched): 1583
+Date: 2026-02-10 20:57:15
 
 ================================================================================
 REMOVED CLASSES (0 classes with <50 samples)
@@ -15,40 +15,40 @@ REMOVED CLASSES (0 classes with <50 samples)
   (None - all classes met minimum threshold)
 
 ================================================================================
-OVERSAMPLED CLASSES (16 classes boosted to 150)
+OVERSAMPLED CLASSES (15 classes boosted to 200)
 ================================================================================
-  ↑ it-support: 128 → 150 samples
-  ↑ consultant: 116 → 150 samples
-  ↑ advocate: 100 → 150 samples
-  ↑ sales: 96 → 150 samples
-  ↑ hr: 95 → 150 samples
-  ↑ chef: 94 → 150 samples
-  ↑ business-development: 94 → 150 samples
-  ↑ fitness: 94 → 150 samples
-  ↑ aviation: 93 → 150 samples
-  ↑ engineering: 93 → 150 samples
-  ↑ healthcare: 90 → 150 samples
-  ↑ public-relations: 88 → 150 samples
-  ↑ construction: 86 → 150 samples
-  ↑ teacher: 82 → 150 samples
-  ↑ digital-media: 76 → 150 samples
-  ↑ agriculture: 51 → 150 samples
+  ↑ consultant: 196 → 200 samples
+  ↑ engineering: 188 → 200 samples
+  ↑ healthcare: 186 → 200 samples
+  ↑ sales: 176 → 200 samples
+  ↑ business-development: 174 → 200 samples
+  ↑ chef: 174 → 200 samples
+  ↑ fitness: 173 → 200 samples
+  ↑ aviation: 172 → 200 samples
+  ↑ public-relations: 168 → 200 samples
+  ↑ teacher: 162 → 200 samples
+  ↑ digital-media: 156 → 200 samples
+  ↑ hr: 143 → 200 samples
+  ↑ agriculture: 130 → 200 samples
+  ↑ it-support: 128 → 200 samples
+  ↑ construction: 87 → 200 samples
 
 ================================================================================
-DOWNSAMPLED CLASSES (2 classes reduced to 400)
+DOWNSAMPLED CLASSES (3 classes reduced to 400)
 ================================================================================
   ↓ datascience: 678 → 400 samples
   ↓ software engineer: 452 → 400 samples
+  ↓ design-creative: 439 → 400 samples
 
 ================================================================================
-UNCHANGED CLASSES (8 classes with 150-400 samples)
+UNCHANGED CLASSES (8 classes with 200-400 samples)
 ================================================================================
   = devops: 342 samples
   = quality assurance: 327 samples
   = business analyst: 314 samples
   = network engineer: 313 samples
   = finance-accounting: 285 samples
-  = design-creative: 279 samples
+  = advocate: 258 samples
   = mobile app developer: 256 samples
   = cyber security: 252 samples
 
@@ -58,29 +58,29 @@ FINAL BALANCED CLASS DISTRIBUTION
 CLASS NAME                                      | SAMPLE COUNT
 --------------------------------------------------------------------------------
   1. software engineer                             |    400
-  2. datascience                                   |    400
-  3. devops                                        |    342
-  4. quality assurance                             |    327
-  5. business analyst                              |    314
-  6. network engineer                              |    313
-  7. finance-accounting                            |    285
-  8. design-creative                               |    279
-  9. mobile app developer                          |    256
- 10. cyber security                                |    252
- 11. sales                                         |    150
- 12. it-support                                    |    150
- 13. digital-media                                 |    150
- 14. teacher                                       |    150
- 15. consultant                                    |    150
- 16. aviation                                      |    150
- 17. business-development                          |    150
- 18. agriculture                                   |    150
- 19. construction                                  |    150
- 20. healthcare                                    |    150
- 21. engineering                                   |    150
- 22. chef                                          |    150
- 23. fitness                                       |    150
- 24. advocate                                      |    150
- 25. public-relations                              |    150
- 26. hr                                            |    150
+  2. design-creative                               |    400
+  3. datascience                                   |    400
+  4. devops                                        |    342
+  5. quality assurance                             |    327
+  6. business analyst                              |    314
+  7. network engineer                              |    313
+  8. finance-accounting                            |    285
+  9. advocate                                      |    258
+ 10. mobile app developer                          |    256
+ 11. cyber security                                |    252
+ 12. digital-media                                 |    200
+ 13. chef                                          |    200
+ 14. construction                                  |    200
+ 15. public-relations                              |    200
+ 16. hr                                            |    200
+ 17. teacher                                       |    200
+ 18. business-development                          |    200
+ 19. consultant                                    |    200
+ 20. it-support                                    |    200
+ 21. engineering                                   |    200
+ 22. healthcare                                    |    200
+ 23. agriculture                                   |    200
+ 24. aviation                                      |    200
+ 25. fitness                                       |    200
+ 26. sales                                         |    200
 ================================================================================
