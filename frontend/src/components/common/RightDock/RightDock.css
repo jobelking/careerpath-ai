@@ -1,0 +1,120 @@
+/* Right Dock - Floating Vertical Button Container */
+
+.right-dock {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: white;
+    border-radius: 12px 0 0 12px;
+    box-shadow: 
+        -4px 0 20px rgba(0, 0, 0, 0.08),
+        -2px 0 6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-right: none;
+}
+
+.dock-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 14px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    min-width: 64px;
+}
+
+.dock-button::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+.dock-button:first-child {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dock-button:hover {
+    background: #f8fafc;
+}
+
+.dock-button:hover .dock-button-icon {
+    color: #2563eb;
+    transform: scale(1.1);
+}
+
+.dock-button:focus-visible {
+    outline: none;
+    background: #eff6ff;
+}
+
+.dock-button:focus-visible::before {
+    background: #3b82f6;
+}
+
+.dock-button--active {
+    background: #eff6ff;
+}
+
+.dock-button--active::before {
+    background: #2563eb;
+}
+
+.dock-button--active .dock-button-icon {
+    color: #2563eb;
+}
+
+.dock-button--active .dock-button-label {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.dock-button-icon {
+    font-size: 20px;
+    color: #64748b;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-button-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Responsive - Hide labels on smaller screens */
+@media (max-width: 768px) {
+    .right-dock {
+        border-radius: 8px 0 0 8px;
+    }
+    
+    .dock-button {
+        padding: 14px 12px;
+        min-width: 52px;
+    }
+    
+    .dock-button-label {
+        display: none;
+    }
+    
+    .dock-button-icon {
+        font-size: 18px;
+    }
+}
