@@ -1,0 +1,55 @@
+/* Learning Panel Styles */
+
+.learning-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Coming Soon State */
+.learning-coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 30px;
+    min-height: 400px;
+}
+
+.learning-coming-soon .coming-soon-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid #a7f3d0;
+    margin-bottom: 24px;
+    font-size: 32px;
+    color: #059669;
+}
+
+.learning-coming-soon .coming-soon-title {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.learning-coming-soon .coming-soon-description {
+    margin: 0 0 16px 0;
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+.learning-coming-soon .coming-soon-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    max-width: 300px;
+}
