@@ -1,0 +1,55 @@
+/* Certification Panel Styles */
+
+.certification-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Coming Soon State */
+.certification-coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 30px;
+    min-height: 400px;
+}
+
+.certification-coming-soon .coming-soon-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px solid #fcd34d;
+    margin-bottom: 24px;
+    font-size: 32px;
+    color: #d97706;
+}
+
+.certification-coming-soon .coming-soon-title {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.certification-coming-soon .coming-soon-description {
+    margin: 0 0 16px 0;
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    max-width: 320px;
+}
+
+.certification-coming-soon .coming-soon-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    max-width: 300px;
+}
