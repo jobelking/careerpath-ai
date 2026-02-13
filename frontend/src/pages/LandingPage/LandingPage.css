@@ -421,6 +421,7 @@
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -432,6 +433,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -443,6 +445,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -486,6 +489,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -496,6 +500,7 @@
     opacity: 0;
     transform: translateX(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -507,6 +512,7 @@
     opacity: 0;
     transform: translateX(30px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -518,6 +524,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -528,6 +535,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -596,6 +604,7 @@
     opacity: 0;
     transform: translateX(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -607,6 +616,7 @@
     opacity: 0;
     transform: translateX(50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -618,6 +628,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -625,10 +636,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 0.8;
@@ -636,18 +650,24 @@
 }
 
 @keyframes connectionPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.4;
   }
+
   50% {
     opacity: 0.8;
   }
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(-50%) translateX(0);
   }
+
   50% {
     transform: translateY(-50%) translateX(-10px);
   }
@@ -658,9 +678,11 @@
     opacity: 0;
     transform: scale(0.3);
   }
+
   50% {
     transform: scale(1.05);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -1024,25 +1046,5 @@
 
   .landing-footer p {
     font-size: 0.75rem;
-  }
-}
-
-/* Desktop Large (min-width: 1440px) */
-@media (min-width: 1440px) {
-  .hero-section {
-    padding: 3rem 5rem;
-  }
-
-  .brand-name {
-    font-size: 4rem;
-  }
-
-  .hero-tagline {
-    font-size: 1.7rem;
-  }
-
-  .ai-illustration {
-    max-width: 550px;
-    height: 450px;
   }
 }
