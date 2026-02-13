@@ -1,19 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
+import { useDashboard } from '../../context/DashboardContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [showResults, setShowResults] = useState(false);
+
+  // Use context for persistent state
+  const {
+    predictionResults,
+    setPredictionResults,
+    uploadedFileName,
+    setUploadedFileName,
+    uploadedFile,
+    setUploadedFile,
+    clearResults
+  } = useDashboard();
+
+  // Local state (doesn't need persistence)
   const [isLoading, setIsLoading] = useState(false);
-  const [predictionResults, setPredictionResults] = useState(null);
   const [showAllPaths, setShowAllPaths] = useState(false);
   const [error, setError] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Derive showResults from predictionResults
+  const showResults = predictionResults !== null;
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -32,8 +47,9 @@ const Dashboard = () => {
       }
 
       setUploadedFile(file);
+      setUploadedFileName(file.name);
       setError(null);
-      setShowResults(false);
+      // Don't clear results when new file is selected, only when analyzed
     }
   };
 
@@ -44,7 +60,7 @@ const Dashboard = () => {
   const [isClosing, setIsClosing] = useState(false);
 
   // Manage object URL lifecycle
-  React.useEffect(() => {
+  useEffect(() => {
     let objectUrl = null;
     if (uploadedFile) {
       objectUrl = URL.createObjectURL(uploadedFile);
@@ -87,7 +103,6 @@ const Dashboard = () => {
 
     setIsLoading(true);
     setError(null);
-    setShowResults(false);
     setShowPreview(false);
 
     try {
@@ -96,18 +111,30 @@ const Dashboard = () => {
 
       if (result.success) {
         setPredictionResults(result);
-        setShowResults(true);
+        setUploadedFileName(uploadedFile.name);
       } else {
         setError('Failed to analyze resume. Please try again.');
-        setShowResults(false);
+        // Clear file so user can select a new one
+        setUploadedFile(null);
+        setUploadedFileName('');
       }
     } catch (err) {
       console.error('Prediction error:', err);
       setError(err.message || 'An error occurred while analyzing your resume. Please ensure the backend server is running.');
-      setShowResults(false);
+      // Clear file so user can select a new one
+      setUploadedFile(null);
+      setUploadedFileName('');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleReset = () => {
+    setUploadedFile(null);
+    clearResults();
+    setShowAllPaths(false);
+    setError(null);
+    setPreviewUrl(null);
   };
 
   const handleDragOver = (e) => {
@@ -144,10 +171,10 @@ const Dashboard = () => {
   };
 
   // --------------------
-  // Confidence (31 classes) - Non-technical UI text
+  // Confidence (26 classes) - Non-technical UI text
   // --------------------
 
-  const NUM_CLASSES = 31;
+  const NUM_CLASSES = 26;
 
   const toNum = (v) => {
     const n = Number(v);
@@ -156,32 +183,30 @@ const Dashboard = () => {
 
   /**
    * IMPORTANT:
-   * - Confidence LABEL is computed using RAW probabilities (across all 31 careers).
-   * - NO normalization allowed.
+   * - Confidence LABEL is computed using RAW probabilities (across all 26 careers).
+   * - Based on Feb 2026 calibration data (1583 test samples, 81.87% overall accuracy):
+   *   - 15%+ raw → 83-95% accuracy → Clear Match
+   *   - 10-15% raw → 65% accuracy → Shared Fit  
+   *   - <10% raw → 45-50% accuracy → Exploratory
    */
   const calculateConfidenceLevel = (predictions, numClasses = NUM_CLASSES) => {
     if (!predictions || predictions.length === 0) return "Exploratory";
     if (predictions.length === 1) return "Shared Fit";
 
-    const chance = 100 / numClasses; // ~3.23% for 31
-
-    // Prefer raw_confidence; fallback to confidence if needed
-    const p1 = toNum(predictions[0].raw_confidence ?? predictions[0].confidence);
-    const p2 = toNum(predictions[1].raw_confidence ?? predictions[1].confidence);
-    const p3 = toNum(predictions[2]?.raw_confidence ?? predictions[2]?.confidence);
-
+    // Use raw_confidence directly
+    const p1 = toNum(predictions[0].raw_confidence);
+    const p2 = toNum(predictions[1].raw_confidence);
     const margin = p1 - p2;
-    const mass3 = p1 + p2 + p3;
 
-    // Clear Match: very strong top match OR clearly stands out
-    if (p1 >= 6 * chance) return "Clear Match";                 // ~19%+
-    if (margin >= 8 && p1 >= 4 * chance) return "Clear Match";  // gap 8%+ and top1 ~13%+
+    // Clear Match: high confidence prediction (83-95% historical accuracy)
+    if (p1 >= 15) return "Clear Match";                          // 15%+ raw → 83-95% accuracy
+    if (p1 >= 12 && margin >= 5) return "Clear Match";           // 12%+ raw AND strong gap
 
-    // Shared Fit: strong top match but close alternatives OR focused in top-3
-    if (p1 >= 3 * chance && margin >= 3) return "Shared Fit";    // top1 ~9.7%+ and gap 3%+
-    if (mass3 >= 28 && p1 >= 3 * chance) return "Shared Fit";    // top-3 raw ~28%+ indicates focus
+    // Shared Fit: moderate confidence (~65% historical accuracy)
+    if (p1 >= 10) return "Shared Fit";                           // 10-15% raw → 65% accuracy
+    if (p1 >= 8 && margin >= 2) return "Shared Fit";             // 8%+ raw AND decent gap
 
-    // Exploratory: no single role clearly stands out
+    // Exploratory: lower confidence (45-50% historical accuracy)
     return "Exploratory";
   };
 
@@ -208,6 +233,31 @@ const Dashboard = () => {
     return `Exploratory: Your skills apply to many different areas without a single dominant match. Use these results as a starting point for exploration.`;
   };
 
+  /**
+   * Calculates a User-Friendly "Profile Fit" score from the Raw Probability.
+   * Uses historical accuracy from Feb 2026 calibration data.
+   * Based on calibration results (26 classes, 1583 test samples, 81.87% overall accuracy):
+   *   0-5% raw → N/A (only 2 samples, statistically unreliable - use linear interpolation)
+   *   5-10% raw → 45% accuracy (199 samples)
+   *   10-15% raw → 65% accuracy (184 samples)
+   *   15-20% raw → 83% accuracy (145 samples)
+   *   20-30% raw → 85% accuracy (198 samples)
+   *   30-50% raw → 90% accuracy (276 samples)
+   *   50-100% raw → 95% accuracy (579 samples)
+   * 
+   * Note: 0-5% bin uses linear ramp to 45% since only 2 samples exist (not statistically significant)
+   */
+  const calculateProfileFit = (rawProbability) => {
+    const p = rawProbability;
+
+    if (p < 5) return Math.round((p / 5) * 45);              // 0-5% → 0-45% (linear ramp, unreliable bin)
+    if (p < 10) return 45;                                    // 5-10% → 45% (199 samples)
+    if (p < 15) return Math.round(45 + ((p - 10) / 5) * 20); // 10-15% → 45-65%
+    if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
+    if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2); // 20-30% → 83-85%
+    if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5); // 30-50% → 85-90%
+    return Math.round(90 + ((p - 50) / 50) * 5);             // 50-100% → 90-95%
+  };
 
   return (
     <div className="dashboard-container">
@@ -241,7 +291,7 @@ const Dashboard = () => {
                     </span>
                   </div>
                   <h3>Upload Your Resume</h3>
-                  <p>Drag and drop your resume or click to browse</p>
+                  <p>Drag and drop your resume below</p>
                 </div>
 
                 <div
@@ -252,16 +302,17 @@ const Dashboard = () => {
                   <input
                     type="file"
                     id="resume-upload"
+                    ref={fileInputRef}
                     className="file-input"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={handleFileUpload}
                   />
-                  <label htmlFor="resume-upload" className="upload-label">
-                    {uploadedFile ? (
+                  <div className="upload-label">
+                    {uploadedFile || (showResults && uploadedFileName) ? (
                       <div className="file-uploaded">
                         <span></span>
                         <span className="file-icon">✓</span>
-                        <span className="file-name">{uploadedFile.name}</span>
+                        <span className="file-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
                         <span></span>
                       </div>
                     ) : (
@@ -269,21 +320,29 @@ const Dashboard = () => {
                         <div className="upload-cloud">
                           {React.createElement(otherIcons["FaUpload"], { color: "#2563eb" })}
                         </div>
-                        <span className="upload-text">Click to upload or drag and drop</span>
-                        <span className="upload-formats">PDF, DOC, DOCX (Max 10MB)</span>
+                        <span className="upload-text">Drag and drop your resume</span>
+                        <span className="upload-formats">PDF only (Max 10MB)</span>
                       </div>
                     )}
-                  </label>
+                  </div>
                 </div>
 
                 <div className="upload-actions">
                   {/* Upload Button */}
                   <button
-                    className="upload-button"
-                    onClick={handleAnalyze}
-                    disabled={!uploadedFile || isLoading}
+                    className={`upload-button ${showResults ? 'reset-mode' : ''}`}
+                    onClick={() => {
+                      if (showResults) {
+                        handleReset();
+                      } else if (!uploadedFile) {
+                        fileInputRef.current?.click();
+                      } else {
+                        handleAnalyze();
+                      }
+                    }}
+                    disabled={isLoading}
                   >
-                    {isLoading ? 'Analyzing...' : 'Upload and Analyze'}
+                    {isLoading ? 'Analyzing...' : showResults ? 'Add New Resume' : uploadedFile ? 'Upload and Analyze' : 'Select Resume'}
                   </button>
 
                   {/* View Resume Button (Secondary) */}
@@ -368,89 +427,122 @@ const Dashboard = () => {
                   <div className="results-header">
                     <div className="results-title-row">
                       <h3>Your Career Analysis</h3>
-                      <div
-                        className={`confidence-badge ${calculateConfidenceLevel(predictionResults.top_predictions).toLowerCase().replace(' ', '-')}`}
-                        data-tooltip={getConfidenceExplanation(predictionResults.top_predictions)}
-                      >
-                        <span className="confidence-icon">i</span>
-                        {calculateConfidenceLevel(predictionResults.top_predictions)}
-                      </div>
+                      {/* Confidence Badge */}
+                      {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (() => {
+                        const confidenceLevel = calculateConfidenceLevel(predictionResults.top_predictions);
+                        const badgeClass =
+                          confidenceLevel === "Clear Match" ? "confidence-badge-high" :
+                            confidenceLevel === "Shared Fit" ? "confidence-badge-medium" :
+                              "confidence-badge-low";
+                        const badgeIcon =
+                          confidenceLevel === "Clear Match" ? "✓" :
+                            confidenceLevel === "Shared Fit" ? "≈" :
+                              "◎";
+
+                        return (
+                          <div className={`confidence-badge ${badgeClass}`}>
+                            <span className="confidence-badge-icon">{badgeIcon}</span>
+                            <span className="confidence-badge-text">{confidenceLevel}</span>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <p className="results-context">
-                      These results are based on an analysis of your skills and experience. The percentages shown are raw probabilities across 31 potential career paths.
+                      These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength—not probability of success.
                     </p>
                   </div>
 
                   {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (
                     <>
-                      {/* 1. Summary Section (Primary Match) */}
-                      <div className="primary-match-section">
-                        <h4 className="section-label">Summary: Primary Match</h4>
-                        <div className="primary-prediction-card">
-                          <div className="primary-card-header">
-                            <div className="primary-icon-wrapper">
-                              {getCareerIcon(predictionResults.top_predictions[0].career_path)}
-                            </div>
-                            <div className="primary-info">
-                              <h3 className="primary-career-name">
-                                {predictionResults.top_predictions[0].career_path}
-                              </h3>
-                              <span className="primary-label">Top Ranked Result</span>
-                            </div>
-                          </div>
+                      {/* 1. Summary Section (Strongest Match) */}
+                      {(() => {
+                        const reliability = calculateProfileFit(predictionResults.top_predictions[0].raw_confidence);
+                        return (
+                          <div className="primary-match-section">
+                            <h4 className="section-label">Strongest Match</h4>
+                            <div className="primary-prediction-card">
+                              <div className="primary-card-header">
+                                <div className="primary-icon-wrapper">
+                                  {getCareerIcon(predictionResults.top_predictions[0].career_path)}
+                                </div>
+                                <div className="primary-info">
+                                  <h3 className="primary-career-name">
+                                    {predictionResults.top_predictions[0].career_path}
+                                  </h3>
+                                  <span className="primary-label">Rank #1 based on your profile</span>
+                                </div>
+                              </div>
 
-                          <div className="primary-match-bar">
-                            <div className="match-bar-bg">
-                              <div
-                                className="match-bar-fill primary"
-                                style={{ width: `${predictionResults.top_predictions[0].raw_confidence || predictionResults.top_predictions[0].confidence}%` }}
-                              ></div>
+                              <div className="primary-profile-fit">
+                                <div className="profile-fit-header">
+                                  <span className="profile-fit-label">Profile Fit</span>
+                                  <span className="profile-fit-value">
+                                    {reliability}%
+                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginLeft: '6px', fontWeight: 'normal' }}>
+                                      ({predictionResults.top_predictions[0].raw_confidence.toFixed(1)}% raw)
+                                    </span>
+                                  </span>
+                                </div>
+                                <div className="profile-fit-bar">
+                                  <div className="profile-fit-bar-fill" style={{ width: `${reliability}%` }}></div>
+                                </div>
+                              </div>
+
+                              <button
+                                className="learn-more-button"
+                                onClick={() => navigate('/learnmore')}
+                              >
+                                <span>Learn More</span>
+                                {React.createElement(otherIcons["FaArrowRight"], { size: 14 })}
+                              </button>
                             </div>
-                            <span className="match-percentage">
-                              {(predictionResults.top_predictions[0].raw_confidence || predictionResults.top_predictions[0].confidence).toFixed(1)}% Raw Confidence
-                            </span>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })()}
 
 
 
 
                       {/* 2. Next Best Matches (Rank 2 & 3) */}
-                      {predictionResults.top_predictions.length > 1 && (
-                        <div className="secondary-matches-section">
-                          <h4 className="section-label">Next Best Matches</h4>
-                          <div className="secondary-predictions-list">
-                            {predictionResults.top_predictions.slice(1, 3).map((career, index) => (
-                              <div key={index + 1} className="secondary-prediction-card">
-                                <div className="secondary-card-content">
-                                  <div className="secondary-left">
-                                    <div className="secondary-rank">#{index + 2}</div>
-                                    <div className="secondary-icon">
-                                      {getCareerIcon(career.career_path)}
+                      {predictionResults.top_predictions.length > 1 && (() => {
+                        return (
+                          <div className="secondary-matches-section">
+                            <h4 className="section-label">Also Strong Matches</h4>
+                            <div className="secondary-predictions-list">
+                              {predictionResults.top_predictions.slice(1, 3).map((career, index) => (
+                                <div key={index + 1} className="secondary-prediction-card">
+                                  <div className="secondary-card-content">
+                                    <div className="secondary-left">
+                                      <div className="secondary-rank">#{index + 2}</div>
+                                      <div className="secondary-icon">
+                                        {getCareerIcon(career.career_path)}
+                                      </div>
+                                      <div className="secondary-info">
+                                        <h5 className="secondary-career-name">{career.career_path}</h5>
+                                      </div>
                                     </div>
-                                    <div className="secondary-info">
-                                      <h5 className="secondary-career-name">{career.career_path}</h5>
-                                    </div>
-                                  </div>
 
-                                  <div className="secondary-right">
-                                    <div className="secondary-bar-container">
-                                      <div
-                                        className="secondary-bar-fill"
-                                        style={{ width: `${career.raw_confidence || career.confidence}%` }}
-                                      ></div>
+                                    <div className="secondary-profile-fit">
+                                      <div className="secondary-fit-header">
+                                        <span className="secondary-fit-label">Profile Fit</span>
+                                        <span className="secondary-fit-value">
+                                          {calculateProfileFit(career.raw_confidence)}%
+                                          <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 'normal' }}>
+                                            ({career.raw_confidence.toFixed(1)}% raw)
+                                          </span>
+                                        </span>
+                                      </div>
+                                      <div className="secondary-fit-bar">
+                                        <div className="secondary-fit-bar-fill" style={{ width: `${calculateProfileFit(career.raw_confidence)}%` }}></div>
+                                      </div>
                                     </div>
-                                    <span className="secondary-percentage">
-                                      {(career.raw_confidence || career.confidence).toFixed(1)}%
-                                    </span>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* 3. Full Transparency Section */}
                       <div className="transparency-section">
@@ -459,7 +551,7 @@ const Dashboard = () => {
                             className="expand-button"
                             onClick={() => setShowAllPaths(!showAllPaths)}
                           >
-                            {showAllPaths ? "Hide All Career Paths" : "View All Career Paths (31)"}
+                            {showAllPaths ? "Hide All Career Paths" : "View All Career Paths"}
                           </button>
                         </div>
 
@@ -468,15 +560,11 @@ const Dashboard = () => {
                             <div className="paths-header-row">
                               <span>Rank</span>
                               <span>Career Path</span>
-                              <span>Confidence</span>
                             </div>
                             {predictionResults.top_predictions.map((career, index) => (
                               <div key={index} className="path-item">
                                 <span className="path-rank">#{index + 1}</span>
                                 <span className="path-name">{career.career_path}</span>
-                                <span className="path-percent">
-                                  {(career.raw_confidence || career.confidence).toFixed(1)}%
-                                </span>
                               </div>
                             ))}
                           </div>
