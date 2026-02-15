@@ -5,8 +5,81 @@
  * This service provides job listings for the Philippines using the JSearch API.
  */
 
-const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const JSEARCH_BASE_URL = 'https://jsearch.p.rapidapi.com';
+const RETRYABLE_AUTH_STATUSES = new Set([401, 403, 429]);
+const USER_FRIENDLY_ERROR = 'Job search is temporarily unavailable. Please try again later.';
+
+const getRapidApiKeys = () => {
+    const envEntries = Object.entries(import.meta.env || {});
+    const keyLikeVar = /^VITE_RAPIDAPI_KEYS?(_\d+)?$/;
+    const keys = [];
+
+    for (const [envName, envValue] of envEntries) {
+        if (!keyLikeVar.test(envName) || typeof envValue !== 'string') {
+            continue;
+        }
+
+        const parsed = envValue
+            .split(',')
+            .map((key) => key.trim())
+            .filter(Boolean);
+
+        keys.push(...parsed);
+    }
+
+    return [...new Set(keys)];
+};
+
+const fetchWithKeyFallback = async (url, options = {}) => {
+    const rapidApiKeys = getRapidApiKeys();
+
+    if (rapidApiKeys.length === 0) {
+        throw new Error(USER_FRIENDLY_ERROR);
+    }
+
+    let lastError = null;
+
+    for (let i = 0; i < rapidApiKeys.length; i += 1) {
+        const key = rapidApiKeys[i];
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    'x-rapidapi-key': key,
+                    'x-rapidapi-host': 'jsearch.p.rapidapi.com'
+                }
+            });
+
+            if (response.ok) {
+                if (i > 0) {
+                    console.warn(`⚠️ JSearch succeeded using fallback API key #${i + 1}`);
+                }
+                return response;
+            }
+
+            const errorText = await response.text();
+            lastError = new Error(`JSearch API error: ${response.status} ${response.statusText} ${errorText}`);
+
+            // Retry with the next key only for auth/rate-limit style errors.
+            if (!RETRYABLE_AUTH_STATUSES.has(response.status)) {
+                throw lastError;
+            }
+
+            if (i < rapidApiKeys.length - 1) {
+                console.warn(`⚠️ JSearch key #${i + 1} failed (${response.status}). Trying next key...`);
+            }
+        } catch (error) {
+            lastError = error;
+            if (i < rapidApiKeys.length - 1) {
+                console.warn(`⚠️ JSearch request failed on key #${i + 1}. Trying next key...`);
+            }
+        }
+    }
+
+    throw lastError || new Error('JSearch request failed');
+};
 
 /**
  * Search for jobs based on career path and location
@@ -31,9 +104,9 @@ export const searchJobs = async ({
     remoteOnly = false
 }) => {
     try {
-        if (!RAPIDAPI_KEY) {
-            console.warn('RapidAPI key not configured');
-            return { results: [], count: 0, error: 'API not configured' };
+        if (getRapidApiKeys().length === 0) {
+            console.warn('RapidAPI key(s) not configured');
+            return { results: [], count: 0, error: USER_FRIENDLY_ERROR };
         }
 
         // Build the search query with location
@@ -60,19 +133,7 @@ export const searchJobs = async ({
 
         console.log('🔍 Fetching jobs from JSearch:', url);
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-key': RAPIDAPI_KEY,
-                'x-rapidapi-host': 'jsearch.p.rapidapi.com'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('❌ JSearch API error:', response.status, response.statusText, errorText);
-            throw new Error(`JSearch API error: ${response.status} ${response.statusText}`);
-        }
+        const response = await fetchWithKeyFallback(url, { method: 'GET' });
 
         const data = await response.json();
         console.log('✅ JSearch API success:', data.data?.length || 0, 'jobs found');
@@ -110,7 +171,7 @@ export const searchJobs = async ({
         return {
             results: [],
             count: 0,
-            error: error.message
+            error: USER_FRIENDLY_ERROR
         };
     }
 };
@@ -123,30 +184,20 @@ export const searchJobs = async ({
  */
 export const getJobDetails = async (jobId) => {
     try {
-        if (!RAPIDAPI_KEY) {
-            return { error: 'API not configured' };
+        if (getRapidApiKeys().length === 0) {
+            return { error: USER_FRIENDLY_ERROR };
         }
 
         const url = `${JSEARCH_BASE_URL}/job-details?job_id=${encodeURIComponent(jobId)}`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-key': RAPIDAPI_KEY,
-                'x-rapidapi-host': 'jsearch.p.rapidapi.com'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`JSearch API error: ${response.status}`);
-        }
+        const response = await fetchWithKeyFallback(url, { method: 'GET' });
 
         const data = await response.json();
         return data.data?.[0] || null;
 
     } catch (error) {
         console.error('Error fetching job details:', error);
-        return { error: error.message };
+        return { error: USER_FRIENDLY_ERROR };
     }
 };
 
@@ -159,8 +210,8 @@ export const getJobDetails = async (jobId) => {
  */
 export const getEstimatedSalary = async (jobTitle, location = 'Philippines') => {
     try {
-        if (!RAPIDAPI_KEY) {
-            return { error: 'API not configured' };
+        if (getRapidApiKeys().length === 0) {
+            return { error: USER_FRIENDLY_ERROR };
         }
 
         const params = new URLSearchParams({
@@ -171,24 +222,14 @@ export const getEstimatedSalary = async (jobTitle, location = 'Philippines') => 
 
         const url = `${JSEARCH_BASE_URL}/estimated-salary?${params.toString()}`;
 
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-key': RAPIDAPI_KEY,
-                'x-rapidapi-host': 'jsearch.p.rapidapi.com'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`JSearch API error: ${response.status}`);
-        }
+        const response = await fetchWithKeyFallback(url, { method: 'GET' });
 
         const data = await response.json();
         return data.data || [];
 
     } catch (error) {
         console.error('Error fetching salary estimate:', error);
-        return { error: error.message };
+        return { error: USER_FRIENDLY_ERROR };
     }
 };
 
