@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaMapMarkerAlt, FaBuilding, FaClock, FaExternalLinkAlt, FaSpinner, FaRedo, FaBriefcase } from 'react-icons/fa';
 import './JobsPanel.css';
 import { searchJobs } from '../../../../services/jsearchService';
@@ -10,7 +10,8 @@ const jobsCache = {
     page: 1,
     hasMore: true,
     hasFetched: false,
-    isFetching: false  // Add flag to prevent concurrent fetches
+    isFetching: false,  // Add flag to prevent concurrent fetches
+    searchQuery: null
 };
 
 /**
@@ -44,16 +45,38 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
         }
         return true;
     });
-
-    // Build search query from job roles (use first 3 roles for best results)
-    const buildSearchQuery = useCallback(() => {
-        if (jobRoles && jobRoles.length > 0) {
-            // Use first 3 job roles for comprehensive search
-            const searchRoles = jobRoles.slice(0, 3);
-            return searchRoles.join(' OR ');
+    const [activeSearchQuery, setActiveSearchQuery] = useState(() => {
+        if (jobsCache.careerPath === careerPath && jobsCache.hasFetched) {
+            return jobsCache.searchQuery;
         }
-        // Fallback to career path name
-        return careerPath.replace(' Careers', '');
+        return null;
+    });
+
+    // Build prioritized search queries for resilience:
+    // 1) all roles, 2) top 3 roles, 3) career path fallback
+    const buildSearchQueries = useCallback(() => {
+        const queries = [];
+
+        if (jobRoles && jobRoles.length > 0) {
+            const normalizedRoles = jobRoles
+                .map((role) => role?.trim())
+                .filter(Boolean);
+
+            if (normalizedRoles.length > 0) {
+                queries.push(normalizedRoles.join(' OR '));
+            }
+
+            if (normalizedRoles.length > 3) {
+                queries.push(normalizedRoles.slice(0, 3).join(' OR '));
+            }
+        }
+
+        const careerFallback = careerPath.replace(' Careers', '').trim();
+        if (careerFallback) {
+            queries.push(careerFallback);
+        }
+
+        return [...new Set(queries)];
     }, [jobRoles, careerPath]);
 
     // Fetch jobs from JSearch API - defined without state dependencies to avoid re-creation
@@ -69,17 +92,42 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
             setLoading(true);
             setError(null);
 
-            // Build search query from job roles
-            const searchQuery = buildSearchQuery();
+            let result = null;
+            let selectedQuery = activeSearchQuery;
 
-            console.log(`🔍 Searching for "${searchQuery}" jobs in Philippines...`);
+            if (append && activeSearchQuery) {
+                // Keep pagination consistent with the query that produced page 1.
+                result = await searchJobs({
+                    query: activeSearchQuery,
+                    location: 'Philippines',
+                    page: pageNum,
+                    resultsPerPage: 10
+                });
+            } else {
+                const searchQueries = buildSearchQueries();
 
-            const result = await searchJobs({
-                query: searchQuery,
-                location: 'Philippines',
-                page: pageNum,
-                resultsPerPage: 10
-            });
+                for (const candidateQuery of searchQueries) {
+                    console.log(`🔍 Searching for "${candidateQuery}" jobs in Philippines...`);
+
+                    const candidateResult = await searchJobs({
+                        query: candidateQuery,
+                        location: 'Philippines',
+                        page: pageNum,
+                        resultsPerPage: 10
+                    });
+
+                    result = candidateResult;
+                    selectedQuery = candidateQuery;
+
+                    if (candidateResult.error) {
+                        continue;
+                    }
+
+                    if ((candidateResult.results || []).length > 0) {
+                        break;
+                    }
+                }
+            }
 
             if (result.error) {
                 throw new Error(result.error);
@@ -98,6 +146,7 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
             setJobs(newJobs);
             setHasMore(newHasMore);
             setPage(pageNum);
+            setActiveSearchQuery(selectedQuery);
 
             // Update cache
             jobsCache.careerPath = careerPath;
@@ -105,6 +154,7 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
             jobsCache.page = pageNum;
             jobsCache.hasMore = newHasMore;
             jobsCache.hasFetched = true;
+            jobsCache.searchQuery = selectedQuery;
 
         } catch (err) {
             console.error('Failed to fetch jobs:', err);
@@ -134,13 +184,15 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
             jobsCache.page = 1;
             jobsCache.hasMore = true;
             jobsCache.hasFetched = false;
+            jobsCache.searchQuery = null;
+            setActiveSearchQuery(null);
         }
 
         // Fetch if needed
         if (careerPath && !jobsCache.hasFetched) {
             doFetchJobs(1, false, []);
         }
-    }, [careerPath, buildSearchQuery]);
+    }, [careerPath, buildSearchQueries]);
 
     const handleApply = (job) => {
         // Open job URL in new tab
@@ -153,6 +205,8 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
         // Clear cache for retry
         jobsCache.hasFetched = false;
         jobsCache.isFetching = false;
+        jobsCache.searchQuery = null;
+        setActiveSearchQuery(null);
         doFetchJobs(1, false, []);
     };
 
