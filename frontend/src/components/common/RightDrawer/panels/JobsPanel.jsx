@@ -3,6 +3,8 @@ import { FaMapMarkerAlt, FaBuilding, FaClock, FaExternalLinkAlt, FaSpinner, FaRe
 import './JobsPanel.css';
 import { searchJobs } from '../../../../services/jsearchService';
 
+const USER_FRIENDLY_ERROR = 'Job search is temporarily unavailable. Please try again later.';
+
 // Module-level cache to persist data across component mounts/unmounts
 const jobsCache = {
     careerPath: null,
@@ -158,7 +160,7 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
 
         } catch (err) {
             console.error('Failed to fetch jobs:', err);
-            setError(err.message || 'Failed to load job listings');
+            setError(USER_FRIENDLY_ERROR);
         } finally {
             setLoading(false);
             jobsCache.isFetching = false;
