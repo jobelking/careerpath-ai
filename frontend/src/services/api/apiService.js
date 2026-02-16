@@ -71,7 +71,7 @@ class ApiService {
   async getAvailableCareers() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/careers`);
-      
+
       if (!response.ok) {
         let errorMessage = 'Failed to fetch careers';
         try {
@@ -92,13 +92,85 @@ class ApiService {
   }
 
   /**
+   * Generate personalized learning roadmap using Gemini LLM
+   * @param {string} careerPath - The predicted career path
+   * @param {string} resumeText - Raw resume text
+   * @returns {Promise} Learning roadmap data
+   */
+  async generateLearningRoadmap(careerPath, resumeText) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/learning-roadmap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          career_path: careerPath,
+          resume_text: resumeText,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to generate learning roadmap';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error generating learning roadmap:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Search for jobs via backend JSearch proxy
+   * @param {Object} params - Job search parameters
+   * @returns {Promise} Job search results
+   */
+  async searchJobs(params) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/jobs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to search jobs';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error searching jobs:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Health check
    * @returns {Promise} Health status
    */
   async healthCheck() {
     try {
       const response = await fetch(`${API_BASE_URL}/health`);
-      
+
       if (!response.ok) {
         let errorMessage = 'Health check failed';
         try {
