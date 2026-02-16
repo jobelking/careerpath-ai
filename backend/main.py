@@ -10,6 +10,8 @@ import os
 from typing import Dict, List
 from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
+from app.services.gemini_service import generate_learning_roadmap
+from app.services.jsearch_service import search_jobs as jsearch_search_jobs
 import tempfile
 
 # Initialize FastAPI app
@@ -129,6 +131,7 @@ async def predict_career_path(file: UploadFile = File(...)):
                 "top_predictions": detailed_predictions,
                 "extracted_keywords": extracted_keywords,
                 "total_distinctive_keywords": total_distinctive_keywords,
+                "resume_text": resume_text,
                 "filename": file.filename
             })
             
@@ -144,6 +147,98 @@ async def predict_career_path(file: UploadFile = File(...)):
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while processing your resume: {str(e)}"
+        )
+
+
+@app.post("/api/learning-roadmap")
+async def generate_roadmap(request: Dict):
+    """
+    Generate a personalized learning roadmap using Gemini LLM
+    
+    Request body:
+        {
+            "career_path": str,
+            "resume_text": str
+        }
+    
+    Returns:
+        JSON roadmap with analysis_summary and 4 modules
+    """
+    try:
+        career_path = request.get("career_path")
+        resume_text = request.get("resume_text")
+        
+        if not career_path or not resume_text:
+            raise HTTPException(
+                status_code=400,
+                detail="Both career_path and resume_text are required"
+            )
+        
+        # Generate roadmap using Gemini
+        roadmap = generate_learning_roadmap(career_path, resume_text)
+        
+        return JSONResponse(content={
+            "success": True,
+            "roadmap": roadmap
+        })
+        
+    except Exception as e:
+        print(f"Error generating roadmap: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate learning roadmap: {str(e)}"
+        )
+
+
+@app.post("/api/jobs")
+async def search_jobs_endpoint(request: Dict):
+    """
+    Search for jobs using JSearch API
+    
+    Request body:
+        {
+            "query": str,
+            "location": str (optional, default: "Philippines"),
+            "page": int (optional, default: 1),
+            "resultsPerPage": int (optional, default: 10),
+            "datePosted": str (optional),
+            "employmentType": str (optional),
+            "remoteOnly": bool (optional)
+        }
+    
+    Returns:
+        JSON with job search results
+    """
+    try:
+        query = request.get("query")
+        
+        if not query:
+            raise HTTPException(
+                status_code=400,
+                detail="Query parameter is required"
+            )
+        
+        # Call JSearch service
+        result = jsearch_search_jobs(
+            query=query,
+            location=request.get("location", "Philippines"),
+            page=request.get("page", 1),
+            results_per_page=request.get("resultsPerPage", 10),
+            date_posted=request.get("datePosted"),
+            employment_type=request.get("employmentType"),
+            remote_only=request.get("remoteOnly", False)
+        )
+        
+        return JSONResponse(content={
+            "success": True,
+            **result
+        })
+        
+    except Exception as e:
+        print(f"Error searching jobs: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to search jobs: {str(e)}"
         )
 
 
