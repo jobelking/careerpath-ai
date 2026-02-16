@@ -577,12 +577,16 @@ const Learnmore = () => {
                     <LearningPanel
                         careerPath={careerName}
                         growthAreas={content.growthAreas}
+                        jobRoles={content.jobRoles}
+                        resumeText={predictionResults?.raw_resume_text || ''}
                     />
                 )}
                 {activePanel === 'certifications' && (
                     <CertificationPanel
                         careerPath={careerName}
                         growthAreas={content.growthAreas}
+                        jobRoles={content.jobRoles}
+                        resumeText={predictionResults?.raw_resume_text || ''}
                     />
                 )}
             </RightDrawer>
