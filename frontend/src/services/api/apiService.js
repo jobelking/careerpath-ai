@@ -130,6 +130,44 @@ class ApiService {
   }
 
   /**
+   * Generate personalized certification recommendations using Gemini LLM
+   * @param {string} careerPath - The predicted career path
+   * @param {string} resumeText - Raw resume text
+   * @returns {Promise} Certification recommendations data
+   */
+  async generateCertifications(careerPath, resumeText) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/certifications`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          career_path: careerPath,
+          resume_text: resumeText,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to generate certifications';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error generating certifications:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Search for jobs via backend JSearch proxy
    * @param {Object} params - Job search parameters
    * @returns {Promise} Job search results
