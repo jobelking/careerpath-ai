@@ -18,6 +18,7 @@ const Dashboard = () => {
     setUploadedFileName,
     uploadedFile,
     setUploadedFile,
+    setResumeText,
     clearResults
   } = useDashboard();
 
@@ -112,6 +113,10 @@ const Dashboard = () => {
       if (result.success) {
         setPredictionResults(result);
         setUploadedFileName(uploadedFile.name);
+        // Save resume text for learning roadmap
+        if (result.resume_text) {
+          setResumeText(result.resume_text);
+        }
       } else {
         setError('Failed to analyze resume. Please try again.');
         // Clear file so user can select a new one
@@ -182,58 +187,6 @@ const Dashboard = () => {
   };
 
   /**
-   * IMPORTANT:
-   * - Confidence LABEL is computed using RAW probabilities (across all 26 careers).
-   * - Based on Feb 2026 calibration data (1583 test samples, 81.87% overall accuracy):
-   *   - 15%+ raw → 83-95% accuracy → Clear Match
-   *   - 10-15% raw → 65% accuracy → Shared Fit  
-   *   - <10% raw → 45-50% accuracy → Exploratory
-   */
-  const calculateConfidenceLevel = (predictions, numClasses = NUM_CLASSES) => {
-    if (!predictions || predictions.length === 0) return "Exploratory";
-    if (predictions.length === 1) return "Shared Fit";
-
-    // Use raw_confidence directly
-    const p1 = toNum(predictions[0].raw_confidence);
-    const p2 = toNum(predictions[1].raw_confidence);
-    const margin = p1 - p2;
-
-    // Clear Match: high confidence prediction (83-95% historical accuracy)
-    if (p1 >= 15) return "Clear Match";                          // 15%+ raw → 83-95% accuracy
-    if (p1 >= 12 && margin >= 5) return "Clear Match";           // 12%+ raw AND strong gap
-
-    // Shared Fit: moderate confidence (~65% historical accuracy)
-    if (p1 >= 10) return "Shared Fit";                           // 10-15% raw → 65% accuracy
-    if (p1 >= 8 && margin >= 2) return "Shared Fit";             // 8%+ raw AND decent gap
-
-    // Exploratory: lower confidence (45-50% historical accuracy)
-    return "Exploratory";
-  };
-
-  /**
-   * User-facing explanation (non-technical, honest, and consistent with the logic).
-   */
-  const getConfidenceExplanation = (predictions, numClasses = NUM_CLASSES) => {
-    if (!predictions || predictions.length === 0) {
-      return "This result is based on how closely your background matches different career paths.";
-    }
-
-    const level = calculateConfidenceLevel(predictions, numClasses);
-
-    const topCareer = predictions[0]?.career_path || "this role";
-
-    if (level === "Clear Match") {
-      return `Clear Match: Your background strongly aligns with "${topCareer}". This path stands out as a primary fit based on your current skills.`;
-    }
-
-    if (level === "Shared Fit") {
-      return `Shared Fit: You show strong potential in "${topCareer}" and other related fields. Your skills overlap across multiple career paths.`;
-    }
-
-    return `Exploratory: Your skills apply to many different areas without a single dominant match. Use these results as a starting point for exploration.`;
-  };
-
-  /**
    * Calculates a User-Friendly "Profile Fit" score from the Raw Probability.
    * Uses historical accuracy from Feb 2026 calibration data.
    * Based on calibration results (26 classes, 1583 test samples, 81.87% overall accuracy):
@@ -251,8 +204,8 @@ const Dashboard = () => {
     const p = rawProbability;
 
     if (p < 5) return Math.round((p / 5) * 45);              // 0-5% → 0-45% (linear ramp, unreliable bin)
-    if (p < 10) return 45;                                    // 5-10% → 45% (199 samples)
-    if (p < 15) return Math.round(45 + ((p - 10) / 5) * 20); // 10-15% → 45-65%
+    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);  // 5-10% → 35-50% (centered at 45%, interpolated for UI)
+    if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15); // 10-15% → 50-65%
     if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
     if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2); // 20-30% → 83-85%
     if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5); // 30-50% → 85-90%
@@ -427,29 +380,11 @@ const Dashboard = () => {
                   <div className="results-header">
                     <div className="results-title-row">
                       <h3>Your Career Analysis</h3>
-                      {/* Confidence Badge */}
-                      {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (() => {
-                        const confidenceLevel = calculateConfidenceLevel(predictionResults.top_predictions);
-                        const badgeClass =
-                          confidenceLevel === "Clear Match" ? "confidence-badge-high" :
-                            confidenceLevel === "Shared Fit" ? "confidence-badge-medium" :
-                              "confidence-badge-low";
-                        const badgeIcon =
-                          confidenceLevel === "Clear Match" ? "✓" :
-                            confidenceLevel === "Shared Fit" ? "≈" :
-                              "◎";
-
-                        return (
-                          <div className={`confidence-badge ${badgeClass}`}>
-                            <span className="confidence-badge-icon">{badgeIcon}</span>
-                            <span className="confidence-badge-text">{confidenceLevel}</span>
-                          </div>
-                        );
-                      })()}
                     </div>
                     <p className="results-context">
                       These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength—not probability of success.
                     </p>
+
                   </div>
 
                   {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (
