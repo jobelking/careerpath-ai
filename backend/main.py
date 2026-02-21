@@ -10,7 +10,7 @@ import os
 from typing import Dict, List
 from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
-from app.services.gemini_service import generate_learning_roadmap
+from app.services.groq_service import generate_learning_roadmap, generate_certifications
 from app.services.jsearch_service import search_jobs as jsearch_search_jobs
 import tempfile
 
@@ -153,7 +153,7 @@ async def predict_career_path(file: UploadFile = File(...)):
 @app.post("/api/learning-roadmap")
 async def generate_roadmap(request: Dict):
     """
-    Generate a personalized learning roadmap using Gemini LLM
+    Generate a personalized learning roadmap using Groq LLM
     
     Request body:
         {
@@ -174,7 +174,7 @@ async def generate_roadmap(request: Dict):
                 detail="Both career_path and resume_text are required"
             )
         
-        # Generate roadmap using Gemini
+        # Generate roadmap using Groq
         roadmap = generate_learning_roadmap(career_path, resume_text)
         
         return JSONResponse(content={
@@ -187,6 +187,46 @@ async def generate_roadmap(request: Dict):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate learning roadmap: {str(e)}"
+        )
+
+
+@app.post("/api/certifications")
+async def generate_certifications_endpoint(request: Dict):
+    """
+    Generate personalized certification recommendations using Groq LLM
+    
+    Request body:
+        {
+            "career_path": str,
+            "resume_text": str
+        }
+    
+    Returns:
+        JSON certifications with summary and certification list
+    """
+    try:
+        career_path = request.get("career_path")
+        resume_text = request.get("resume_text")
+        
+        if not career_path or not resume_text:
+            raise HTTPException(
+                status_code=400,
+                detail="Both career_path and resume_text are required"
+            )
+        
+        # Generate certifications using Groq
+        certifications = generate_certifications(career_path, resume_text)
+        
+        return JSONResponse(content={
+            "success": True,
+            "certifications": certifications
+        })
+        
+    except Exception as e:
+        print(f"Error generating certifications: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate certifications: {str(e)}"
         )
 
 
