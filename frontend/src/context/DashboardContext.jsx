@@ -14,11 +14,17 @@ export const DashboardProvider = ({ children }) => {
     const [predictionResults, setPredictionResults] = useState(null);
     const [uploadedFileName, setUploadedFileName] = useState(null);
     const [uploadedFile, setUploadedFile] = useState(null);
+    const [resumeText, setResumeText] = useState(null);
+    const [learningRoadmap, setLearningRoadmap] = useState(null);
+    const [certificationData, setCertificationData] = useState(null);
 
     const clearResults = () => {
         setPredictionResults(null);
         setUploadedFileName(null);
         setUploadedFile(null);
+        setResumeText(null);
+        setLearningRoadmap(null);
+        setCertificationData(null);
     };
 
     return (
@@ -30,6 +36,12 @@ export const DashboardProvider = ({ children }) => {
                 setUploadedFileName,
                 uploadedFile,
                 setUploadedFile,
+                resumeText,
+                setResumeText,
+                learningRoadmap,
+                setLearningRoadmap,
+                certificationData,
+                setCertificationData,
                 clearResults,
             }}
         >
