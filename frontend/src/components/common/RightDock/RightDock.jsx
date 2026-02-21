@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaBriefcase, FaBook, FaCertificate } from 'react-icons/fa';
 import './RightDock.css';
+import { PiCertificateFill } from "react-icons/pi";
 
 /**
  * RightDock - A floating vertical button dock on the right edge of the screen
@@ -56,7 +57,7 @@ const RightDock = ({ activePanel, onPanelToggle }) => {
                 aria-label="Open Certifications panel"
                 title="Certifications"
             >
-                <FaCertificate className="dock-button-icon" />
+                <PiCertificateFill className="dock-button-icon" />
                 <span className="dock-button-label">Certifications</span>
             </button>
         </div>
