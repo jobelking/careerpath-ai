@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { FaTimes, FaBriefcase, FaBook, FaCertificate } from 'react-icons/fa';
 import './RightDrawer.css';
+import { GrCertificate } from "react-icons/gr";
 
 /**
  * RightDrawer - A sliding drawer panel from the right side of the screen
@@ -30,7 +31,7 @@ const RightDrawer = ({ isOpen, activePanel, onClose, children }) => {
         },
         certifications: {
             title: 'Certifications',
-            icon: FaCertificate,
+            icon: GrCertificate,
             id: 'certifications-drawer'
         }
     };
