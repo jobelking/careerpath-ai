@@ -2,9 +2,285 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    padding: 0 0 20px 0;
 }
 
-/* Coming Soon State */
+/* ========== Loading State ========== */
+.learning-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 30px;
+    min-height: 400px;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e7ff;
+    border-top: 4px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 24px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.learning-loading h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.learning-loading p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* ========== Error State ========== */
+.learning-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 30px;
+}
+
+.error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.learning-error h3 {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.error-message {
+    margin: 0 0 24px 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    max-width: 320px;
+}
+
+.retry-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+}
+
+.retry-button:active {
+    transform: translateY(0);
+}
+
+/* ========== Content State ========== */
+.roadmap-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.roadmap-header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.roadmap-header h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.roadmap-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+
+
+/* ========== Improvement Areas Container ========== */
+.improvement-areas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.skill-card {
+    padding: 20px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.skill-card:hover {
+    border-color: #a5b4fc;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1);
+    transform: translateY(-2px);
+}
+
+.skill-header {
+    margin-bottom: 16px;
+}
+
+.skill-missing-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #b91c1c;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #fca5a5;
+}
+
+.skill-name {
+    margin: 0 0 8px 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.skill-why {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.resources-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.resources-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.resource-item:hover {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    border-color: #a5b4fc;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
+.resource-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #6366f1;
+    flex-shrink: 0;
+}
+
+.resource-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.resource-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.resource-provider {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.resource-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-transform: capitalize;
+    flex-shrink: 0;
+}
+
+/* ========== Coming Soon / Fallback State ========== */
 .learning-coming-soon {
     display: flex;
     flex-direction: column;
@@ -37,17 +313,9 @@
 }
 
 .learning-coming-soon .coming-soon-description {
-    margin: 0 0 16px 0;
+    margin: 0;
     font-size: 0.95rem;
     color: #475569;
     line-height: 1.6;
     max-width: 320px;
-}
-
-.learning-coming-soon .coming-soon-note {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #94a3b8;
-    line-height: 1.5;
-    max-width: 300px;
 }
