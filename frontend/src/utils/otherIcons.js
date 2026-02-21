@@ -2,6 +2,10 @@ import {
   FaBolt, FaCheckCircle, FaLock, FaUpload, FaArrowLeft, FaArrowRight
 } from "react-icons/fa";
 
+import { FaCalendarCheck } from "react-icons/fa6";
+
+import { GrCertificate } from "react-icons/gr";
+
 import {
   MdInsights
 } from "react-icons/md";
@@ -18,5 +22,7 @@ export const otherIcons = {
   "MdInsights": MdInsights,
   "FcDocument": FcDocument,
   "FaArrowLeft": FaArrowLeft,
-  "FaArrowRight": FaArrowRight
+  "FaArrowRight": FaArrowRight,
+  "FaCalendarCheck": FaCalendarCheck,
+  "GrCertificate": GrCertificate
 };
