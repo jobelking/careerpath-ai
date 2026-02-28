@@ -23,11 +23,12 @@ FROM nginx:alpine
 # Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration as a template
+COPY docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf.template
 
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Substitute env vars into nginx config then start nginx
+# BACKEND_URL defaults to http://backend:8000 for Docker Compose local use
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

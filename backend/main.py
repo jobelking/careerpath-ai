@@ -22,10 +22,16 @@ app = FastAPI(
 )
 
 # Configure CORS
+# CORS_ORIGINS env var can be a comma-separated list of allowed origins.
+# Defaults to "*" so cloud deployments (Render, Railway, etc.) work out of the box.
+# For local dev, set: CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+_raw_origins = os.getenv("CORS_ORIGINS", "*")
+_allowed_origins = [o.strip() for o in _raw_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite default port
-    allow_credentials=True,
+    allow_origins=_allowed_origins,
+    allow_credentials=_raw_origins != "*",  # credentials can't be used with wildcard
     allow_methods=["*"],
     allow_headers=["*"],
 )
