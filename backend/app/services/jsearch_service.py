@@ -19,15 +19,11 @@ def get_rapidapi_keys() -> List[str]:
     """Get all configured RapidAPI keys for fallback."""
     keys = []
     
-    # Primary key
-    key1 = os.getenv("RAPIDAPI_KEY")
-    if key1:
-        keys.append(key1)
-    
-    # Secondary key
-    key2 = os.getenv("RAPIDAPI_KEY_2")
-    if key2:
-        keys.append(key2)
+    for i in range(1, 5):
+        env_var = "RAPIDAPI_KEY" if i == 1 else f"RAPIDAPI_KEY_{i}"
+        key = os.getenv(env_var)
+        if key:
+            keys.append(key)
     
     return keys
 
