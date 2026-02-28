@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaGraduationCap, FaYoutube, FaBook, FaFileAlt } from 'react-icons/fa';
+import { FaGraduationCap, FaYoutube, FaBook, FaFileAlt, FaSpinner } from 'react-icons/fa';
 import apiService from '../../../../services/api/apiService';
 import './LearningPanel.css';
 
@@ -102,9 +102,8 @@ const LearningPanel = ({
         return (
             <div className="learning-panel">
                 <div className="learning-loading">
-                    <div className="loading-spinner"></div>
-                    <h3>Generating Your Personalized Roadmap...</h3>
-                    <p>Analyzing your resume and creating a tailored learning path</p>
+                    <FaSpinner className="learning-spinner" />
+                    <p>Generating your personalized roadmap...</p>
                 </div>
             </div>
         );

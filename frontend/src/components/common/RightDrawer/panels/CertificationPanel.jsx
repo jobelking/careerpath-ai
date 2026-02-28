@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaSpinner } from 'react-icons/fa';
 import { otherIcons } from '../../../../utils/otherIcons';
 import apiService from '../../../../services/api/apiService';
 import './CertificationPanel.css';
@@ -103,9 +103,8 @@ const CertificationPanel = ({
         return (
             <div className="certification-panel">
                 <div className="certification-loading">
-                    <div className="loading-spinner"></div>
-                    <h3>Finding Your Certifications...</h3>
-                    <p>Analyzing your profile and career path</p>
+                    <FaSpinner className="certification-spinner" />
+                    <p>Finding your certifications...</p>
                 </div>
             </div>
         );
