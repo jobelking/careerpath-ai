@@ -31,4 +31,4 @@ EXPOSE 80
 
 # Substitute env vars into nginx config then start nginx
 # BACKEND_URL defaults to http://backend:8000 for Docker Compose local use
-CMD ["/bin/sh", "-c", "export BACKEND_URL=${BACKEND_URL:-http://backend:8000}; envsubst '$BACKEND_URL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["/bin/sh", "-c", "export BACKEND_URL=$(echo ${BACKEND_URL:-http://backend:8000} | sed 's|/$||'); envsubst '$BACKEND_URL' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
