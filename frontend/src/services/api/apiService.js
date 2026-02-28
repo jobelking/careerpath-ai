@@ -3,12 +3,19 @@
  * Handles communication with the FastAPI backend
  */
 
-// Use relative path for Docker compatibility
-// When running in Docker, nginx will proxy /api to backend:8000
-// When running locally, you can use http://localhost:8000
-const API_BASE_URL = window.location.hostname === 'localhost' && (window.location.port === '5173' || window.location.port === '3000')
-  ? 'http://localhost:8000'  // Development mode (Vite)
-  : '';  // Production mode (Docker/nginx proxy)
+// API base URL resolution (in priority order):
+// 1. VITE_API_URL env var — set this in Render/Vercel/etc. to the backend URL
+//    e.g. https://careerpath-ai-backend-4d7q.onrender.com
+// 2. localhost dev — direct to local FastAPI server
+// 3. Same-origin production (Docker/nginx proxy where backend serves /api)
+const _envApiUrl = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace(/\/$/, '')  // strip any trailing slash
+  : null;
+
+const API_BASE_URL = _envApiUrl
+  ?? (window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'   // Development mode (Vite)
+    : '');                      // Same-origin production (Docker/nginx proxy)
 
 class ApiService {
   /**
