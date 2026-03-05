@@ -6,15 +6,15 @@ const Logo = ({ variant = 'modern', className = '' }) => {
   const navigate = useNavigate();
 
   return (
-    <div 
-      className={`logo-container logo-${variant} ${className}`} 
+    <div
+      className={`logo-container logo-${variant} ${className}`}
       onClick={() => navigate('/')}
     >
       {/* Design 1: Modern (The default, clean look) */}
       {variant === 'modern' && (
         <>
           <span className="text-primary">CareerPath</span>
-          <span className="text-accent">-AI</span>
+          <span className="text-accent">AI</span>
         </>
       )}
 
