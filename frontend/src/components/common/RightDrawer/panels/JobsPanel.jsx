@@ -5,6 +5,27 @@ import { searchJobs } from '../../../../services/jsearchService';
 
 const USER_FRIENDLY_ERROR = 'Job search is temporarily unavailable. Please try again later.';
 
+/**
+ * Formats a posted date string into a relative time like "2 weeks ago"
+ */
+const formatPostedDate = (posted) => {
+    if (!posted || posted === 'Recently') return 'Recently';
+    const date = new Date(posted);
+    if (isNaN(date.getTime())) return posted;
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays < 1) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    const diffWeeks = Math.floor(diffDays / 7);
+    if (diffWeeks === 1) return '1 week ago';
+    if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths === 1) return '1 month ago';
+    return `${diffMonths} months ago`;
+};
+
 // Module-level cache to persist data across component mounts/unmounts
 const jobsCache = {
     careerPath: null,
@@ -308,7 +329,7 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
                             </div>
                             <div className="job-meta-item">
                                 <FaClock className="job-icon" />
-                                <span>{job.posted}</span>
+                                <span>{formatPostedDate(job.posted)}</span>
                             </div>
                         </div>
 
