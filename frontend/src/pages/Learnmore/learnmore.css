@@ -97,6 +97,26 @@
     outline-offset: 2px;
 }
 
+/* Export to PDF button variant */
+.learnmore-header .nav-link--export {
+    background: #2563eb;
+    color: #ffffff;
+    border: 1.5px solid #2563eb;
+}
+
+.learnmore-header .nav-link--export:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    border-color: #1d4ed8;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.28);
+    transform: translateY(-1px);
+}
+
+.learnmore-header .nav-link--export:active {
+    background: #1e40af;
+    transform: scale(0.97) translateY(0);
+}
+
 /* Main Content */
 .learnmore-main {
     flex: 1;
@@ -483,18 +503,19 @@
 .skill-item-compact {
     font-size: 0.8rem;
     color: #334155;
-    padding-left: 1rem;
+    padding-left: 0;
     position: relative;
     line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
-.skill-item-compact::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: #10b981;
-    font-weight: 700;
-    font-size: 0.75rem;
+.skill-item-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
 }
 
 /* Growth Compact */
@@ -507,17 +528,19 @@
 .growth-item-compact {
     font-size: 0.8rem;
     color: #334155;
-    padding-left: 1rem;
+    padding-left: 0;
     position: relative;
     line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
-.growth-item-compact::before {
-    content: '+';
-    position: absolute;
-    left: 0;
-    color: #f59e0b;
-    font-weight: 700;
+.growth-item-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
 }
 
 /* ============================================
@@ -659,7 +682,7 @@
     border-radius: 4px;
 }
 
-.why-others-toggle span {
+.why-others-chevron {
     width: 20px;
     height: 20px;
     display: flex;
@@ -667,17 +690,11 @@
     justify-content: center;
     background: #f1f5f9;
     border-radius: 4px;
-    font-weight: 700;
-    transition: transform var(--anim-duration-normal) var(--anim-ease-out),
-        background var(--anim-duration-fast) var(--anim-ease-out);
+    transition: background var(--anim-duration-fast) var(--anim-ease-out);
 }
 
-.why-others-toggle:hover span {
+.why-others-toggle:hover .why-others-chevron {
     background: #e2e8f0;
-}
-
-.why-others-toggle[aria-expanded="true"] span {
-    transform: rotate(180deg);
 }
 
 .why-others-content {

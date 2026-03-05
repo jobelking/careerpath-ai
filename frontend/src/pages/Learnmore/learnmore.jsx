@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 import RightDock from '../../components/common/RightDock';
@@ -7,6 +7,7 @@ import { JobsPanel, LearningPanel, CertificationPanel } from '../../components/c
 import { useDashboard } from '../../context/DashboardContext';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
+import { exportToPdf } from '../../utils/exportToPdf';
 import './learnmore.css';
 
 // Career-specific content for all 26 career paths
@@ -216,6 +217,21 @@ const Learnmore = () => {
         setActivePanel(null);
     }, []);
 
+    // Ref for the logo element — captured by html2canvas for the PDF
+    const logoRef = useRef(null);
+
+    // Export to PDF handler
+    const handleExportPdf = useCallback(() => {
+        exportToPdf({
+            topThree: predictionResults?.top_predictions?.slice(0, 3) ?? [],
+            calculateProfileFit,
+            learningRoadmap,
+            certificationData,
+            careerContent,
+            logoRef,
+        });
+    }, [predictionResults, learningRoadmap, certificationData]);
+
     // Scroll to top when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -245,11 +261,11 @@ const Learnmore = () => {
     //   20-30% raw → 85% accuracy (198 samples)
     //   30-50% raw → 90% accuracy (276 samples)
     //   50-100% raw → 95% accuracy (579 samples)
-    // Note: 0-5% bin uses linear ramp to 45% since only 2 samples exist (not statistically significant)
+    //   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
     const calculateProfileFit = (rawProbability) => {
         const p = rawProbability;
 
-        if (p < 5) return Math.round((p / 5) * 45);              // 0-5% → 0-45% (linear ramp, unreliable bin)
+        if (p < 5) return Math.round((p / 5) * 35);              // 0-5% → 0-35% (linear ramp into the 5-10% bin start)
         if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);  // 5-10% → 35-50% (centered at 45%, interpolated for UI)
         if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15); // 10-15% → 50-65%
         if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
@@ -340,7 +356,8 @@ const Learnmore = () => {
                         <Logo variant="modern" />
                     </h1>
                     <button className="learnmore-back-btn" onClick={() => navigate('/dashboard')}>
-                        ← Back to Dashboard
+                        {React.createElement(otherIcons["FaArrowLeft"], { size: 13 })}
+                        Back to Dashboard
                     </button>
                 </header>
                 <main className="learnmore-main">
@@ -364,13 +381,17 @@ const Learnmore = () => {
             {/* Header */}
             <header className="learnmore-header">
                 <div className="header-content">
-                    <h1 className="learnmore-brand" onClick={() => navigate('/')}>
+                    <h1 ref={logoRef} className="learnmore-brand" onClick={() => navigate('/')}>
                         <Logo variant="modern" />
                     </h1>
                     <nav className="learnmore-nav">
                         <button className="nav-link" onClick={() => navigate('/dashboard')}>
                             {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
                             <span>Back to Dashboard</span>
+                        </button>
+                        <button className="nav-link nav-link--export" onClick={handleExportPdf}>
+                            {React.createElement(otherIcons["FaDownload"], { size: 13 })}
+                            <span>Export to PDF</span>
                         </button>
                     </nav>
                 </div>
@@ -405,7 +426,7 @@ const Learnmore = () => {
                         <ul className="why-list">
                             {whyReasons.map((reason, index) => (
                                 <li key={index} className="why-item">
-                                    <span className="why-bullet">→</span>
+                                    <span className="why-bullet">{React.createElement(otherIcons["FaArrowRight"], { size: 12, color: "#10b981" })}</span>
                                     {reason}
                                 </li>
                             ))}
@@ -440,7 +461,7 @@ const Learnmore = () => {
                         {/* Column 1: Resume Signals */}
                         <div className="summary-card">
                             <h3 className="summary-card-title">
-                                <span className="summary-icon">📍</span>
+                                <span className="summary-icon">{React.createElement(otherIcons["FaMapMarkerAlt"], { size: 15, color: "#2563eb" })}</span>
                                 Resume Signals Detected
                             </h3>
                             <p className="summary-card-desc">These keywords influenced your match</p>
@@ -458,13 +479,16 @@ const Learnmore = () => {
                         {/* Column 2: Key Skills */}
                         <div className="summary-card">
                             <h3 className="summary-card-title">
-                                <span className="summary-icon">✓</span>
+                                <span className="summary-icon">{React.createElement(otherIcons["FaCheckCircle"], { size: 15, color: "#10b981" })}</span>
                                 Skills Driving Your Score
                             </h3>
                             <p className="summary-card-desc">Core competencies for this career</p>
                             <div className="skill-list-compact">
                                 {content.keySkills.slice(0, 4).map((skill, index) => (
-                                    <div key={index} className="skill-item-compact">{skill}</div>
+                                    <div key={index} className="skill-item-compact">
+                                        <span className="skill-item-icon">{React.createElement(otherIcons["FaCheck"], { size: 10, color: "#10b981" })}</span>
+                                        {skill}
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -472,13 +496,16 @@ const Learnmore = () => {
                         {/* Column 3: Growth Areas */}
                         <div className="summary-card">
                             <h3 className="summary-card-title">
-                                <span className="summary-icon">🚀</span>
+                                <span className="summary-icon">{React.createElement(otherIcons["FaRocket"], { size: 15, color: "#f59e0b" })}</span>
                                 Improve Your Match
                             </h3>
                             <p className="summary-card-desc">Developing these can boost your score</p>
                             <div className="growth-list-compact">
                                 {content.growthAreas.slice(0, 4).map((area, index) => (
-                                    <div key={index} className="growth-item-compact">{area}</div>
+                                    <div key={index} className="growth-item-compact">
+                                        <span className="growth-item-icon">{React.createElement(otherIcons["FaPlus"], { size: 9, color: "#f59e0b" })}</span>
+                                        {area}
+                                    </div>
                                 ))}
                             </div>
                         </div>
@@ -511,7 +538,12 @@ const Learnmore = () => {
                                     className="why-others-toggle"
                                     onClick={() => setShowWhyOthersLower(!showWhyOthersLower)}
                                 >
-                                    <span>{showWhyOthersLower ? '−' : '+'}</span>
+                                    <span className="why-others-chevron">
+                                        {showWhyOthersLower
+                                            ? React.createElement(otherIcons["FaChevronUp"], { size: 10, color: "#64748b" })
+                                            : React.createElement(otherIcons["FaChevronDown"], { size: 10, color: "#64748b" })
+                                        }
+                                    </span>
                                     Why Other Career Paths Ranked Lower
                                 </button>
                                 {showWhyOthersLower && (
@@ -548,7 +580,7 @@ const Learnmore = () => {
                     {/* Important Note */}
                     <div className="note-section">
                         <p className="note-text">
-                            <strong>⚠️ Note:</strong> This recommendation is based on text pattern analysis of your resume.
+                            <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{React.createElement(otherIcons["FaExclamationTriangle"], { size: 14, color: "#f59e0b" })} Note:</strong> This recommendation is based on text pattern analysis of your resume.
                             It's a starting point for exploration—not a definitive career assessment.
                             The AI cannot evaluate soft skills, personal preferences, or cultural fit.
                         </p>
@@ -593,6 +625,7 @@ const Learnmore = () => {
                     />
                 )}
             </RightDrawer>
+
         </div>
     );
 };
