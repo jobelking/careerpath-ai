@@ -203,6 +203,7 @@ const Learnmore = () => {
     const navigate = useNavigate();
     const { predictionResults, resumeText, learningRoadmap, setLearningRoadmap, certificationData, setCertificationData } = useDashboard();
     const [showWhyOthersLower, setShowWhyOthersLower] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Right drawer state - default to closed
     const [activePanel, setActivePanel] = useState(null);
@@ -221,16 +222,22 @@ const Learnmore = () => {
     const logoRef = useRef(null);
 
     // Export to PDF handler
-    const handleExportPdf = useCallback(() => {
-        exportToPdf({
-            topThree: predictionResults?.top_predictions?.slice(0, 3) ?? [],
-            calculateProfileFit,
-            learningRoadmap,
-            certificationData,
-            careerContent,
-            logoRef,
-        });
-    }, [predictionResults, learningRoadmap, certificationData]);
+    const handleExportPdf = useCallback(async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            await exportToPdf({
+                topThree: predictionResults?.top_predictions?.slice(0, 3) ?? [],
+                calculateProfileFit,
+                learningRoadmap,
+                certificationData,
+                careerContent,
+                logoRef,
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [isExporting, predictionResults, learningRoadmap, certificationData]);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -389,9 +396,9 @@ const Learnmore = () => {
                             {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
                             <span>Back to Dashboard</span>
                         </button>
-                        <button className="nav-link nav-link--export" onClick={handleExportPdf}>
-                            {React.createElement(otherIcons["FaDownload"], { size: 13 })}
-                            <span>Export to PDF</span>
+                        <button className="nav-link nav-link--export" onClick={handleExportPdf} disabled={isExporting}>
+                            {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
+                            <span>{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
                         </button>
                     </nav>
                 </div>
