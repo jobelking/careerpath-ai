@@ -1,5 +1,7 @@
 import {
-  FaBolt, FaCheckCircle, FaLock, FaUpload, FaArrowLeft, FaArrowRight
+  FaBolt, FaCheckCircle, FaLock, FaUpload, FaArrowLeft, FaArrowRight,
+  FaMapMarkerAlt, FaRocket, FaExclamationTriangle, FaChevronDown, FaChevronUp,
+  FaCheck, FaPlus, FaDownload
 } from "react-icons/fa";
 
 import { FaCalendarCheck } from "react-icons/fa6";
@@ -24,5 +26,13 @@ export const otherIcons = {
   "FaArrowLeft": FaArrowLeft,
   "FaArrowRight": FaArrowRight,
   "FaCalendarCheck": FaCalendarCheck,
-  "GrCertificate": GrCertificate
+  "GrCertificate": GrCertificate,
+  "FaMapMarkerAlt": FaMapMarkerAlt,
+  "FaRocket": FaRocket,
+  "FaExclamationTriangle": FaExclamationTriangle,
+  "FaChevronDown": FaChevronDown,
+  "FaChevronUp": FaChevronUp,
+  "FaCheck": FaCheck,
+  "FaPlus": FaPlus,
+  "FaDownload": FaDownload
 };
