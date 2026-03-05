@@ -2,12 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Logo.css';
 
-const Logo = ({ variant = 'modern', className = '' }) => {
+const Logo = ({ variant = 'modern', className = '', style }) => {
   const navigate = useNavigate();
 
   return (
     <div
       className={`logo-container logo-${variant} ${className}`}
+      style={style}
       onClick={() => navigate('/')}
     >
       {/* Design 1: Modern (The default, clean look) */}
