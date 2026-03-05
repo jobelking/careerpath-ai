@@ -1,24 +1,74 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
+import { useAuth } from '../../context/AuthContext';
+import AuthModal from '../../components/auth/AuthModal';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
+import { authIcons } from '../../utils/authIcons';
 import './LandingPage.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
+  const [authModalView, setAuthModalView] = React.useState('login');
 
   const handleGetStarted = () => {
-    navigate('/dashboard');
+    if (currentUser) {
+      navigate('/dashboard');
+    } else {
+      setAuthModalView('register');
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const handleLoginClick = () => {
+    setAuthModalView('login');
+    setIsAuthModalOpen(true);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
     <div className="landing-container">
+      {/* Header Section */}
+      <header className="landing-header">
+        <Logo variant="modern" className="header-logo" />
+        <div className="header-actions">
+          {currentUser ? (
+            <div className="user-profile-menu">
+              <span className="user-greeting">Hi, {currentUser.name}</span>
+              <button className="auth-btn outline" onClick={() => navigate('/dashboard')}>
+                Dashboard
+              </button>
+              <button className="auth-btn logout" onClick={handleLogout} aria-label="Logout">
+                {React.createElement(authIcons['FaSignOutAlt'], { size: 18 })}
+              </button>
+            </div>
+          ) : (
+            <div className="auth-buttons">
+              <button className="auth-btn login-btn" onClick={handleLoginClick}>
+                Log In
+              </button>
+              <button className="auth-btn register-btn" onClick={() => {
+                setAuthModalView('register');
+                setIsAuthModalOpen(true);
+              }}>
+                Get Started
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
+
       {/* Hero Section */}
       <div className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <Logo variant="modern" className="brand-name" />
+            <Logo variant="modern" className="brand-name" style={{ fontSize: '3.5rem' }} />
             <p className="hero-tagline">
               Discover Your Perfect Career Path with AI-Powered Resume Analysis
             </p>
@@ -177,6 +227,13 @@ const LandingPage = () => {
       {/* <footer className="landing-footer">
         <p>© 2025 CareerPath-AI. Empowering your career decisions with artificial intelligence.</p>
       </footer> */}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialView={authModalView}
+      />
     </div>
   );
 };
