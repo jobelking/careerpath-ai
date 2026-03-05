@@ -334,7 +334,7 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
                         </div>
 
                         <div className="job-tags">
-                            <span className="job-tag job-tag--type">{job.type}</span>
+                            <span className="job-tag job-tag--type">{job.type || 'Not Specified'}</span>
                             {job.tags && job.tags.slice(0, 3).map((tag, index) => (
                                 <span key={index} className="job-tag">{tag}</span>
                             ))}
