@@ -85,7 +85,7 @@ const Dashboard = () => {
     setTimeout(() => {
       setShowPreview(false);
       setIsClosing(false);
-    }, 400);
+    }, 150);
   };
 
   const handleTogglePreview = () => {
