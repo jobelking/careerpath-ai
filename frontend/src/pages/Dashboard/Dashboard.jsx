@@ -198,12 +198,12 @@ const Dashboard = () => {
    *   30-50% raw → 90% accuracy (276 samples)
    *   50-100% raw → 95% accuracy (579 samples)
    * 
-   * Note: 0-5% bin uses linear ramp to 45% since only 2 samples exist (not statistically significant)
+   *   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
    */
   const calculateProfileFit = (rawProbability) => {
     const p = rawProbability;
 
-    if (p < 5) return Math.round((p / 5) * 45);              // 0-5% → 0-45% (linear ramp, unreliable bin)
+    if (p < 5) return Math.round((p / 5) * 35);              // 0-5% → 0-35% (linear ramp into the 5-10% bin start)
     if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);  // 5-10% → 35-50% (centered at 45%, interpolated for UI)
     if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15); // 10-15% → 50-65%
     if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
@@ -266,6 +266,21 @@ const Dashboard = () => {
                         <span></span>
                         <span className="file-icon">✓</span>
                         <span className="file-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
+                        {!showResults && uploadedFile && (
+                          <button
+                            className="change-file-btn"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setUploadedFile(null);
+                              setUploadedFileName('');
+                              setError(null);
+                              if (fileInputRef.current) fileInputRef.current.value = '';
+                            }}
+                          >
+                            Change File
+                          </button>
+                        )}
                         <span></span>
                       </div>
                     ) : (
@@ -427,7 +442,7 @@ const Dashboard = () => {
                                 className="learn-more-button"
                                 onClick={() => navigate('/learnmore')}
                               >
-                                <span>Learn More</span>
+                                <span>View Detailed Analysis</span>
                                 {React.createElement(otherIcons["FaArrowRight"], { size: 14 })}
                               </button>
                             </div>
