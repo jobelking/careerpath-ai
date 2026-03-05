@@ -297,6 +297,27 @@
   color: #2d3748;
 }
 
+.change-file-btn {
+  background: none;
+  border: 1.5px solid #2563eb;
+  color: #2563eb;
+  border-radius: 20px;
+  padding: 0.2rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+
+.change-file-btn:hover {
+  background: #2563eb;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
 .analyzing-text {
   font-size: 0.95rem;
   color: #2563eb;
@@ -341,16 +362,6 @@
   opacity: 0.6;
 }
 
-/* Add New Resume Button (Green) */
-.upload-button.reset-mode {
-  background: linear-gradient(135deg, #10b981, #059669);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
-}
-
-.upload-button.reset-mode:hover:not(:disabled) {
-  background: linear-gradient(135deg, #059669, #047857);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
-}
 
 /* Error Message */
 .error-message {
