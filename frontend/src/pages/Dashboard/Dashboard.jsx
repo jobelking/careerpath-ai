@@ -397,7 +397,7 @@ const Dashboard = () => {
                       <h3>Your Career Analysis</h3>
                     </div>
                     <p className="results-context">
-                      These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength—not probability of success.
+                      These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength, not probability of success.
                     </p>
 
                   </div>

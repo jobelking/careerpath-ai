@@ -588,7 +588,7 @@ const Learnmore = () => {
                     <div className="note-section">
                         <p className="note-text">
                             <strong style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>{React.createElement(otherIcons["FaExclamationTriangle"], { size: 14, color: "#f59e0b" })} Note:</strong> This recommendation is based on text pattern analysis of your resume.
-                            It's a starting point for exploration—not a definitive career assessment.
+                            It's a starting point for exploration, not a definitive career assessment.
                             The AI cannot evaluate soft skills, personal preferences, or cultural fit.
                         </p>
                     </div>
