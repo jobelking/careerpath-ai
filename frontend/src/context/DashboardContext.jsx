@@ -32,6 +32,8 @@ export const DashboardProvider = ({ children }) => {
     const [resumeText, setResumeText] = useState(persisted.resumeText ?? null);
     const [learningRoadmap, setLearningRoadmap] = useState(persisted.learningRoadmap ?? null);
     const [certificationData, setCertificationData] = useState(persisted.certificationData ?? null);
+    // ID of the latest prediction_history record — needed to PATCH roadmap/certs later
+    const [historyRecordId, setHistoryRecordId] = useState(persisted.historyRecordId ?? null);
 
     // Sync serializable state to sessionStorage whenever it changes
     useEffect(() => {
@@ -42,11 +44,29 @@ export const DashboardProvider = ({ children }) => {
                 resumeText,
                 learningRoadmap,
                 certificationData,
+                historyRecordId,
             }));
         } catch {
             // Ignore storage quota errors
         }
-    }, [predictionResults, uploadedFileName, resumeText, learningRoadmap, certificationData]);
+    }, [predictionResults, uploadedFileName, resumeText, learningRoadmap, certificationData, historyRecordId]);
+
+    // When the user logs out, wipe all in-memory dashboard state immediately.
+    // sessionStorage is already cleared by AuthContext.logout(), but React state
+    // persists in memory until explicitly reset — causing data leakage to the next user.
+    useEffect(() => {
+        const handleLogout = () => {
+            setPredictionResults(null);
+            setUploadedFileName(null);
+            setUploadedFile(null);
+            setResumeText(null);
+            setLearningRoadmap(null);
+            setCertificationData(null);
+            setHistoryRecordId(null);
+        };
+        window.addEventListener('careerpath:logout', handleLogout);
+        return () => window.removeEventListener('careerpath:logout', handleLogout);
+    }, []); // useState setters are stable — safe with empty deps
 
     const clearResults = () => {
         setPredictionResults(null);
@@ -55,6 +75,7 @@ export const DashboardProvider = ({ children }) => {
         setResumeText(null);
         setLearningRoadmap(null);
         setCertificationData(null);
+        setHistoryRecordId(null);
         sessionStorage.removeItem(SESSION_KEY);
     };
 
@@ -73,6 +94,8 @@ export const DashboardProvider = ({ children }) => {
                 setLearningRoadmap,
                 certificationData,
                 setCertificationData,
+                historyRecordId,
+                setHistoryRecordId,
                 clearResults,
             }}
         >
