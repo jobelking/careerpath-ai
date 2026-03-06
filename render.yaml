@@ -1,0 +1,62 @@
+services:
+  # ─── Backend (FastAPI) ──────────────────────────────────────────────────────
+  - type: web
+    name: careerpath-ai-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r ../requirements.txt && python -m spacy download en_core_web_sm
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # set manually in Render dashboard
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRY_HOURS
+        value: "24"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: RAPIDAPI_KEY_2
+        sync: false
+      - key: RAPIDAPI_KEY_3
+        sync: false
+      - key: RAPIDAPI_KEY_4
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.titan.email
+      - key: SMTP_PORT
+        value: "465"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: resumes
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+  # ─── Frontend (Vite/React static site) ─────────────────────────────────────
+  - type: web
+    name: careerpath-ai-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # set to your backend Render URL, e.g. https://careerpath-ai-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
