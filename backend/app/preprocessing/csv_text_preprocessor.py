@@ -4,8 +4,12 @@ import string
 from typing import List, Optional
 import os
 import sys
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+try:
+    import tkinter as tk
+    from tkinter import filedialog, messagebox, ttk
+    _TKINTER_AVAILABLE = True
+except ImportError:
+    _TKINTER_AVAILABLE = False
 import threading
 
 # Add backend directory to path for imports
