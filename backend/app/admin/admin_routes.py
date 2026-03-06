@@ -11,9 +11,10 @@ Prefix: /api/admin
 """
 
 import json
+import os
 import bcrypt
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_connection, release_connection
@@ -419,7 +420,8 @@ async def list_history(
                 SELECT
                     ph.id, ph.user_id, u.email AS user_email, u.username,
                     ph.prediction_result, ph.confidence_score,
-                    ph.filename, ph.date_created, ph.top_predictions
+                    ph.filename, ph.date_created, ph.top_predictions,
+                    (ph.resume_path IS NOT NULL) AS has_resume
                 FROM prediction_history ph
                 JOIN users u ON u.id = ph.user_id
                 {where_sql}
@@ -442,6 +444,42 @@ async def list_history(
         return AdminHistoryResponse(success=True, history=rows, total=total)
     finally:
         release_connection(conn)
+
+
+# ── GET /api/admin/history/{id}/resume ───────────────────────────────────────
+
+@router.get("/history/{record_id}/resume")
+async def admin_download_resume(record_id: int, request: Request):
+    """
+    Stream the stored PDF resume for any prediction history record.
+    Requires admin privileges.
+    """
+    require_admin(request)
+
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT resume_path, filename FROM prediction_history WHERE id = %s;",
+                (record_id,)
+            )
+            row = cur.fetchone()
+    finally:
+        release_connection(conn)
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="History record not found.")
+
+    resume_path = row.get("resume_path")
+    if not resume_path or not os.path.exists(resume_path):
+        raise HTTPException(status_code=404, detail="Resume file not stored for this record.")
+
+    original_name = row.get("filename") or f"resume_{record_id}.pdf"
+    return FileResponse(
+        path=resume_path,
+        media_type="application/pdf",
+        filename=original_name,
+    )
 
 
 # ── DELETE /api/admin/history/{record_id} ────────────────────────────────────

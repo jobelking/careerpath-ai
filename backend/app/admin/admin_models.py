@@ -91,6 +91,7 @@ class AdminHistoryRecord(BaseModel):
     filename: Optional[str] = None
     date_created: Optional[datetime] = None
     top_predictions: Optional[List[Any]] = None
+    has_resume: Optional[bool] = False
 
     class Config:
         from_attributes = True
