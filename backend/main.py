@@ -3,6 +3,7 @@ FastAPI Backend for CareerPath AI
 Handles resume upload, text extraction, and career path prediction
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -12,13 +13,29 @@ from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
 from app.services.groq_service import generate_learning_roadmap, generate_certifications
 from app.services.jsearch_service import search_jobs as jsearch_search_jobs
+from app.database import init_db
+from app.auth.auth_routes import router as auth_router
+from app.history.history_routes import router as history_router
+from app.admin.admin_routes import router as admin_router
 import tempfile
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database tables on startup (non-fatal if DB is unavailable)."""
+    try:
+        init_db()
+    except Exception as e:
+        print(f"⚠️  Warning: Could not initialize database: {e}")
+        print("   Auth endpoints will be unavailable until PostgreSQL is running.")
+    yield
+
 
 # Initialize FastAPI app
 app = FastAPI(
     title="CareerPath AI API",
     description="AI-powered career path prediction from resumes",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -27,6 +44,13 @@ app = FastAPI(
 # For local dev, set: CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 _raw_origins = os.getenv("CORS_ORIGINS", "*")
 _allowed_origins = [o.strip() for o in _raw_origins.split(",")]
+
+# Register auth routes
+app.include_router(auth_router)
+# Register history routes
+app.include_router(history_router)
+# Register admin routes (requires is_admin=True in JWT)
+app.include_router(admin_router)
 
 app.add_middleware(
     CORSMiddleware,
