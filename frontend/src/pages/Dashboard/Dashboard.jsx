@@ -5,10 +5,19 @@ import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
 import { useDashboard } from '../../context/DashboardContext';
+import { useAuth } from '../../context/AuthContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { currentUser, logout, getToken } = useAuth();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   // Use context for persistent state
   const {
@@ -19,7 +28,8 @@ const Dashboard = () => {
     uploadedFile,
     setUploadedFile,
     setResumeText,
-    clearResults
+    clearResults,
+    setHistoryRecordId,
   } = useDashboard();
 
   // Local state (doesn't need persistence)
@@ -116,6 +126,25 @@ const Dashboard = () => {
         // Save resume text for learning roadmap
         if (result.resume_text) {
           setResumeText(result.resume_text);
+        }
+
+        // ── Auto-save prediction to history (fire-and-forget) ──────────────
+        const token = getToken();
+        if (token) {
+          apiService.saveHistory(token, {
+            prediction_result: result.prediction,
+            confidence_score: result.raw_confidence,
+            top_predictions: result.top_predictions?.slice(0, 3) ?? [],
+            filename: uploadedFile.name,
+            input_data: result.resume_text
+              ? result.resume_text.slice(0, 500)
+              : null,
+          }).then((saved) => {
+            // Store the record ID so LearnMore can PATCH roadmap/certs onto it
+            if (saved?.id) setHistoryRecordId(saved.id);
+          }).catch((err) => {
+            console.warn('History save failed (non-critical):', err);
+          });
         }
       } else {
         setError('Failed to analyze resume. Please try again.');
@@ -221,7 +250,86 @@ const Dashboard = () => {
             <Logo variant="modern" />
           </h1>
 
+          {/* Hamburger Button (mobile only) */}
+          <button
+            className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          {/* Desktop nav */}
+          <div className="dashboard-header-actions">
+            {currentUser && (
+              <span className="dashboard-greeting">Hello, {currentUser.username}</span>
+            )}
+            <button
+              className="dashboard-history-btn"
+              onClick={() => navigate('/history')}
+            >
+              History
+            </button>
+            {/* Admin Panel button — only visible to admin users */}
+            {currentUser?.is_admin && (
+              <button
+                className="dashboard-admin-btn"
+                onClick={() => navigate('/admin')}
+              >
+                🛡 Admin Panel
+              </button>
+            )}
+            <button
+              className="dashboard-logout-btn"
+              onClick={() => setShowLogoutConfirm(true)}
+            >
+              Logout
+            </button>
+          </div>
         </div>
+
+        {/* Mobile nav drawer */}
+        {menuOpen && (
+          <div className="mobile-nav-drawer">
+            {currentUser && (
+              <span className="mobile-nav-greeting">Hello, {currentUser.username}</span>
+            )}
+            <button
+              className="dashboard-history-btn mobile-nav-btn"
+              onClick={() => { navigate('/history'); setMenuOpen(false); }}
+            >
+              History
+            </button>
+            {/* Admin Panel button in mobile drawer — only for admins */}
+            {currentUser?.is_admin && (
+              <button
+                className="dashboard-admin-btn mobile-nav-btn"
+                onClick={() => { navigate('/admin'); setMenuOpen(false); }}
+              >
+                🛡 Admin Panel
+              </button>
+            )}
+            <button
+              className="dashboard-logout-btn mobile-nav-btn"
+              onClick={() => { setShowLogoutConfirm(true); setMenuOpen(false); }}
+            >
+              Logout
+            </button>
+          </div>
+        )}
+
+        {/* Logout confirmation banner */}
+        {showLogoutConfirm && (
+          <div className="logout-confirm-bar">
+            <span>Are you sure you want to logout?</span>
+            <div className="logout-confirm-actions">
+              <button className="logout-confirm-yes" onClick={handleLogout}>Yes, Logout</button>
+              <button className="logout-confirm-cancel" onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -230,8 +338,8 @@ const Dashboard = () => {
           {/* Welcome Section */}
 
 
-          {/* Two-Column Layout */}
-          <div className="dashboard-grid">
+          {/* Layout Area */}
+          <div className={`dashboard-grid ${!showResults && !isLoading && !showPreview ? 'centered' : ''}`}>
             {/* Left Column - Upload Section */}
             <div className="left-column">
               <div className="upload-card">
@@ -264,7 +372,7 @@ const Dashboard = () => {
                     {uploadedFile || (showResults && uploadedFileName) ? (
                       <div className="file-uploaded">
                         <span></span>
-                        <span className="file-icon">✓</span>
+                        <span className="file-icon">{React.createElement(otherIcons["FaCheck"])}</span>
                         <span className="file-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
                         {!showResults && uploadedFile && (
                           <button
@@ -326,7 +434,9 @@ const Dashboard = () => {
                 {/* Error Message */}
                 {error && (
                   <div className="error-message">
-                    <span className="error-icon">⚠️</span>
+                    <span className="error-icon" style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
+                      {React.createElement(otherIcons["FaExclamationTriangle"], { color: '#ef4444' })}
+                    </span>
                     <span>{error}</span>
                   </div>
                 )}
@@ -342,25 +452,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-
-              {/* Analysis Info Card */}
-              <div className="info-card">
-                <h4>How It Works</h4>
-                <ul className="info-list">
-                  <li>
-                    <span className="step-number">1</span>
-                    <span>Upload your resume in PDF format</span>
-                  </li>
-                  <li>
-                    <span className="step-number">2</span>
-                    <span>Our AI analyzes your skills and experience</span>
-                  </li>
-                  <li>
-                    <span className="step-number">3</span>
-                    <span>Get personalized career path recommendations</span>
-                  </li>
-                </ul>
-              </div>
             </div>
 
             {/* Right Column - Results Section */}
@@ -377,8 +468,8 @@ const Dashboard = () => {
                   <div className="results-header">
                     <div className="results-title-row">
                       <h3>Resume Preview</h3>
-                      <button className="close-preview-btn" onClick={handleClosePreview}>
-                        ✕ Close
+                      <button className="close-preview-btn" onClick={handleClosePreview} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {React.createElement(otherIcons["FaTimes"])} Close
                       </button>
                     </div>
                   </div>
