@@ -120,6 +120,7 @@ def init_db():
                     filename          VARCHAR(255),
                     learning_roadmap  JSONB,
                     certification_data JSONB,
+                    resume_path       TEXT,
                     date_created      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """)
@@ -127,6 +128,7 @@ def init_db():
             history_columns = [
                 ("learning_roadmap",   "JSONB"),
                 ("certification_data", "JSONB"),
+                ("resume_path",        "TEXT"),
             ]
             for col_name, col_type in history_columns:
                 cur.execute(f"""
