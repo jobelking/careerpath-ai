@@ -18,7 +18,7 @@ const LandingPage = () => {
     if (currentUser) {
       navigate('/dashboard');
     } else {
-      setAuthModalView('register');
+      setAuthModalView('login');
       setIsAuthModalOpen(true);
     }
   };
@@ -34,35 +34,6 @@ const LandingPage = () => {
 
   return (
     <div className="landing-container">
-      {/* Header Section */}
-      <header className="landing-header">
-        <Logo variant="modern" className="header-logo" />
-        <div className="header-actions">
-          {currentUser ? (
-            <div className="user-profile-menu">
-              <span className="user-greeting">Hi, {currentUser.name}</span>
-              <button className="auth-btn outline" onClick={() => navigate('/dashboard')}>
-                Dashboard
-              </button>
-              <button className="auth-btn logout" onClick={handleLogout} aria-label="Logout">
-                {React.createElement(authIcons['FaSignOutAlt'], { size: 18 })}
-              </button>
-            </div>
-          ) : (
-            <div className="auth-buttons">
-              <button className="auth-btn login-btn" onClick={handleLoginClick}>
-                Log In
-              </button>
-              <button className="auth-btn register-btn" onClick={() => {
-                setAuthModalView('register');
-                setIsAuthModalOpen(true);
-              }}>
-                Get Started
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
 
       {/* Hero Section */}
       <div className="hero-section">
@@ -73,13 +44,16 @@ const LandingPage = () => {
               Discover Your Perfect Career Path with AI-Powered Resume Analysis
             </p>
             <p className="hero-description" style={{ textAlign: 'justify' }}>
-              Upload your resume and let our advanced AI technology analyze your skills,
-              experience, and qualifications to recommend the most suitable career paths tailored just for you.
+              Upload your resume and let our <strong>machine learning</strong>-powered AI analyze your skills,
+              experience, and qualifications to recommend the most suitable career paths tailored just for you
+              across <strong>26 career paths</strong>.
             </p>
-            <button className="cta-button" onClick={handleGetStarted}>
-              <span className="cta-text">Upload Resume & Get Started</span>
-              <span className="cta-icon">➜</span>
-            </button>
+            <div className="hero-cta-buttons">
+              <button className="cta-button cta-register" onClick={handleGetStarted}>
+                <span className="cta-text">Get Started</span>
+                <span className="cta-icon">➜</span>
+              </button>
+            </div>
           </div>
 
           <div className="hero-visual">
