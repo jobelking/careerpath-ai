@@ -11,7 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback-insecure-secret")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET_KEY environment variable is not set. Add it to your .env file.")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 
