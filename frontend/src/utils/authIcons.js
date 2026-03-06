@@ -3,7 +3,9 @@ import {
     FaEnvelope,
     FaLock,
     FaTimes,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaEye,
+    FaEyeSlash
 } from 'react-icons/fa';
 
 export const authIcons = {
@@ -11,5 +13,7 @@ export const authIcons = {
     FaEnvelope,
     FaLock,
     FaTimes,
-    FaSignOutAlt
+    FaSignOutAlt,
+    FaEye,
+    FaEyeSlash
 };
