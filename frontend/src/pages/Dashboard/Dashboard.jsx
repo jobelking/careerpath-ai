@@ -131,6 +131,7 @@ const Dashboard = () => {
         // ── Auto-save prediction to history (fire-and-forget) ──────────────
         const token = getToken();
         if (token) {
+          const fileSnapshot = uploadedFile; // capture before any state reset
           apiService.saveHistory(token, {
             prediction_result: result.prediction,
             confidence_score: result.raw_confidence,
@@ -141,7 +142,13 @@ const Dashboard = () => {
               : null,
           }).then((saved) => {
             // Store the record ID so LearnMore can PATCH roadmap/certs onto it
-            if (saved?.id) setHistoryRecordId(saved.id);
+            if (saved?.id) {
+              setHistoryRecordId(saved.id);
+              // Upload the PDF so it's permanently linked to this history record
+              apiService.uploadHistoryResume(token, saved.id, fileSnapshot).catch((err) => {
+                console.warn('Resume PDF upload failed (non-critical):', err);
+              });
+            }
           }).catch((err) => {
             console.warn('History save failed (non-critical):', err);
           });
