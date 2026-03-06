@@ -234,6 +234,325 @@ class ApiService {
       throw error;
     }
   }
+  /**
+   * Parse FastAPI error detail — handles both string and Pydantic array responses.
+   * e.g. [{loc:[...], msg:"...", type:"..."}]  →  "Password must be at least 6 characters"
+   */
+  _parseDetail(detail, fallback) {
+    if (!detail) return fallback;
+    if (Array.isArray(detail)) {
+      return detail.map(e => e.msg || JSON.stringify(e)).join('. ');
+    }
+    return String(detail);
+  }
+
+  /**
+   * Register a new user
+   * @param {string} name
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<{success, token, user}>}
+   */
+  async registerUser(name, email, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Registration failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Login with email and password
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<{success, token, user}>}
+   */
+  async loginUser(email, password) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Login failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Verify OTP code submitted by the user
+   * @param {string} email
+   * @param {string} code - 6-digit OTP code
+   * @returns {Promise<{success, token, user, message}>}
+   */
+  async verifyOTP(email, code) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Verification failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Resend OTP to user's email
+   * @param {string} email
+   * @returns {Promise<{success, message}>}
+   */
+  async resendOTP(email) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Resend failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Get current user info from a stored JWT token
+   * @param {string} token - JWT token
+   * @returns {Promise<UserResponse>}
+   */
+  async getCurrentUser(token) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to fetch user');
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server.');
+      }
+      throw error;
+    }
+  }
+  /**
+   * Save a prediction result to history
+   * @param {string} token - JWT token
+   * @param {Object} payload - { prediction_result, input_data, confidence_score, top_predictions, filename }
+   * @returns {Promise<{success, id, message}>}
+   */
+  async saveHistory(token, payload) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/history`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save history');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error saving history:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get prediction history for the current user
+   * @param {string} token - JWT token
+   * @returns {Promise<{success, history, total}>}
+   */
+  async getHistory(token) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/history`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch history');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error fetching history:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing history record with learning roadmap / certification data
+   * @param {string} token - JWT token
+   * @param {number} historyId - history record ID returned by saveHistory
+   * @param {Object} payload - { learning_roadmap?, certification_data? }
+   */
+  async updateHistory(token, historyId, payload) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/history/${historyId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update history');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error updating history:', error);
+      throw error;
+    }
+  }
+
+  // ─── Admin API ───────────────────────────────────────────────────────────────
+
+  /**
+   * Internal helper: admin authenticated fetch.
+   * Throws on HTTP error, returns parsed JSON.
+   */
+  async _adminFetch(method, path, token, body = null) {
+    const opts = {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    };
+    const response = await fetch(`${API_BASE_URL}${path}`, opts);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(this._parseDetail(data.detail, data.message || 'Admin request failed'));
+    }
+    return data;
+  }
+
+  /**
+   * Fetch admin dashboard statistics.
+   * @param {string} token
+   */
+  async getAdminStats(token) {
+    return this._adminFetch('GET', '/api/admin/stats', token);
+  }
+
+  /**
+   * List users with optional search/filter/pagination.
+   * @param {string} token
+   * @param {Object} params - { search, verified, is_admin, page, page_size }
+   */
+  async getAdminUsers(token, params = {}) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))
+    ).toString();
+    return this._adminFetch('GET', `/api/admin/users${qs ? '?' + qs : ''}`, token);
+  }
+
+  /**
+   * Create a new user from admin dashboard.
+   * @param {string} token
+   * @param {{ username, email, password, is_admin }} payload
+   */
+  async adminCreateUser(token, payload) {
+    return this._adminFetch('POST', '/api/admin/users', token, payload);
+  }
+
+  /**
+   * Update an existing user.
+   * @param {string} token
+   * @param {number} userId
+   * @param {Object} payload - partial: { username?, email?, password?, is_admin?, is_verified? }
+   */
+  async adminUpdateUser(token, userId, payload) {
+    return this._adminFetch('PUT', `/api/admin/users/${userId}`, token, payload);
+  }
+
+  /**
+   * Delete a user by ID.
+   * @param {string} token
+   * @param {number} userId
+   */
+  async adminDeleteUser(token, userId) {
+    return this._adminFetch('DELETE', `/api/admin/users/${userId}`, token);
+  }
+
+  /**
+   * List all prediction history records (admin view).
+   * @param {string} token
+   * @param {Object} params - { search, user_id, page, page_size }
+   */
+  async getAdminHistory(token, params = {}) {
+    const qs = new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== '' && v !== 0))
+    ).toString();
+    return this._adminFetch('GET', `/api/admin/history${qs ? '?' + qs : ''}`, token);
+  }
+
+  /**
+   * Delete a prediction history record by ID.
+   * @param {string} token
+   * @param {number} recordId
+   */
+  async adminDeleteHistory(token, recordId) {
+    return this._adminFetch('DELETE', `/api/admin/history/${recordId}`, token);
+  }
 }
 
 // Export singleton instance
