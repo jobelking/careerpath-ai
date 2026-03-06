@@ -39,7 +39,7 @@ services:
       - key: SMTP_PASS
         sync: false
       - key: CORS_ORIGINS
-        value: https://careerpathai.tech
+        value: "*"
 
 databases:
   - name: careerpath-ai-db

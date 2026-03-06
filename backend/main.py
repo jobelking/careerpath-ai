@@ -45,13 +45,7 @@ app = FastAPI(
 _raw_origins = os.getenv("CORS_ORIGINS", "*")
 _allowed_origins = [o.strip() for o in _raw_origins.split(",")]
 
-# Register auth routes
-app.include_router(auth_router)
-# Register history routes
-app.include_router(history_router)
-# Register admin routes (requires is_admin=True in JWT)
-app.include_router(admin_router)
-
+# Add CORS middleware BEFORE registering routes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
@@ -59,6 +53,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register auth routes
+app.include_router(auth_router)
+# Register history routes
+app.include_router(history_router)
+# Register admin routes (requires is_admin=True in JWT)
+app.include_router(admin_router)
 
 # Initialize predictor (loads model on startup)
 predictor = CareerPathPredictor()
