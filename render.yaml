@@ -2,6 +2,7 @@ services:
   - type: web
     name: careerpath-ai-backend
     env: python
+    pythonVersion: "3.11.0"
     rootDir: backend
     buildCommand: pip install -r ../requirements.txt && python -m spacy download en_core_web_sm
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
@@ -12,7 +13,7 @@ services:
           name: careerpath-ai-db
           property: connectionString
       - key: JWT_SECRET_KEY
-        sync: false
+        generateValue: true
       - key: JWT_ALGORITHM
         value: HS256
       - key: JWT_EXPIRY_HOURS
@@ -38,7 +39,7 @@ services:
       - key: SMTP_PASS
         sync: false
       - key: CORS_ORIGINS
-        sync: false
+        value: https://careerpathai.tech
 
 databases:
   - name: careerpath-ai-db
