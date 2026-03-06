@@ -127,12 +127,90 @@
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .learnmore-header .nav-link--export:disabled svg {
     animation: spin 0.8s linear infinite;
+}
+
+/* Hamburger Button */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    gap: 5px;
+    padding: 4px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.hamburger-btn:hover {
+    background: #f1f5f9;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 22px;
+    height: 2.5px;
+    background: #1e293b;
+    border-radius: 4px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+/* Animated X when open */
+.hamburger-btn.open span:nth-child(1) {
+    transform: translateY(7.5px) rotate(45deg);
+}
+
+.hamburger-btn.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.hamburger-btn.open span:nth-child(3) {
+    transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* Mobile Nav Drawer */
+.mobile-nav-drawer {
+    display: none;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.75rem;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    animation: slideDown 0.2s ease-out;
+}
+
+.mobile-nav-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Main Content */
@@ -974,15 +1052,24 @@
 }
 
 @media (max-width: 768px) {
-    .learnmore-header {
-        padding: 1rem;
-        flex-direction: column;
-        gap: 0.75rem;
+    .learnmore-header .header-content {
+        padding: 0.75rem 1rem;
     }
 
-    .learnmore-back-btn {
-        width: 100%;
-        text-align: center;
+    .learnmore-nav {
+        display: none;
+    }
+
+    .hamburger-btn {
+        display: flex;
+    }
+
+    .mobile-nav-drawer {
+        display: flex;
+    }
+
+    .learnmore-brand {
+        font-size: 1.4rem;
     }
 
     .learnmore-main {

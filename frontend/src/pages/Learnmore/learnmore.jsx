@@ -5,6 +5,8 @@ import RightDock from '../../components/common/RightDock';
 import RightDrawer from '../../components/common/RightDrawer';
 import { JobsPanel, LearningPanel, CertificationPanel } from '../../components/common/RightDrawer/panels';
 import { useDashboard } from '../../context/DashboardContext';
+import { useAuth } from '../../context/AuthContext';
+import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
 import { exportToPdf } from '../../utils/exportToPdf';
@@ -201,9 +203,11 @@ const careerContent = {
 
 const Learnmore = () => {
     const navigate = useNavigate();
-    const { predictionResults, resumeText, learningRoadmap, setLearningRoadmap, certificationData, setCertificationData } = useDashboard();
+    const { predictionResults, resumeText, learningRoadmap, setLearningRoadmap, certificationData, setCertificationData, historyRecordId } = useDashboard();
+    const { getToken } = useAuth();
     const [showWhyOthersLower, setShowWhyOthersLower] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     // Right drawer state - default to closed
     const [activePanel, setActivePanel] = useState(null);
@@ -243,6 +247,26 @@ const Learnmore = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    // ── Auto-save learning roadmap to history when generated ─────────────────────
+    useEffect(() => {
+        if (!learningRoadmap || !historyRecordId) return;
+        const token = getToken();
+        if (!token) return;
+        apiService.updateHistory(token, historyRecordId, {
+            learning_roadmap: learningRoadmap,
+        }).catch((err) => console.warn('History roadmap update failed (non-critical):', err));
+    }, [learningRoadmap]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Auto-save certification data to history when generated ─────────────────
+    useEffect(() => {
+        if (!certificationData || !historyRecordId) return;
+        const token = getToken();
+        if (!token) return;
+        apiService.updateHistory(token, historyRecordId, {
+            certification_data: certificationData,
+        }).catch((err) => console.warn('History cert update failed (non-critical):', err));
+    }, [certificationData]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Get top prediction data
     const topPrediction = predictionResults?.top_predictions?.[0];
@@ -359,13 +383,39 @@ const Learnmore = () => {
         return (
             <div className="learnmore-container">
                 <header className="learnmore-header">
-                    <h1 className="learnmore-brand" onClick={() => navigate('/')}>
-                        <Logo variant="modern" />
-                    </h1>
-                    <button className="learnmore-back-btn" onClick={() => navigate('/dashboard')}>
-                        {React.createElement(otherIcons["FaArrowLeft"], { size: 13 })}
-                        Back to Dashboard
-                    </button>
+                    <div className="header-content">
+                        <h1 className="learnmore-brand" onClick={() => navigate('/')}>
+                            <Logo variant="modern" />
+                        </h1>
+
+                        {/* Hamburger Button (mobile only) */}
+                        <button
+                            className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            aria-label="Toggle menu"
+                        >
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+
+                        <nav className="learnmore-nav">
+                            <button className="nav-link" onClick={() => navigate('/dashboard')}>
+                                {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                                <span>Back to Dashboard</span>
+                            </button>
+                        </nav>
+                    </div>
+
+                    {/* Mobile nav drawer */}
+                    {menuOpen && (
+                        <div className="mobile-nav-drawer">
+                            <button className="nav-link mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
+                                {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                                <span>Back to Dashboard</span>
+                            </button>
+                        </div>
+                    )}
                 </header>
                 <main className="learnmore-main">
                     <div className="learnmore-no-data">
@@ -391,6 +441,18 @@ const Learnmore = () => {
                     <h1 ref={logoRef} className="learnmore-brand" onClick={() => navigate('/')}>
                         <Logo variant="modern" />
                     </h1>
+
+                    {/* Hamburger Button (mobile only) */}
+                    <button
+                        className={`hamburger-btn ${menuOpen ? 'open' : ''}`}
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+
                     <nav className="learnmore-nav">
                         <button className="nav-link" onClick={() => navigate('/dashboard')}>
                             {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
@@ -402,6 +464,20 @@ const Learnmore = () => {
                         </button>
                     </nav>
                 </div>
+
+                {/* Mobile nav drawer */}
+                {menuOpen && (
+                    <div className="mobile-nav-drawer">
+                        <button className="nav-link mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
+                            {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                            <span>Back to Dashboard</span>
+                        </button>
+                        <button className="nav-link nav-link--export mobile-nav-btn" onClick={() => { handleExportPdf(); setMenuOpen(false); }} disabled={isExporting}>
+                            {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
+                            <span>{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
+                        </button>
+                    </div>
+                )}
             </header>
 
             {/* Main Content */}
