@@ -1,0 +1,889 @@
+/* History Page Styles - CareerPath AI */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+.history-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.history-header {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+.history-header-content {
+    margin: 0 auto;
+    padding: 1rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-brand {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #2563eb;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.history-brand:hover {
+    color: #1d4ed8;
+}
+
+.history-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.history-greeting {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.history-dashboard-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #2563eb;
+    color: #ffffff;
+    border: 1.5px solid #2563eb;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Montserrat', sans-serif;
+}
+
+.history-dashboard-btn:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    border-color: #1d4ed8;
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.28);
+    transform: translateY(-1px);
+}
+
+.history-dashboard-btn:active {
+    background: #1e40af;
+    transform: scale(0.97) translateY(0);
+}
+
+.history-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2e8f0;
+    transition: background 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.history-logout-btn:hover {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.12);
+    transform: translateY(-1px);
+}
+
+.history-logout-btn:active {
+    background: #fee2e2;
+    transform: scale(0.97) translateY(0);
+}
+
+/* ── Hamburger Button ────────────────────────────────────────────────────── */
+.history-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 6px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.history-hamburger:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.hamburger-line {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #475569;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+    transform-origin: center;
+}
+
+/* Animated X when open */
+.history-hamburger.open .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.history-hamburger.open .hamburger-line:nth-child(2) {
+    opacity: 0;
+    width: 0;
+}
+
+.history-hamburger.open .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Mobile Dropdown Menu ────────────────────────────────────────────────── */
+.history-mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    min-width: 200px;
+    z-index: 300;
+    padding: 0.5rem;
+    animation: menuSlideDown 0.2s ease-out;
+    overflow: hidden;
+}
+
+@keyframes menuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.mobile-menu-greeting {
+    padding: 0.75rem 1rem 0.625rem;
+    font-size: 0.88rem;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 0.35rem;
+}
+
+.mobile-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 1rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: background 0.15s ease, color 0.15s ease;
+    background: transparent;
+    color: #1e293b;
+}
+
+.mobile-menu-item.dashboard-item:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.mobile-menu-item.logout-item {
+    color: #dc2626;
+    margin-top: 0.125rem;
+}
+
+.mobile-menu-item.logout-item:hover {
+    background: #fef2f2;
+}
+
+/* Logout confirmation bar */
+.history-logout-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    padding: 0.65rem 3rem;
+    background: #fff7f7;
+    border-top: 1px solid #fecaca;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e293b;
+    animation: slideDown 0.2s ease-out;
+    flex-wrap: wrap;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.history-logout-actions {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.logout-yes-btn {
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    border: none;
+    background: #ef4444;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.logout-yes-btn:hover {
+    background: #dc2626;
+}
+
+.logout-cancel-btn {
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    border: 1.5px solid #cbd5e1;
+    background: white;
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.logout-cancel-btn:hover {
+    border-color: #94a3b8;
+    color: #475569;
+}
+
+/* ── Main ────────────────────────────────────────────────────────────────── */
+.history-main {
+    padding: 2rem 1.5rem;
+    min-height: calc(100vh - 74px);
+}
+
+.history-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ── Page Header ─────────────────────────────────────────────────────────── */
+.history-page-header {
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.history-page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.history-icon {
+    font-size: 1.75rem;
+}
+
+.history-page-subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.history-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    gap: 1.5rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.history-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Error ───────────────────────────────────────────────────────────────── */
+.history-error {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #991b1b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.history-error-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* ── Empty State ─────────────────────────────────────────────────────────── */
+.history-empty {
+    background: white;
+    border-radius: 20px;
+    padding: 5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.history-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.25rem;
+    opacity: 0.4;
+}
+
+.history-empty h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.75rem 0;
+}
+
+.history-empty p {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0 0 2rem 0;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+.history-go-dashboard-btn {
+    display: inline-block;
+    padding: 0.75rem 1.75rem;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.3px;
+}
+
+.history-go-dashboard-btn:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.history-table-wrapper {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.history-table thead {
+    background: linear-gradient(135deg, #f1f5f9, #e8f0fe);
+}
+
+.history-table thead tr th {
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.history-table tbody tr.history-row {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.18s ease;
+}
+
+.history-table tbody tr.history-row:hover {
+    background: #f8faff;
+}
+
+.history-table tbody tr.history-row:last-child {
+    border-bottom: none;
+}
+
+.history-table td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+}
+
+/* Columns */
+.history-rank {
+    font-weight: 700;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    width: 40px;
+}
+
+.history-date {
+    color: #64748b;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.history-career {
+    font-weight: 600;
+}
+
+.career-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.history-file {
+    max-width: 200px;
+}
+
+.filename-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.82rem;
+    color: #475569;
+    font-weight: 500;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.no-data {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+
+/* Confidence */
+.history-confidence {
+    min-width: 130px;
+}
+
+.confidence-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.confidence-value {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+.confidence-bar-track {
+    width: 100%;
+    height: 5px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.confidence-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border-radius: 10px;
+    transition: width 0.8s ease-out;
+}
+
+/* Actions */
+.history-actions {
+    white-space: nowrap;
+}
+
+.pdf-download-btn.loading svg {
+    animation: spin 0.8s linear infinite;
+}
+
+.pdf-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'Montserrat', sans-serif;
+    white-space: nowrap;
+}
+
+.pdf-download-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.pdf-download-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.pdf-download-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pdf-download-btn.loading {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
+.pdf-icon {
+    font-size: 1rem;
+}
+
+.pdf-btn-loading {
+    font-size: 0.83rem;
+}
+
+/* ── Mobile Cards (hidden on desktop) ───────────────────────────────────── */
+.history-cards {
+    display: none;
+}
+
+.history-card {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 0.875rem;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.history-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.history-card-rank {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+}
+
+.history-card-meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.625rem;
+}
+
+.history-card-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    min-width: 60px;
+    padding-top: 0.15rem;
+}
+
+.history-card-value {
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.history-card-actions {
+    margin-top: 1rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid #f1f5f9;
+}
+
+.history-card-actions .pdf-download-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+/* Tablet — 900px */
+@media (max-width: 900px) {
+    .history-header-content {
+        padding: 1rem 1.5rem;
+    }
+
+    .history-main {
+        padding: 1.5rem 1rem;
+    }
+
+    .history-table {
+        font-size: 0.82rem;
+    }
+
+    .history-table thead tr th,
+    .history-table td {
+        padding: 0.75rem 0.85rem;
+    }
+
+    .history-page-title {
+        font-size: 1.65rem;
+    }
+}
+
+/* Mobile — 768px: show hamburger, switch to card layout */
+@media (max-width: 768px) {
+
+    /* Header */
+    .history-header-content {
+        padding: 0.875rem 1.25rem;
+        position: relative;
+    }
+
+    /* Hide desktop nav links, show hamburger */
+    .history-header-actions {
+        display: none;
+    }
+
+    .history-hamburger {
+        display: flex;
+    }
+
+    /* Make the header's position context for the dropdown */
+    .history-header {
+        position: sticky;
+        top: 0;
+    }
+
+    /* Show the mobile menu dropdown */
+    .history-mobile-menu {
+        display: block;
+        position: fixed;
+        top: 60px;
+        right: 1rem;
+        left: auto;
+    }
+
+    /* Logout bar wraps nicely */
+    .history-logout-bar {
+        padding: 0.65rem 1.25rem;
+        gap: 0.75rem;
+        text-align: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Main */
+    .history-main {
+        padding: 1.25rem 1rem;
+    }
+
+    .history-page-title {
+        font-size: 1.4rem;
+    }
+
+    .history-page-subtitle {
+        font-size: 0.875rem;
+    }
+
+    /* Hide table, show cards */
+    .history-table-wrapper {
+        display: none;
+    }
+
+    .history-cards {
+        display: block;
+    }
+
+    /* Empty state */
+    .history-empty {
+        padding: 3.5rem 1.5rem;
+        border-radius: 16px;
+    }
+
+    .history-empty h3 {
+        font-size: 1.35rem;
+    }
+}
+
+/* Small mobile — 480px */
+@media (max-width: 480px) {
+    .history-header-content {
+        padding: 0.75rem 1rem;
+    }
+
+    .history-main {
+        padding: 1rem 0.875rem;
+    }
+
+    .history-page-header {
+        margin-bottom: 1.25rem;
+    }
+
+    .history-page-title {
+        font-size: 1.25rem;
+    }
+
+    .history-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .history-empty {
+        padding: 2.5rem 1.25rem;
+    }
+
+    .history-empty h3 {
+        font-size: 1.2rem;
+    }
+
+    .history-empty p {
+        font-size: 0.875rem;
+    }
+
+    .history-go-dashboard-btn {
+        padding: 0.65rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .history-mobile-menu {
+        right: 0.75rem;
+        min-width: 180px;
+    }
+}
+
+/* Extra small — 360px */
+@media (max-width: 360px) {
+    .history-header-content {
+        padding: 0.65rem 0.875rem;
+    }
+
+    .history-brand {
+        font-size: 1.4rem;
+    }
+
+    .history-main {
+        padding: 0.875rem 0.75rem;
+    }
+
+    .history-page-title {
+        font-size: 1.1rem;
+    }
+
+    .history-card {
+        padding: 0.875rem;
+    }
+
+    .career-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.65rem;
+    }
+}
