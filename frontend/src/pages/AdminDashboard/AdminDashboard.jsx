@@ -24,9 +24,9 @@ import './AdminDashboard.css';
 // ─── Small helper components ───────────────────────────────────────────────────
 
 /** Generic modal wrapper */
-const Modal = ({ title, onClose, children }) => (
+const Modal = ({ title, onClose, children, className = '' }) => (
   <div className="adm-modal-overlay" onClick={onClose}>
-    <div className="adm-modal" onClick={e => e.stopPropagation()}>
+    <div className={`adm-modal ${className}`} onClick={e => e.stopPropagation()}>
       <div className="adm-modal-header">
         <h3 className="adm-modal-title">{title}</h3>
         <button className="adm-modal-close" onClick={onClose} aria-label="Close">✕</button>
@@ -282,6 +282,13 @@ const AdminDashboard = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [deletingRecord,  setDeletingRecord]  = useState(null); // history record | null
   const [deleteRecordLoading, setDeleteRecordLoading] = useState(false);
+  const [loadingResumeId, setLoadingResumeId] = useState(null); // record id being fetched
+  const [resumeModal, setResumeModal] = useState(null); // { rec, blobUrl } | null
+
+  const handleCloseResumeModal = () => {
+    if (resumeModal?.blobUrl) URL.revokeObjectURL(resumeModal.blobUrl);
+    setResumeModal(null);
+  };
 
   /** Fetch history records from the backend */
   const loadHistory = useCallback(async (page = historyPage) => {
@@ -375,6 +382,17 @@ const AdminDashboard = () => {
 
   const fmtConfidence = (score) =>
     score != null ? `${parseFloat(score).toFixed(1)}%` : '—';
+
+  const calculateProfileFit = (rawProbability) => {
+    const p = rawProbability;
+    if (p < 5)  return Math.round((p / 5) * 35);
+    if (p < 10) return Math.round(35 + ((p - 5)  / 5)  * 15);
+    if (p < 15) return Math.round(50 + ((p - 10) / 5)  * 15);
+    if (p < 20) return Math.round(65 + ((p - 15) / 5)  * 18);
+    if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2);
+    if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5);
+    return Math.round(90 + ((p - 50) / 50) * 5);
+  };
 
   // ════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -655,9 +673,10 @@ const AdminDashboard = () => {
                         <th>ID</th>
                         <th>User</th>
                         <th>Predicted Career</th>
-                        <th>Confidence</th>
+                        <th>Profile Fit</th>
                         <th>File</th>
                         <th>Date</th>
+                        <th>Resume</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -675,12 +694,36 @@ const AdminDashboard = () => {
                             <span className="adm-career-tag">{rec.prediction_result}</span>
                           </td>
                           <td>
-                            <span className={`adm-confidence ${parseFloat(rec.confidence_score) >= 70 ? 'adm-conf-high' : parseFloat(rec.confidence_score) >= 40 ? 'adm-conf-mid' : 'adm-conf-low'}`}>
-                              {fmtConfidence(rec.confidence_score)}
-                            </span>
+                            {rec.confidence_score != null
+                              ? `${calculateProfileFit(parseFloat(rec.confidence_score))}%`
+                              : '—'}
                           </td>
                           <td className="adm-cell-muted">{rec.filename || '—'}</td>
                           <td className="adm-cell-muted">{fmtDate(rec.date_created)}</td>
+                          <td>
+                            {rec.has_resume ? (
+                              <button
+                                className="adm-btn adm-btn-ghost adm-btn-sm"
+                                disabled={loadingResumeId === rec.id}
+                                onClick={async () => {
+                                  setLoadingResumeId(rec.id);
+                                  try {
+                                    const blob = await apiService.adminFetchResume(token, rec.id);
+                                    const blobUrl = URL.createObjectURL(blob);
+                                    setResumeModal({ rec, blobUrl });
+                                  } catch (err) {
+                                    showAlert('error', `Could not load resume: ${err.message}`);
+                                  } finally {
+                                    setLoadingResumeId(null);
+                                  }
+                                }}
+                              >
+                                {loadingResumeId === rec.id ? '⏳' : 'View'}
+                              </button>
+                            ) : (
+                              <span className="adm-cell-muted">—</span>
+                            )}
+                          </td>
                           <td>
                             <button
                               className="adm-btn-icon adm-btn-delete"
@@ -822,7 +865,20 @@ const AdminDashboard = () => {
           </form>
         </Modal>
       )}
-
+      {/* ── Resume PDF Viewer ────────────────────────────────────────────────── */}
+      {resumeModal && (
+        <Modal
+          title={`Resume — ${resumeModal.rec.filename || `Record #${resumeModal.rec.id}`}`}
+          onClose={handleCloseResumeModal}
+          className="adm-modal-pdf"
+        >
+          <iframe
+            className="adm-pdf-frame"
+            src={resumeModal.blobUrl}
+            title="Resume PDF"
+          />
+        </Modal>
+      )}
       {/* ── Delete User Confirmation ──────────────────────────────────────── */}
       {deletingUser && (
         <Modal title="Confirm Delete" onClose={() => setDeletingUser(null)}>

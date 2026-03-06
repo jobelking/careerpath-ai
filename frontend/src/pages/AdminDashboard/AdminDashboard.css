@@ -439,6 +439,11 @@
 }
 .adm-btn-ghost:hover { background: var(--adm-bg); }
 
+.adm-btn-sm {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+}
+
 .adm-btn-danger {
   background: var(--adm-red);
   color: #fff;
@@ -544,6 +549,35 @@
 .adm-modal-close:hover { background: var(--adm-bg); color: var(--adm-text); }
 
 .adm-modal-body { padding: 1.25rem 1.5rem; }
+
+/* Wide PDF viewer modal */
+.adm-modal-pdf {
+  max-width: 900px;
+  width: 95vw;
+  height: 90vh;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.adm-modal-pdf .adm-modal-body {
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.adm-modal-pdf .adm-modal-header {
+  flex-shrink: 0;
+}
+
+.adm-pdf-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  border-radius: 0 0 14px 14px;
+}
 
 /* Form fields */
 .adm-field {
