@@ -31,6 +31,7 @@ class HistoryRecord(BaseModel):
     filename: Optional[str] = None
     learning_roadmap: Optional[Any] = None
     certification_data: Optional[Any] = None
+    has_resume: Optional[bool] = False
     date_created: Optional[datetime] = None
 
     class Config:
