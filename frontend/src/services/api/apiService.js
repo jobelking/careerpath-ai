@@ -462,6 +462,45 @@ class ApiService {
     }
   }
 
+  /**
+   * Upload and attach the PDF resume to an existing history record.
+   * @param {string} token - JWT token
+   * @param {number} historyId - history record ID returned by saveHistory
+   * @param {File} file - The PDF File object to store
+   * @returns {Promise<{success, message}>}
+   */
+  async uploadHistoryResume(token, historyId, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/history/${historyId}/resume`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to upload resume');
+      }
+      return data;
+    } catch (error) {
+      console.error('Error uploading history resume:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the URL to download the stored resume PDF for a history record.
+   * @param {number} historyId
+   * @returns {string} URL string (use with Authorization header or open in fetch)
+   */
+  getHistoryResumeUrl(historyId) {
+    return `${API_BASE_URL}/api/history/${historyId}/resume`;
+  }
+
   // ─── Admin API ───────────────────────────────────────────────────────────────
 
   /**
@@ -552,6 +591,50 @@ class ApiService {
    */
   async adminDeleteHistory(token, recordId) {
     return this._adminFetch('DELETE', `/api/admin/history/${recordId}`, token);
+  }
+
+  /**
+   * Fetch the stored resume PDF for a history record and return it as a Blob.
+   * (Admin only — does not trigger a download)
+   * @param {string} token
+   * @param {number} recordId
+   * @returns {Promise<Blob>}
+   */
+  async adminFetchResume(token, recordId) {
+    const response = await fetch(`${API_BASE_URL}/api/admin/history/${recordId}/resume`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || 'Failed to load resume');
+    }
+    return response.blob();
+  }
+
+  /**
+   * Download the stored resume PDF for a history record (admin only).
+   * Returns a Blob that callers can use to trigger a file download.
+   * @param {string} token
+   * @param {number} recordId
+   * @param {string} filename - suggested save name
+   */
+  async adminDownloadResume(token, recordId, filename) {
+    const response = await fetch(`${API_BASE_URL}/api/admin/history/${recordId}/resume`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.detail || 'Failed to download resume');
+    }
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = filename || `resume_${recordId}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
   }
 }
 
