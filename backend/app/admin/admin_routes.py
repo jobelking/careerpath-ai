@@ -11,10 +11,9 @@ Prefix: /api/admin
 """
 
 import json
-import os
 import bcrypt
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_connection, release_connection
@@ -28,6 +27,7 @@ from app.admin.admin_models import (
     AdminHistoryResponse,
     AdminStatsResponse,
 )
+from app.services.storage_service import get_resume_signed_url, delete_resume
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
@@ -451,7 +451,7 @@ async def list_history(
 @router.get("/history/{record_id}/resume")
 async def admin_download_resume(record_id: int, request: Request):
     """
-    Stream the stored PDF resume for any prediction history record.
+    Return a signed Supabase Storage URL for any prediction history record's resume.
     Requires admin privileges.
     """
     require_admin(request)
@@ -471,25 +471,39 @@ async def admin_download_resume(record_id: int, request: Request):
         raise HTTPException(status_code=404, detail="History record not found.")
 
     resume_path = row.get("resume_path")
-    if not resume_path or not os.path.exists(resume_path):
+    if not resume_path:
         raise HTTPException(status_code=404, detail="Resume file not stored for this record.")
 
+    try:
+        signed_url = get_resume_signed_url(resume_path)
+    except Exception as e:
+        print(f"Admin signed URL error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate resume download link.")
+
     original_name = row.get("filename") or f"resume_{record_id}.pdf"
-    return FileResponse(
-        path=resume_path,
-        media_type="application/pdf",
-        filename=original_name,
-    )
+    return JSONResponse(content={"success": True, "url": signed_url, "filename": original_name})
 
 
 # ── DELETE /api/admin/history/{record_id} ────────────────────────────────────
 
 @router.delete("/history/{record_id}", status_code=status.HTTP_200_OK)
 async def delete_history_record(record_id: int, request: Request):
-    """Delete a specific prediction history record by ID."""
+    """Delete a specific prediction history record by ID and its resume from storage."""
     require_admin(request)
     conn = get_connection()
     try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Fetch resume_path before deleting so we can clean up storage
+            cur.execute(
+                "SELECT resume_path FROM prediction_history WHERE id = %s;",
+                (record_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="History record not found.")
+
+            resume_path = row.get("resume_path") if row else None
+
         with conn.cursor() as cur:
             cur.execute(
                 "DELETE FROM prediction_history WHERE id = %s RETURNING id;",
@@ -499,6 +513,10 @@ async def delete_history_record(record_id: int, request: Request):
             if not deleted:
                 raise HTTPException(status_code=404, detail="History record not found.")
             conn.commit()
+
+        # Clean up Supabase Storage (non-fatal if it fails)
+        if resume_path:
+            delete_resume(resume_path)
 
         return {"success": True, "message": f"History record {record_id} deleted."}
 
