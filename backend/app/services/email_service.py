@@ -1,59 +1,37 @@
 """
 Email Service for CareerPath AI
-Sends transactional emails via SMTP (Titan Mail / careerpathai.tech).
+Sends transactional emails via Resend (https://resend.com).
 Reads credentials from environment variables.
 """
 
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import resend
 from dotenv import load_dotenv
 
 load_dotenv()
 
-SMTP_HOST = os.getenv("SMTP_HOST", "smtp.titan.email")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
-FROM_NAME = "CareerPath AI"
-FROM_ADDRESS = SMTP_USER
+resend.api_key = os.getenv("RESEND_API_KEY", "")
+FROM_ADDRESS = os.getenv("RESEND_FROM", "CareerPath AI <info@careerpathai.tech>")
 
 
 def _send_email(to_email: str, subject: str, body_text: str, body_html: str | None = None) -> None:
     """
-    Internal helper — tries STARTTLS first, falls back to SSL if port is 465.
+    Internal helper — sends an email via Resend.
     Raises an exception if sending fails (caller should handle).
     """
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = f"{FROM_NAME} <{FROM_ADDRESS}>"
-    msg["To"] = to_email
+    params: resend.Emails.SendParams = {
+        "from": FROM_ADDRESS,
+        "to": [to_email],
+        "subject": subject,
+        "text": body_text,
+    }
 
-    # Plain-text part (always included)
-    msg.attach(MIMEText(body_text, "plain"))
-
-    # HTML part (optional — used as the preferred rendering)
     if body_html:
-        msg.attach(MIMEText(body_html, "html"))
+        params["html"] = body_html
 
-    print(f"📧 Connecting to SMTP: {SMTP_HOST}:{SMTP_PORT} as {SMTP_USER}")
-
-    if SMTP_PORT == 465:
-        # SSL connection (no STARTTLS needed)
-        import ssl
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, context=context, timeout=15) as server:
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(FROM_ADDRESS, to_email, msg.as_string())
-    else:
-        # STARTTLS connection (587 or custom)
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(FROM_ADDRESS, to_email, msg.as_string())
+    print(f"📧 Sending email via Resend to {to_email} ...")
+    response = resend.Emails.send(params)
+    print(f"✅ Resend response: {response}")
 
 
 def send_verification_email(to_email: str, otp_code: str) -> None:
@@ -104,10 +82,10 @@ def send_verification_email(to_email: str, otp_code: str) -> None:
                 <p style="margin:0;font-size:40px;font-weight:800;letter-spacing:12px;color:#1e293b;font-family:'Courier New',monospace;">{otp_code}</p>
               </div>
               <p style="margin:0 0 8px;color:#64748b;font-size:14px;line-height:1.6;">
-                                 This code will expire in <strong>5 minutes</strong>.
+                This code will expire in <strong>5 minutes</strong>.
               </p>
               <p style="margin:0;color:#94a3b8;font-size:13px;">
-                 Do not share this code with anyone. CareerPath AI will never ask for it.
+                Do not share this code with anyone. CareerPath AI will never ask for it.
               </p>
             </td>
           </tr>
