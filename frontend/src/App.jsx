@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { DashboardProvider } from './context/DashboardContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -25,6 +26,7 @@ function App() {
             {/* Admin-only route — redirects non-admins to /dashboard */}
             <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           </Routes>
+          <SpeedInsights />
         </Router>
       </DashboardProvider>
     </AuthProvider>
