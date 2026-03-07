@@ -75,9 +75,9 @@ async def root():
     }
 
 
-@app.api_route("/health", methods=["GET", "HEAD"])
+@app.get("/health")
 async def health_check():
-    """Health check endpoint with model status (supports HEAD for UptimeRobot)"""
+    """Health check endpoint with model status"""
     return {
         "status": "healthy",
         "model_loaded": predictor.is_loaded(),
