@@ -154,8 +154,8 @@ async def login(payload: LoginRequest):
 
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="EMAIL_NOT_REGISTERED"
             )
 
         user = dict(user)
@@ -176,7 +176,7 @@ async def login(payload: LoginRequest):
         if not user.get("is_verified", False):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Please verify your email before logging in. Check your inbox for the verification code."
+                detail="EMAIL_NOT_VERIFIED"
             )
 
         token = create_access_token(user["id"], user["email"], user.get("is_admin", False))
