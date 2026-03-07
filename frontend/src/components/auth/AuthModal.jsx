@@ -10,6 +10,30 @@ const OTP_LENGTH = 6;
 const OTP_EXPIRY_SECONDS = 5 * 60; // 5 minutes
 const RESEND_COOLDOWN_SECONDS = 60;
 
+// ─── Verified Confirmation View ──────────────────────────────────────────────
+const VerifiedView = ({ onDone }) => {
+    const [count, setCount] = useState(5);
+
+    useEffect(() => {
+        if (count <= 0) { onDone(); return; }
+        const t = setTimeout(() => setCount(c => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [count, onDone]);
+
+    return (
+        <div className="verified-view">
+            <h2 className="verified-title">Email Verified!</h2>
+            <p className="verified-subtitle">
+                Your account has been successfully verified.<br />
+                You can now log in.
+            </p>
+            <p className="verified-redirect">
+                Redirecting to login in <strong>{count}</strong>…
+            </p>
+        </div>
+    );
+};
+
 // ─── OTP View ────────────────────────────────────────────────────────────────
 const OTPView = ({ email, onSuccess, onBack }) => {
     const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''));
@@ -215,6 +239,7 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
+    const [authErrorEmail, setAuthErrorEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -242,6 +267,7 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
         setShowPassword(false);
         setShowConfirmPassword(false);
         setError('');
+        setAuthErrorEmail('');
     };
 
     const handleSubmit = async (e) => {
@@ -289,17 +315,41 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
                 }
             }
         } catch (err) {
-            setError(err.message || 'An error occurred during authentication');
+            const msg = err.message || '';
+            if (msg === 'EMAIL_NOT_REGISTERED' || msg === 'EMAIL_NOT_VERIFIED') {
+                setAuthErrorEmail(email);
+                setError(msg);
+            } else {
+                setError(msg || 'An error occurred during authentication');
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleOTPSuccess = (data) => {
-        // data.token + data.user come from the verify-otp endpoint
-        finalizeLogin(data.user, data.token);
-        onClose();
-        navigate('/dashboard');
+    const handleSignUp = () => {
+        const savedEmail = authErrorEmail;
+        resetFields();
+        setSlideDir('left');
+        setAnimKey(k => k + 1);
+        setView('register');
+        setTimeout(() => setEmail(savedEmail), 0);
+    };
+
+    const handleOTPSuccess = () => {
+        // Show the verified confirmation screen first
+        setSlideDir('left');
+        setAnimKey(k => k + 1);
+        setView('verified');
+    };
+
+    const handleVerifiedDone = () => {
+        // After countdown, slide to login
+        setPendingEmail('');
+        setSlideDir('right');
+        setAnimKey(k => k + 1);
+        setView('login');
+        setError('');
     };
 
     const handleOTPBack = () => {
@@ -336,8 +386,12 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
                     <Logo variant="modern" className="auth-logo" />
                 </div>
 
-                {/* ── OTP Verification View ── */}
-                {view === 'verify' ? (
+                {/* ── Verified Confirmation View ── */}
+                {view === 'verified' ? (
+                    <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
+                        <VerifiedView onDone={handleVerifiedDone} />
+                    </div>
+                ) : view === 'verify' ? (
                     <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
                         <OTPView
                             email={pendingEmail}
@@ -357,7 +411,23 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
                             </p>
                         </div>
 
-                        {error && <div className="auth-error">{error}</div>}
+                        {error === 'EMAIL_NOT_REGISTERED' ? (
+                            <div className="auth-error">
+                                This email address is not registered. Please{' '}
+                                <button type="button" className="auth-error-inline-link" onClick={handleSignUp}>
+                                    sign up and verify this email.
+                                </button>.
+                            </div>
+                        ) : error === 'EMAIL_NOT_VERIFIED' ? (
+                            <div className="auth-error">
+                                This email address is not verified. Please{' '}
+                                <button type="button" className="auth-error-inline-link" onClick={handleSignUp}>
+                                    sign up again
+                                </button>{' '}and verify this email.
+                            </div>
+                        ) : (
+                            error && <div className="auth-error">{error}</div>
+                        )}
 
                         <form onSubmit={handleSubmit} className="auth-form" noValidate>
                             {/* Username — register only */}
