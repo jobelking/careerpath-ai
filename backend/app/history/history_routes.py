@@ -5,22 +5,15 @@ GET  /api/history — retrieve all history for the logged-in user (authenticated
 """
 
 import json
-import os
-import shutil
 
 from fastapi import APIRouter, File, Request, UploadFile, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_connection, release_connection
 from app.auth.jwt_utils import get_current_user_payload
 from app.history.history_models import SaveHistoryRequest, UpdateHistoryRequest
-
-# Directory where uploaded PDFs are persisted
-# Configurable via RESUMES_DIR env var; default is <backend>/data/resumes
-_DEFAULT_RESUMES_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "resumes")
-RESUMES_DIR = os.path.abspath(os.getenv("RESUMES_DIR", _DEFAULT_RESUMES_DIR))
-os.makedirs(RESUMES_DIR, exist_ok=True)
+from app.services.storage_service import upload_resume, get_resume_signed_url
 
 router = APIRouter(prefix="/api/history", tags=["History"])
 
@@ -208,11 +201,10 @@ async def get_history(request: Request):
 # ──────────────────────────────────────────────────────────────
 
 @router.post("/{history_id}/resume", status_code=status.HTTP_200_OK)
-async def upload_resume(history_id: int, request: Request, file: UploadFile = File(...)):
+async def upload_resume_endpoint(history_id: int, request: Request, file: UploadFile = File(...)):
     """
-    Save the uploaded PDF resume for an existing history record.
-    The file is stored at <RESUMES_DIR>/<user_id>/<history_id>.pdf and the
-    path is persisted in the prediction_history row.
+    Upload the resume PDF to Supabase Storage and store the object path
+    in the prediction_history row.
     Requires: Authorization: Bearer <token>
     """
     jwt_payload = get_current_user_payload(request)
@@ -241,14 +233,11 @@ async def upload_resume(history_id: int, request: Request, file: UploadFile = Fi
                 content={"success": False, "message": "Record not found or access denied."}
             )
 
-        # Persist file: <RESUMES_DIR>/<history_id>.pdf
-        dest_path = os.path.join(RESUMES_DIR, f"{history_id}.pdf")
-
+        # Upload to Supabase Storage
         content = await file.read()
-        with open(dest_path, "wb") as f:
-            f.write(content)
+        object_path = upload_resume(user_id, history_id, content)
 
-        # Update DB record with path
+        # Store the Supabase Storage object path in the DB
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
@@ -257,31 +246,32 @@ async def upload_resume(history_id: int, request: Request, file: UploadFile = Fi
                 WHERE id = %s AND user_id = %s
                 RETURNING id;
                 """,
-                (dest_path, history_id, user_id)
+                (object_path, history_id, user_id)
             )
             conn.commit()
 
-        return JSONResponse(content={"success": True, "message": "Resume stored.", "resume_path": dest_path})
+        return JSONResponse(content={"success": True, "message": "Resume uploaded to storage."})
 
     except Exception as e:
         conn.rollback()
         print(f"Upload resume error: {e}")
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"success": False, "message": "Failed to store resume."}
+            content={"success": False, "message": "Failed to upload resume."}
         )
     finally:
         release_connection(conn)
 
 
 # ──────────────────────────────────────────────────────────────
-# GET /api/history/{id}/resume  — download the stored PDF
+# GET /api/history/{id}/resume  — get a signed URL for the stored PDF
 # ──────────────────────────────────────────────────────────────
 
 @router.get("/{history_id}/resume")
 async def download_resume(history_id: int, request: Request):
     """
-    Stream the stored PDF resume for a history record back to the caller.
+    Return a short-lived signed URL for the resume stored in Supabase Storage.
+    The frontend should redirect the user's browser to this URL to download the PDF.
     Only the owner (JWT sub) can access their own resume.
     Requires: Authorization: Bearer <token>
     """
@@ -306,15 +296,23 @@ async def download_resume(history_id: int, request: Request):
         )
 
     resume_path = row.get("resume_path")
-    if not resume_path or not os.path.exists(resume_path):
+    if not resume_path:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            content={"success": False, "message": "Resume file not found."}
+            content={"success": False, "message": "No resume stored for this record."}
         )
 
-    original_name = row.get("filename") or f"resume_{history_id}.pdf"
-    return FileResponse(
-        path=resume_path,
-        media_type="application/pdf",
-        filename=original_name,
-    )
+    try:
+        signed_url = get_resume_signed_url(resume_path)
+    except Exception as e:
+        print(f"Signed URL error: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"success": False, "message": "Failed to generate resume download link."}
+        )
+
+    return JSONResponse(content={
+        "success": True,
+        "url": signed_url,
+        "filename": row.get("filename") or f"resume_{history_id}.pdf"
+    })
