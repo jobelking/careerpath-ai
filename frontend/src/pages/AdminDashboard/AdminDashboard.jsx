@@ -124,25 +124,25 @@ const AdminDashboard = () => {
   // USERS TAB STATE
   // ════════════════════════════════════════════════════════════════════════════
 
-  const [users, setUsers]         = useState([]);
+  const [users, setUsers] = useState([]);
   const [userTotal, setUserTotal] = useState(0);
-  const [userPage, setUserPage]   = useState(1);
+  const [userPage, setUserPage] = useState(1);
   const PAGE_SIZE = 15;
 
   // Filter/search state
-  const [userSearch,    setUserSearch]    = useState('');
-  const [userVerified,  setUserVerified]  = useState('all');  // all | true | false
+  const [userSearch, setUserSearch] = useState('');
+  const [userVerified, setUserVerified] = useState('all');  // all | true | false
   const [userAdminFilter, setUserAdminFilter] = useState('all'); // all | true | false
-  const [usersLoading,  setUsersLoading]  = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   // Modals
   const [showCreateUser, setShowCreateUser] = useState(false);
-  const [editingUser,    setEditingUser]    = useState(null);   // user object | null
-  const [deletingUser,   setDeletingUser]   = useState(null);   // user object | null
+  const [editingUser, setEditingUser] = useState(null);   // user object | null
+  const [deletingUser, setDeletingUser] = useState(null);   // user object | null
 
   // Create/edit form fields
   const emptyUserForm = { username: '', email: '', password: '', is_admin: false, is_verified: true };
-  const [userForm, setUserForm]   = useState(emptyUserForm);
+  const [userForm, setUserForm] = useState(emptyUserForm);
   const [formErrors, setFormErrors] = useState({});
   const [formLoading, setFormLoading] = useState(false);
 
@@ -170,9 +170,9 @@ const AdminDashboard = () => {
   const validateUserForm = (isCreate) => {
     const errs = {};
     if (!userForm.username.trim()) errs.username = 'Username is required.';
-    if (!userForm.email.trim())    errs.email    = 'Email is required.';
+    if (!userForm.email.trim()) errs.email = 'Email is required.';
     else if (!/\S+@\S+\.\S+/.test(userForm.email)) errs.email = 'Invalid email address.';
-    if (isCreate && !userForm.password)            errs.password = 'Password is required.';
+    if (isCreate && !userForm.password) errs.password = 'Password is required.';
     if (userForm.password && userForm.password.length < 6) errs.password = 'Minimum 6 characters.';
     return errs;
   };
@@ -212,11 +212,11 @@ const AdminDashboard = () => {
     try {
       // Only send changed fields
       const payload = {};
-      if (userForm.username !== editingUser.username)       payload.username    = userForm.username.trim();
-      if (userForm.email    !== editingUser.email)          payload.email       = userForm.email.trim();
-      if (userForm.is_admin !== editingUser.is_admin)       payload.is_admin    = userForm.is_admin;
+      if (userForm.username !== editingUser.username) payload.username = userForm.username.trim();
+      if (userForm.email !== editingUser.email) payload.email = userForm.email.trim();
+      if (userForm.is_admin !== editingUser.is_admin) payload.is_admin = userForm.is_admin;
       if (userForm.is_verified !== editingUser.is_verified) payload.is_verified = userForm.is_verified;
-      if (userForm.password)                                payload.password    = userForm.password;
+      if (userForm.password) payload.password = userForm.password;
 
       if (!Object.keys(payload).length) {
         showAlert('info', 'No changes detected.');
@@ -262,10 +262,10 @@ const AdminDashboard = () => {
   const openEditUser = (user) => {
     setEditingUser(user);
     setUserForm({
-      username:    user.username,
-      email:       user.email,
-      password:    '',               // never pre-fill password
-      is_admin:    user.is_admin,
+      username: user.username,
+      email: user.email,
+      password: '',               // never pre-fill password
+      is_admin: user.is_admin,
       is_verified: user.is_verified,
     });
     setFormErrors({});
@@ -275,12 +275,12 @@ const AdminDashboard = () => {
   // HISTORY TAB STATE
   // ════════════════════════════════════════════════════════════════════════════
 
-  const [history,      setHistory]      = useState([]);
+  const [history, setHistory] = useState([]);
   const [historyTotal, setHistoryTotal] = useState(0);
-  const [historyPage,  setHistoryPage]  = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
   const [historySearch, setHistorySearch] = useState('');
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [deletingRecord,  setDeletingRecord]  = useState(null); // history record | null
+  const [deletingRecord, setDeletingRecord] = useState(null); // history record | null
   const [deleteRecordLoading, setDeleteRecordLoading] = useState(false);
   const [loadingResumeId, setLoadingResumeId] = useState(null); // record id being fetched
   const [resumeModal, setResumeModal] = useState(null); // { rec, blobUrl } | null
@@ -352,7 +352,7 @@ const AdminDashboard = () => {
       if (activeTab === 'users') { setUserPage(1); loadUsers(1); }
     }, 300);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userSearch]);
 
   useEffect(() => {
@@ -360,7 +360,7 @@ const AdminDashboard = () => {
       if (activeTab === 'history') { setHistoryPage(1); loadHistory(1); }
     }, 300);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historySearch]);
 
   // ── Logout ──────────────────────────────────────────────────────────────────
@@ -385,10 +385,10 @@ const AdminDashboard = () => {
 
   const calculateProfileFit = (rawProbability) => {
     const p = rawProbability;
-    if (p < 5)  return Math.round((p / 5) * 35);
-    if (p < 10) return Math.round(35 + ((p - 5)  / 5)  * 15);
-    if (p < 15) return Math.round(50 + ((p - 10) / 5)  * 15);
-    if (p < 20) return Math.round(65 + ((p - 15) / 5)  * 18);
+    if (p < 5) return Math.round((p / 5) * 35);
+    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);
+    if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15);
+    if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18);
     if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2);
     if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5);
     return Math.round(90 + ((p - 50) / 50) * 5);
@@ -412,9 +412,9 @@ const AdminDashboard = () => {
         {/* Nav items */}
         <nav className="adm-nav">
           {[
-            { id: 'overview', icon: '📊', label: 'Overview'  },
-            { id: 'users',    icon: '👥', label: 'Users'     },
-            { id: 'history',  icon: '📋', label: 'History'   },
+            { id: 'overview', icon: '📊', label: 'Overview' },
+            { id: 'users', icon: '👥', label: 'Users' },
+            { id: 'history', icon: '📋', label: 'History' },
           ].map(({ id, icon, label }) => (
             <button
               key={id}
@@ -493,10 +493,10 @@ const AdminDashboard = () => {
             ) : stats ? (
               <>
                 <div className="adm-stats-grid">
-                  <StatCard icon="👥" value={stats.total_users}      label="Total Users"        accent="blue"   />
-                  <StatCard icon="✅" value={stats.verified_users}   label="Verified Users"     accent="green"  />
-                  <StatCard icon="🛡️" value={stats.admin_users}      label="Admin Accounts"     accent="purple" />
-                  <StatCard icon="📄" value={stats.total_predictions} label="Total Predictions"  accent="orange" />
+                  <StatCard icon="👥" value={stats.total_users} label="Total Users" accent="blue" />
+                  <StatCard icon="✅" value={stats.verified_users} label="Verified Users" accent="green" />
+                  <StatCard icon="🛡️" value={stats.admin_users} label="Admin Accounts" accent="purple" />
+                  <StatCard icon="📄" value={stats.total_predictions} label="Total Predictions" accent="orange" />
                 </div>
 
                 {/* Quick-action buttons */}
@@ -708,9 +708,14 @@ const AdminDashboard = () => {
                                 onClick={async () => {
                                   setLoadingResumeId(rec.id);
                                   try {
-                                    const blob = await apiService.adminFetchResume(token, rec.id);
-                                    const blobUrl = URL.createObjectURL(blob);
-                                    setResumeModal({ rec, blobUrl });
+                                    const response = await fetch(
+                                      `${(import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')}/api/admin/history/${rec.id}/resume`,
+                                      { headers: { Authorization: `Bearer ${token}` } }
+                                    );
+                                    const data = await response.json();
+                                    if (!response.ok) throw new Error(data.detail || 'Failed to load resume');
+                                    // Open the signed Supabase URL in a new tab
+                                    window.open(data.url, '_blank');
                                   } catch (err) {
                                     showAlert('error', `Could not load resume: ${err.message}`);
                                   } finally {
