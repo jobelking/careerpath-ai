@@ -41,7 +41,7 @@ def upload_resume(user_id: int, history_id: int, file_bytes: bytes) -> str:
     Returns:
         object_path: Storage path, e.g. "resumes/<user_id>/<history_id>.pdf"
     """
-    object_path = f"{user_id}/{history_id}.pdf"
+    object_path = f"{history_id}.pdf"
     supabase = get_supabase()
 
     # Remove any existing file first (upsert-style)
