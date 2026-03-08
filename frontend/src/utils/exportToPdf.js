@@ -13,7 +13,7 @@ import html2canvas from 'html2canvas';
  *   │  THE TOP 3 PREDICTED RESULT             │
  *   │    #1  #2  #3                           │
  *   │  ─────────────────────────────────────  │
- *   │  THE LEARNING MATERIALS                 │
+ *   │  LEARNING ROADMAP                       │
  *   │  ─────────────────────────────────────  │
  *   │  CERTIFICATIONS                         │
  *   └─────────────────────────────────────────┘
@@ -236,13 +236,13 @@ export const exportToPdf = async ({
     y += 6;
 
     // ══════════════════════════════════════════════════════════════════════════
-    // SECTION 2 — LEARNING MATERIALS
+    // SECTION 2 — LEARNING ROADMAP
     // ══════════════════════════════════════════════════════════════════════════
-    sectionHeader('THE LEARNING MATERIALS');
+    sectionHeader('LEARNING ROADMAP');
 
     if (!learningRoadmap) {
         writeText({
-            text: 'Learning materials have not been generated yet. Please open the Learning Materials panel in analysis page to generate them.',
+            text: 'Learning roadmap has not been generated yet. Please open the Learning Roadmap panel in analysis page to generate it.',
             style: 'normal',
             color: [120, 120, 120],
         });

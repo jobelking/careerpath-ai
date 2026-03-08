@@ -25,7 +25,7 @@ const RightDrawer = ({ isOpen, activePanel, onClose, children }) => {
             id: 'jobs-drawer'
         },
         learning: {
-            title: 'Learning Materials',
+            title: 'Learning Roadmap',
             icon: FaBook,
             id: 'learning-drawer'
         },

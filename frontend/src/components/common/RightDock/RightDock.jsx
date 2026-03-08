@@ -42,7 +42,7 @@ const RightDock = ({ activePanel, onPanelToggle }) => {
                 onClick={handleLearningClick}
                 aria-expanded={activePanel === 'learning'}
                 aria-controls="learning-drawer"
-                aria-label="Open Learning Materials panel"
+                aria-label="Open Learning Roadmap panel"
                 title="Learning"
             >
                 <FaBook className="dock-button-icon" />
