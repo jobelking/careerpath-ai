@@ -179,7 +179,7 @@ export const exportToPdf = async ({
         topThree.forEach((career, idx) => {
             checkPage(28);
 
-            const score   = calculateProfileFit(career.raw_confidence);
+            const score = calculateProfileFit(career.raw_confidence);
 
             // Rank pill
             doc.setFillColor(239, 246, 255);
@@ -242,7 +242,7 @@ export const exportToPdf = async ({
 
     if (!learningRoadmap) {
         writeText({
-            text: 'Learning materials have not been generated yet. Please open the Learning Materials panel to generate them.',
+            text: 'Learning materials have not been generated yet. Please open the Learning Materials panel in analysis page to generate them.',
             style: 'normal',
             color: [120, 120, 120],
         });
@@ -307,7 +307,7 @@ export const exportToPdf = async ({
 
     if (!certificationData) {
         writeText({
-            text: 'Certifications have not been generated yet. Please open the Certifications panel to generate them.',
+            text: 'Certifications have not been generated yet. Please open the Certifications panel in analysis page to generate them.',
             style: 'normal',
             color: [120, 120, 120],
         });
@@ -318,9 +318,9 @@ export const exportToPdf = async ({
         }
 
         const levelColors = {
-            beginner:     [16, 185, 129],
+            beginner: [16, 185, 129],
             intermediate: [245, 158, 11],
-            advanced:     [239, 68, 68],
+            advanced: [239, 68, 68],
         };
 
         (certificationData.certifications ?? []).forEach((cert, cIdx) => {
