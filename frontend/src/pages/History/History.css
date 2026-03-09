@@ -6,7 +6,7 @@
 .history-container {
     min-height: 100vh;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-body);
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
@@ -68,7 +68,7 @@
         transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
         box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
         border-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
 }
 
 .history-dashboard-btn:hover {
@@ -93,7 +93,7 @@
     font-weight: 600;
     cursor: pointer;
     border-radius: 8px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
     background: #f1f5f9;
     color: #475569;
     border: 1.5px solid #e2e8f0;
@@ -211,7 +211,7 @@
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
     transition: background 0.15s ease, color 0.15s ease;
     background: transparent;
     color: #1e293b;
@@ -274,7 +274,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s ease;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
 }
 
 .logout-yes-btn:hover {
@@ -291,7 +291,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
 }
 
 .logout-cancel-btn:hover {
@@ -444,7 +444,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.25s ease;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
     letter-spacing: 0.3px;
 }
 
@@ -614,7 +614,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.25s ease;
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
     white-space: nowrap;
 }
 

@@ -64,7 +64,7 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: #1e293b;
-    font-family: 'Montserrat', 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 .drawer-close-btn {
@@ -127,11 +127,11 @@
     .right-drawer {
         width: 100vw;
     }
-    
+
     .drawer-header {
         padding: 16px 20px;
     }
-    
+
     .drawer-content {
         padding: 20px;
     }

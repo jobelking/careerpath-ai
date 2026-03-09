@@ -11,7 +11,7 @@
   height: 100vh;
   overflow: hidden;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-body);
 }
 
 /* Header/Navigation */
@@ -134,7 +134,7 @@
   font-weight: 600;
   cursor: pointer;
   border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   background: #2563eb;
   color: #ffffff;
   border: 1.5px solid #2563eb;
@@ -168,7 +168,7 @@
   font-weight: 600;
   cursor: pointer;
   border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   background: #7c3aed;
   color: #ffffff;
   border: 1.5px solid #7c3aed;
@@ -200,7 +200,7 @@
   font-weight: 600;
   cursor: pointer;
   border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   background: #f1f5f9;
   color: #475569;
   border: 1.5px solid #e2e8f0;
@@ -266,7 +266,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
 }
 
 .logout-confirm-yes:hover {
@@ -283,7 +283,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
 }
 
 .logout-confirm-cancel:hover {
@@ -534,7 +534,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   transition: all 0.2s ease;
   letter-spacing: 0.3px;
 }
@@ -561,7 +561,7 @@
   transition: all 0.3s ease;
 
   /* Using #2563eb converted to RGB */
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   letter-spacing: 0.3px;
 }
 
@@ -844,7 +844,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
 }
 
 .learn-more-button:hover {
@@ -1488,7 +1488,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
 }
 
 .preview-button:hover:not(:disabled) {

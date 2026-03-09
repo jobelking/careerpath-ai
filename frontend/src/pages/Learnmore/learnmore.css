@@ -14,7 +14,7 @@
     display: flex;
     flex-direction: column;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    font-family: 'Montserrat', 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 /* Header */
@@ -78,7 +78,7 @@
         color var(--anim-duration-fast) var(--anim-ease-out),
         transform var(--anim-duration-fast) var(--anim-ease-out),
         box-shadow var(--anim-duration-fast) var(--anim-ease-out);
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-body);
 }
 
 .learnmore-header .nav-link:hover {

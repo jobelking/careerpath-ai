@@ -192,7 +192,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 .job-apply-btn:hover {
@@ -231,7 +231,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 .jobs-view-all-btn:hover {
@@ -324,7 +324,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 .jobs-retry-btn:hover {
@@ -391,7 +391,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 .jobs-load-more-btn:hover:not(:disabled) {

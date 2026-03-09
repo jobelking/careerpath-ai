@@ -11,7 +11,7 @@
     gap: 0;
     background: white;
     border-radius: 12px 0 0 12px;
-    box-shadow: 
+    box-shadow:
         -4px 0 20px rgba(0, 0, 0, 0.08),
         -2px 0 6px rgba(0, 0, 0, 0.04);
     overflow: hidden;
@@ -96,7 +96,7 @@
     color: #64748b;
     letter-spacing: 0.02em;
     transition: all 0.2s ease;
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 /* Responsive - Hide labels on smaller screens */
@@ -104,16 +104,16 @@
     .right-dock {
         border-radius: 8px 0 0 8px;
     }
-    
+
     .dock-button {
         padding: 14px 12px;
         min-width: 52px;
     }
-    
+
     .dock-button-label {
         display: none;
     }
-    
+
     .dock-button-icon {
         font-size: 18px;
     }

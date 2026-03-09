@@ -40,9 +40,9 @@ const LandingPage = () => {
         <div className="hero-content">
           <div className="hero-text">
             <Logo variant="modern" className="brand-name" style={{ fontSize: '3.5rem' }} />
-            <p className="hero-tagline">
+            <h2 className="hero-tagline">
               Discover Your Perfect Career Path with AI-Powered Resume Analysis
-            </p>
+            </h2>
             <p className="hero-description" style={{ textAlign: 'justify' }}>
               Upload your resume and let our <strong>machine learning</strong>-powered AI analyze your skills,
               experience, and qualifications to recommend the most suitable career paths tailored just for you
