@@ -124,6 +124,39 @@
   color: #1e293b;
 }
 
+/* Career Paths nav button */
+.dashboard-careers-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1.5px solid #6ee7b7;
+  transition: background 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-careers-btn:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.22);
+  transform: translateY(-1px);
+}
+
+.dashboard-careers-btn:active {
+  background: #a7f3d0;
+  transform: scale(0.97) translateY(0);
+}
+
 /* History nav button — matches learnmore nav-link--export */
 .dashboard-history-btn {
   display: flex;

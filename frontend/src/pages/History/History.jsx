@@ -5,6 +5,7 @@ import Logo from '../../components/common/Logo';
 import apiService from '../../services/api/apiService';
 import { useAuth } from '../../context/AuthContext';
 import { otherIcons } from '../../utils/otherIcons';
+import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import './History.css';
 
 const History = () => {
@@ -16,6 +17,7 @@ const History = () => {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [exportingId, setExportingId] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showCareerPaths, setShowCareerPaths] = useState(false);
     const menuRef = useRef(null);
 
     // Close menu on outside click
@@ -129,6 +131,9 @@ const History = () => {
                         {currentUser && (
                             <span className="history-greeting">Hello, {currentUser.username}</span>
                         )}
+                        <button className="history-dashboard-btn" onClick={() => setShowCareerPaths(true)}>
+                            Career Paths
+                        </button>
                         <button className="history-dashboard-btn" onClick={() => navigate('/dashboard')}>
                             Dashboard
                         </button>
@@ -169,6 +174,12 @@ const History = () => {
                             Hello, <strong>{currentUser.username}</strong>
                         </div>
                     )}
+                    <button
+                        className="mobile-menu-item dashboard-item"
+                        onClick={() => { setMenuOpen(false); setShowCareerPaths(true); }}
+                    >
+                        Career Paths
+                    </button>
                     <button
                         className="mobile-menu-item dashboard-item"
                         onClick={() => { setMenuOpen(false); navigate('/dashboard'); }}
@@ -360,6 +371,11 @@ const History = () => {
                     )}
                 </div>
             </main>
+
+            {/* Career Paths Modal */}
+            {showCareerPaths && (
+                <CareerPathsModal onClose={() => setShowCareerPaths(false)} />
+            )}
         </div>
     );
 };

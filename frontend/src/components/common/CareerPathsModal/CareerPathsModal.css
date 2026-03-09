@@ -1,0 +1,240 @@
+/* CareerPathsModal Styles */
+
+/* Backdrop */
+.cp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    animation: cp-fade-in 0.2s ease-out;
+}
+
+@keyframes cp-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Panel */
+.cp-modal {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.8);
+    width: 100%;
+    max-width: 780px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: cp-slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cp-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header */
+.cp-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.75rem 2rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+}
+
+.cp-modal-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.cp-modal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 99px;
+    width: fit-content;
+}
+
+.cp-modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+    margin: 0;
+}
+
+.cp-modal-subtitle {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+    max-width: 480px;
+}
+
+.cp-modal-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.cp-modal-close:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* Scrollable Body */
+.cp-modal-body {
+    overflow-y: auto;
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* Category block */
+.cp-category {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.cp-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.cp-category-icon {
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.cp-category-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #475569;
+    margin: 0;
+    flex: 1;
+}
+
+.cp-category-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 0.15rem 0.55rem;
+    border-radius: 99px;
+}
+
+/* Paths grid */
+.cp-paths-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.65rem;
+}
+
+/* Individual path card */
+.cp-path-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #fafcff;
+    transition: all 0.18s ease;
+    cursor: default;
+}
+
+.cp-path-card:hover {
+    border-color: #93c5fd;
+    background: #eff6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.cp-path-icon {
+    color: #2563eb;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(37, 99, 235, 0.08);
+    border-radius: 8px;
+}
+
+.cp-path-name {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .cp-modal-header {
+        padding: 1.25rem 1.25rem 1rem;
+    }
+
+    .cp-modal-body {
+        padding: 1.25rem;
+        gap: 1.25rem;
+    }
+
+    .cp-modal-title {
+        font-size: 1.2rem;
+    }
+
+    .cp-paths-grid {
+        grid-template-columns: 1fr;
+    }
+}

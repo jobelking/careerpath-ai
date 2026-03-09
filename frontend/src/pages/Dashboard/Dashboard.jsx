@@ -6,6 +6,7 @@ import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
 import { useDashboard } from '../../context/DashboardContext';
 import { useAuth } from '../../context/AuthContext';
+import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const { currentUser, logout, getToken } = useAuth();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showCareerPaths, setShowCareerPaths] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -275,6 +277,13 @@ const Dashboard = () => {
             )}
             <button
               className="dashboard-history-btn"
+              onClick={() => setShowCareerPaths(true)}
+              id="career-paths-btn"
+            >
+              Career Paths
+            </button>
+            <button
+              className="dashboard-history-btn"
               onClick={() => navigate('/history')}
             >
               History
@@ -303,6 +312,12 @@ const Dashboard = () => {
             {currentUser && (
               <span className="mobile-nav-greeting">Hello, {currentUser.username}</span>
             )}
+            <button
+              className="dashboard-history-btn mobile-nav-btn"
+              onClick={() => { setShowCareerPaths(true); setMenuOpen(false); }}
+            >
+              Career Paths
+            </button>
             <button
               className="dashboard-history-btn mobile-nav-btn"
               onClick={() => { navigate('/history'); setMenuOpen(false); }}
@@ -636,6 +651,11 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* Career Paths Modal */}
+      {showCareerPaths && (
+        <CareerPathsModal onClose={() => setShowCareerPaths(false)} />
+      )}
     </div>
   );
 };
