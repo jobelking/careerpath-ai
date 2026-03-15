@@ -9,9 +9,11 @@ import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPat
 import './History.css';
 
 const History = () => {
+    const RECORDS_PER_PAGE = 10;
     const navigate = useNavigate();
     const { currentUser, logout, getToken } = useAuth();
     const [history, setHistory] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -68,6 +70,14 @@ const History = () => {
         };
         fetchHistory();
     }, [getToken, navigate]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [history.length]);
+
+    const totalPages = Math.max(1, Math.ceil(history.length / RECORDS_PER_PAGE));
+    const startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
+    const paginatedHistory = history.slice(startIndex, startIndex + RECORDS_PER_PAGE);
 
     // ── Profile Fit (mirrors Dashboard logic exactly) ──────────────────────
     const calculateProfileFit = (rawProbability) => {
@@ -249,9 +259,9 @@ const History = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {history.map((record, idx) => (
+                                        {paginatedHistory.map((record, idx) => (
                                             <tr key={record.id} className="history-row">
-                                                <td className="history-rank">{idx + 1}</td>
+                                                <td className="history-rank">{startIndex + idx + 1}</td>
                                                 <td className="history-date">{formatDate(record.date_created)}</td>
                                                 <td className="history-career">
                                                     <span className="career-badge">{record.prediction_result}</span>
@@ -310,10 +320,10 @@ const History = () => {
 
                             {/* Mobile Cards (hidden on desktop via CSS) */}
                             <div className="history-cards">
-                                {history.map((record, idx) => (
+                                {paginatedHistory.map((record, idx) => (
                                     <div key={record.id} className="history-card">
                                         <div className="history-card-top">
-                                            <span className="history-card-rank">#{idx + 1}</span>
+                                            <span className="history-card-rank">#{startIndex + idx + 1}</span>
                                             <span className="career-badge">{record.prediction_result}</span>
                                         </div>
                                         <div className="history-card-meta">
@@ -367,6 +377,28 @@ const History = () => {
                                     </div>
                                 ))}
                             </div>
+
+                            {history.length > RECORDS_PER_PAGE && (
+                                <div className="history-pagination">
+                                    <button
+                                        className="history-page-btn"
+                                        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Previous
+                                    </button>
+                                    <span className="history-page-indicator">
+                                        Page {currentPage} of {totalPages}
+                                    </span>
+                                    <button
+                                        className="history-page-btn"
+                                        onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

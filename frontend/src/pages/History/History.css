@@ -309,6 +309,40 @@
     max-width: 1200px;
     margin: 0 auto;
 }
+.history-pagination {
+    margin-top: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+.history-page-btn {
+    min-width: 100px;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+}
+.history-page-btn:hover:not(:disabled) {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+.history-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.history-page-indicator {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 600;
+}
 
 /* ── Page Header ─────────────────────────────────────────────────────────── */
 .history-page-header {
@@ -721,6 +755,17 @@
         padding: 1rem 1.5rem;
     }
 
+    .history-pagination {
+        gap: 0.5rem;
+    }
+    .history-page-btn {
+        min-width: 88px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    .history-page-indicator {
+        font-size: 0.82rem;
+    }
     .history-main {
         padding: 1.5rem 1rem;
     }
