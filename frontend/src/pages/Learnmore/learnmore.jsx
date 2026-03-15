@@ -486,19 +486,29 @@ const Learnmore = () => {
 
                     {/* SECTION 1: Hero Card */}
                     <div className="hero-card">
-                        <div className="hero-card-left">
-                            <div className="hero-icon">
-                                {getCareerIcon(careerName)}
+                        <div className="hero-card-main">
+                            <div className="hero-card-left">
+                                <div className="hero-icon">
+                                    {getCareerIcon(careerName)}
+                                </div>
+                                <div className="hero-info">
+                                    <span className="hero-label">#1 Career Match</span>
+                                    <h1 className="hero-title">{careerName}</h1>
+                                    <p className="hero-insight">{content.marketInsight}</p>
+                                </div>
                             </div>
-                            <div className="hero-info">
-                                <span className="hero-label">#1 Career Match</span>
-                                <h1 className="hero-title">{careerName}</h1>
-                                <p className="hero-insight">{content.marketInsight}</p>
+                            <div className="hero-meta">
+                                <span className="hero-meta-pill">Top Recommendation</span>
+                                <span className="hero-meta-text">Compared across 26 career paths</span>
                             </div>
                         </div>
+
                         <div className="hero-score">
                             <span className="hero-score-value">{profileFitScore}%</span>
                             <span className="hero-score-label">Profile Fit</span>
+                            <div className="hero-score-track" aria-hidden="true">
+                                <div className="hero-score-fill" style={{ width: `${profileFitScore}%` }}></div>
+                            </div>
                         </div>
                     </div>
 

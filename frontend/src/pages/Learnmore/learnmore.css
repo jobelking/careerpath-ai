@@ -280,41 +280,64 @@
    SECTION 1: Hero Card
    ============================================ */
 .hero-card {
-    background: #2563eb;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     border-radius: 20px;
     padding: 2rem 2.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: stretch;
     margin-bottom: 1.5rem;
-    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     animation: scaleIn 0.5s ease-out 0.4s both;
+    border: 1px solid #dbeafe;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(180deg, #2563eb 0%, #60a5fa 100%);
+}
+
+.hero-card-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
 }
 
 .hero-card-left {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1.5rem;
 }
 
 .hero-icon {
     width: 72px;
     height: 72px;
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
 .hero-info {
-    color: white;
+    color: #0f172a;
+    min-width: 0;
 }
 
 .hero-label {
     display: inline-block;
-    background: rgba(255, 255, 255, 0.2);
+    background: #eff6ff;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -322,53 +345,103 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
+    color: #1e40af;
 }
 
 .hero-title {
-    font-size: 1.75rem;
+    font-size: 1.85rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
     letter-spacing: -0.5px;
+    line-height: 1.2;
+    color: #0f172a;
 }
 
 .hero-insight {
     margin: 0;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.85);
-    max-width: 400px;
+    font-size: 0.92rem;
+    color: #475569;
+    max-width: 560px;
     line-height: 1.5;
 }
 
+.hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.hero-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.hero-meta-text {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
 .hero-score {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    background: rgba(255, 255, 255, 0.15);
+    min-width: 165px;
+    background: #f8fafc;
     border-radius: 16px;
-    padding: 1.25rem 2rem;
-    backdrop-filter: blur(10px);
+    padding: 1.1rem 1.25rem;
+    border: 1px solid #cbd5e1;
     transition: transform var(--anim-duration-normal) var(--anim-ease-out),
         background var(--anim-duration-normal) var(--anim-ease-out);
 }
 
 .hero-score:hover {
     transform: scale(1.02);
-    background: rgba(255, 255, 255, 0.2);
+    background: #f1f5f9;
 }
 
 .hero-score-value {
     display: block;
-    font-size: 2.5rem;
+    font-size: 2.4rem;
     font-weight: 800;
-    color: white;
+    color: #1e40af;
     line-height: 1;
 }
 
 .hero-score-label {
     display: block;
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
+    margin-bottom: 0.75rem;
+}
+
+.hero-score-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: #dbeafe;
+    overflow: hidden;
+}
+
+.hero-score-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+    transition: width 0.6s ease;
 }
 
 /* ============================================
@@ -1077,14 +1150,23 @@
     }
 
     .hero-card {
-        flex-direction: column;
+        grid-template-columns: 1fr;
         text-align: center;
         padding: 1.5rem;
-        gap: 1.5rem;
+        gap: 1rem;
+    }
+
+    .hero-card-main {
+        gap: 1rem;
     }
 
     .hero-card-left {
         flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-meta {
+        justify-content: center;
     }
 
     .hero-title {
@@ -1093,6 +1175,11 @@
 
     .hero-insight {
         max-width: 100%;
+    }
+
+    .hero-score {
+        width: 100%;
+        min-width: 0;
     }
 
     .why-section,
