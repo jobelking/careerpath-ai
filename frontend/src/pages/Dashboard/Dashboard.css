@@ -523,6 +523,20 @@
   justify-content: center;
 }
 
+/* Keep upload section fixed only after expanding all career paths */
+.dashboard-grid.paths-expanded {
+  align-items: start;
+}
+
+.dashboard-grid.paths-expanded .left-column {
+  height: auto;
+  align-self: start;
+}
+
+.dashboard-grid.paths-expanded .upload-card {
+  flex: 0 0 auto;
+}
+
 .upload-header {
   text-align: center;
   margin-bottom: 1.25rem;

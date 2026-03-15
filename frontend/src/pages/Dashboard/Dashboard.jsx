@@ -361,7 +361,7 @@ const Dashboard = () => {
 
 
           {/* Layout Area */}
-          <div className={`dashboard-grid ${!showResults && !isLoading && !showPreview ? 'centered' : ''}`}>
+          <div className={`dashboard-grid ${!showResults && !isLoading && !showPreview ? 'centered' : ''} ${showAllPaths ? 'paths-expanded' : ''}`}>
             {/* Left Column - Upload Section */}
             <div className="left-column">
               <div className="upload-card">
