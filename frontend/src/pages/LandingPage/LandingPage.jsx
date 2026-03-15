@@ -39,7 +39,7 @@ const LandingPage = () => {
       <div className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <Logo variant="modern" className="brand-name" style={{ fontSize: '3.5rem' }} />
+            <Logo variant="modern" className="brand-name" />
             <h2 className="hero-tagline">
               Discover Your Perfect Career Path with AI-Powered Resume Analysis
             </h2>
