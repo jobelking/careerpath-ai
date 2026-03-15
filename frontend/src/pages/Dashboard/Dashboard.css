@@ -56,66 +56,141 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 5px;
   width: 40px;
   height: 40px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  gap: 5px;
-  padding: 4px;
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
   border-radius: 8px;
-  transition: background 0.2s ease;
+  cursor: pointer;
+  padding: 6px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  flex-shrink: 0;
 }
 
 .hamburger-btn:hover {
   background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .hamburger-btn span {
   display: block;
-  width: 22px;
-  height: 2.5px;
-  background: #1e293b;
-  border-radius: 4px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 20px;
+  height: 2px;
+  background: #475569;
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
   transform-origin: center;
 }
 
 /* Animated X when open */
 .hamburger-btn.open span:nth-child(1) {
-  transform: translateY(7.5px) rotate(45deg);
+  transform: translateY(7px) rotate(45deg);
 }
 
 .hamburger-btn.open span:nth-child(2) {
   opacity: 0;
-  transform: scaleX(0);
+  width: 0;
 }
 
 .hamburger-btn.open span:nth-child(3) {
-  transform: translateY(-7.5px) rotate(-45deg);
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Mobile Nav Drawer */
 .mobile-nav-drawer {
   display: none;
+  position: absolute;
+  top: 100%;
+  right: 1rem;
   flex-direction: column;
-  padding: 1rem;
-  gap: 0.75rem;
   background: white;
-  border-top: 1px solid #e2e8f0;
-  animation: slideDown 0.2s ease-out;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  min-width: 200px;
+  z-index: 300;
+  padding: 0.5rem;
+  gap: 0;
+  overflow: hidden;
+  animation: menuSlideDown 0.2s ease-out;
+}
+
+@keyframes menuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .mobile-nav-greeting {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #1e293b;
-  padding: 0.25rem 0;
+  padding: 0.75rem 1rem 0.625rem;
+  font-size: 0.88rem;
+  color: #64748b;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.35rem;
+  font-weight: 500;
 }
 
 .mobile-nav-btn {
+  display: block;
   width: 100%;
-  justify-content: center;
+  text-align: left;
+  padding: 0.7rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background 0.15s ease, color 0.15s ease;
+  background: transparent;
+  color: #1e293b;
+  justify-content: flex-start;
+  box-shadow: none;
+  transform: none;
+}
+
+.mobile-nav-drawer .dashboard-history-btn,
+.mobile-nav-drawer .dashboard-admin-btn {
+  background: transparent;
+  color: #1e293b;
+  border: none;
+}
+
+.mobile-nav-drawer .dashboard-history-btn:hover,
+.mobile-nav-drawer .dashboard-admin-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.mobile-nav-drawer .dashboard-logout-btn {
+  background: transparent;
+  color: #dc2626;
+  border: none;
+  margin-top: 0.125rem;
+}
+
+.mobile-nav-drawer .dashboard-logout-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.mobile-nav-drawer .dashboard-history-btn:active,
+.mobile-nav-drawer .dashboard-admin-btn:active,
+.mobile-nav-drawer .dashboard-logout-btn:active {
+  transform: none;
 }
 
 .dashboard-greeting {
