@@ -311,9 +311,9 @@ const JobsPanel = ({ careerPath, jobRoles = [] }) => {
                             )}
                             <div className="job-title-section">
                                 <h3 className="job-title">{job.title}</h3>
-                                {job.salary && job.salary !== 'Salary not specified' && (
-                                    <span className="job-salary">{job.salary}</span>
-                                )}
+                                <span className={`job-salary ${!job.salary || job.salary === 'Salary not specified' ? 'job-salary--not-specified' : ''}`}>
+                                    {job.salary || 'Salary not specified'}
+                                </span>
                             </div>
                         </div>
 

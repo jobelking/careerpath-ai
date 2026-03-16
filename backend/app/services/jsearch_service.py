@@ -103,12 +103,31 @@ def search_jobs(
                 # Transform results to match frontend expectations
                 results = []
                 for job in data.get('data', []):
+                    # Format salary information from available fields
+                    job_salary = job.get('job_salary')
+                    min_salary = job.get('job_min_salary')
+                    max_salary = job.get('job_max_salary')
+                    currency = job.get('job_salary_currency') or ''
+                    period = job.get('job_salary_period') or ''
+                    if period:
+                        period = f"/{period.lower()}"
+                    
+                    salary_str = 'Salary not specified'
+                    if job_salary is not None:
+                        salary_str = f"{job_salary} {currency}{period}".strip()
+                    elif min_salary is not None and max_salary is not None:
+                        salary_str = f"{min_salary} - {max_salary} {currency}{period}".strip()
+                    elif min_salary is not None:
+                        salary_str = f"{min_salary}+ {currency}{period}".strip()
+                    elif max_salary is not None:
+                        salary_str = f"Up to {max_salary} {currency}{period}".strip()
+
                     results.append({
                         'id': job.get('job_id'),
                         'title': job.get('job_title'),
                         'company': job.get('employer_name'),
                         'location': job.get('job_city') or job.get('job_country', 'Not specified'),
-                        'salary': job.get('job_salary') or 'Salary not specified',
+                        'salary': salary_str,
                         'type': job.get('job_employment_type', 'Full-time'),
                         'posted': job.get('job_posted_at_datetime_utc', 'Recently'),
                         'url': job.get('job_apply_link'),

@@ -129,6 +129,11 @@
     white-space: nowrap;
 }
 
+.job-salary--not-specified {
+    color: #64748b;
+    font-weight: 500;
+}
+
 .job-company {
     display: flex;
     align-items: center;
