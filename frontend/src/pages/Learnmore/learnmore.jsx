@@ -225,6 +225,9 @@ const Learnmore = () => {
     // Ref for the logo element — captured by html2canvas for the PDF
     const logoRef = useRef(null);
 
+    // Get extracted keywords — declared here so it's available in the handleExportPdf dep array below
+    const extractedKeywords = predictionResults?.extracted_keywords || [];
+
     // Export to PDF handler
     const handleExportPdf = useCallback(async () => {
         if (isExporting) return;
@@ -237,11 +240,12 @@ const Learnmore = () => {
                 certificationData,
                 careerContent,
                 logoRef,
+                extractedKeywords,
             });
         } finally {
             setIsExporting(false);
         }
-    }, [isExporting, predictionResults, learningRoadmap, certificationData]);
+    }, [isExporting, predictionResults, learningRoadmap, certificationData, extractedKeywords]);
 
     // Scroll to top when component mounts
     useEffect(() => {
@@ -279,7 +283,6 @@ const Learnmore = () => {
     const thirdPrediction = predictionResults?.top_predictions?.[2];
 
     // Get extracted keywords from resume
-    const extractedKeywords = predictionResults?.extracted_keywords || [];
     const totalDistinctiveKeywords = predictionResults?.total_distinctive_keywords || 0;
 
     // Calculate profile fit score (same logic as Dashboard)

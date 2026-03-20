@@ -118,6 +118,7 @@ const History = () => {
                 certificationData: record.certification_data ?? null,
                 careerContent: null,
                 logoRef: null,
+                extractedKeywords: record.extracted_keywords ?? [],
             });
         } catch (err) {
             console.error('PDF export failed:', err);

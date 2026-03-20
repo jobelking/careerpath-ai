@@ -13,6 +13,9 @@ import html2canvas from 'html2canvas';
  *   │  THE TOP 3 PREDICTED RESULT             │
  *   │    #1  #2  #3                           │
  *   │  ─────────────────────────────────────  │
+ *   │  KEY INFLUENCING FACTORS                │
+ *   │    keyword pills with strength bars     │
+ *   │  ─────────────────────────────────────  │
  *   │  LEARNING ROADMAP                       │
  *   │  ─────────────────────────────────────  │
  *   │  CERTIFICATIONS                         │
@@ -25,6 +28,7 @@ export const exportToPdf = async ({
     certificationData,
     careerContent,
     logoRef,
+    extractedKeywords,
 }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -236,7 +240,63 @@ export const exportToPdf = async ({
     y += 6;
 
     // ══════════════════════════════════════════════════════════════════════════
-    // SECTION 2 — LEARNING ROADMAP
+    // SECTION 2 — KEY INFLUENCING FACTORS
+    // ══════════════════════════════════════════════════════════════════════════
+    sectionHeader('KEY INFLUENCING FACTORS');
+
+    if (!extractedKeywords || extractedKeywords.length === 0) {
+        writeText({
+            text: 'No influencing keywords were extracted from your resume.',
+            style: 'normal',
+            color: [120, 120, 120],
+        });
+    } else {
+        // Subtitle
+        writeText({
+            text: 'These keywords from your resume were most distinctive in predicting your top career path:',
+            size: 9,
+            color: [100, 116, 139],
+            lineH: 4.8,
+        });
+        y += 4;
+
+        const ITEM_H = 6.5;        // height of each row
+        const COL_W = CW / 2 - 2; // two-column layout
+
+        extractedKeywords.forEach((kw, ki) => {
+            const col = ki % 2;           // 0 = left, 1 = right
+            const xBase = ML + col * (COL_W + 4);
+
+            // Start a new row every 2 items
+            if (col === 0) checkPage(ITEM_H + 4);
+
+            // Pill background
+            doc.setFillColor(239, 246, 255);
+            doc.roundedRect(xBase, y - 4.5, COL_W, ITEM_H, 1.5, 1.5, 'F');
+
+            // Bullet dot
+            doc.setFillColor(37, 99, 235);
+            doc.circle(xBase + 4, y - 1.5, 1, 'F');
+
+            // Keyword label
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.setTextColor(30, 64, 175);
+            const kwLabel = sanitize(kw.keyword);
+            const kwLines = doc.splitTextToSize(kwLabel, COL_W - 10);
+            doc.text(kwLines[0], xBase + 8, y - 0.5);
+
+            // Advance y only after filling the right column (or at the last item)
+            if (col === 1 || ki === extractedKeywords.length - 1) {
+                y += ITEM_H + 2;
+            }
+        });
+    }
+
+    y += 6;
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // SECTION 3 — LEARNING ROADMAP
     // ══════════════════════════════════════════════════════════════════════════
     sectionHeader('LEARNING ROADMAP');
 
@@ -301,7 +361,7 @@ export const exportToPdf = async ({
     y += 6;
 
     // ══════════════════════════════════════════════════════════════════════════
-    // SECTION 3 — CERTIFICATIONS
+    // SECTION 4 — CERTIFICATIONS
     // ══════════════════════════════════════════════════════════════════════════
     sectionHeader('CERTIFICATIONS');
 
