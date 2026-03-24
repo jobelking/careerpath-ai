@@ -173,7 +173,7 @@ async def get_history(request: Request):
             record = dict(row)
             # Serialize datetime for JSON
             if record.get("date_created"):
-                record["date_created"] = record["date_created"].isoformat()
+                record["date_created"] = record["date_created"].isoformat() + "Z"
             # confidence_score comes back as Decimal — cast to float
             if record.get("confidence_score") is not None:
                 record["confidence_score"] = float(record["confidence_score"])
