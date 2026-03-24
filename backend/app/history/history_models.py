@@ -13,6 +13,7 @@ class SaveHistoryRequest(BaseModel):
     confidence_score: Optional[float] = None
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
+    extracted_keywords: Optional[List[Any]] = None
 
 
 class UpdateHistoryRequest(BaseModel):
@@ -29,6 +30,7 @@ class HistoryRecord(BaseModel):
     confidence_score: Optional[float] = None
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
+    extracted_keywords: Optional[List[Any]] = None
     learning_roadmap: Optional[Any] = None
     certification_data: Optional[Any] = None
     has_resume: Optional[bool] = False

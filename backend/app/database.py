@@ -118,6 +118,7 @@ def init_db():
                     confidence_score  NUMERIC(5,2),
                     top_predictions   JSONB,
                     filename          VARCHAR(255),
+                    extracted_keywords JSONB,
                     learning_roadmap  JSONB,
                     certification_data JSONB,
                     resume_path       TEXT,
@@ -126,9 +127,10 @@ def init_db():
             """)
             # Migrate existing prediction_history: add new columns if missing
             history_columns = [
-                ("learning_roadmap",   "JSONB"),
-                ("certification_data", "JSONB"),
-                ("resume_path",        "TEXT"),
+                ("learning_roadmap",    "JSONB"),
+                ("certification_data",  "JSONB"),
+                ("resume_path",         "TEXT"),
+                ("extracted_keywords",  "JSONB"),
             ]
             for col_name, col_type in history_columns:
                 cur.execute(f"""

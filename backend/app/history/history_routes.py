@@ -39,8 +39,8 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
                 """
                 INSERT INTO prediction_history
                     (user_id, prediction_result, input_data, confidence_score,
-                     top_predictions, filename)
-                VALUES (%s, %s, %s, %s, %s::jsonb, %s)
+                     top_predictions, filename, extracted_keywords)
+                VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s::jsonb)
                 RETURNING id, date_created;
                 """,
                 (
@@ -50,6 +50,7 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
                     payload.confidence_score,
                     json.dumps(payload.top_predictions) if payload.top_predictions else None,
                     payload.filename,
+                    json.dumps(payload.extracted_keywords) if payload.extracted_keywords else None,
                 )
             )
             row = dict(cur.fetchone())
@@ -157,7 +158,8 @@ async def get_history(request: Request):
                 """
                 SELECT id, user_id, prediction_result, input_data,
                        confidence_score, top_predictions, filename,
-                       learning_roadmap, certification_data, resume_path, date_created
+                       extracted_keywords, learning_roadmap, certification_data,
+                       resume_path, date_created
                 FROM prediction_history
                 WHERE user_id = %s
                 ORDER BY date_created DESC;

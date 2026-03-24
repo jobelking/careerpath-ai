@@ -139,9 +139,11 @@ const Dashboard = () => {
             confidence_score: result.raw_confidence,
             top_predictions: result.top_predictions?.slice(0, 3) ?? [],
             filename: uploadedFile.name,
+            // Strip NUL bytes (0x00) — PostgreSQL rejects them in string literals
             input_data: result.resume_text
-              ? result.resume_text.slice(0, 500)
+              ? result.resume_text.replace(/\0/g, '').slice(0, 500)
               : null,
+            extracted_keywords: result.extracted_keywords ?? [],
           }).then((saved) => {
             // Store the record ID so LearnMore can PATCH roadmap/certs onto it
             if (saved?.id) {
