@@ -35,6 +35,8 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # PostgreSQL rejects NUL bytes (0x00) — strip them from text fields
+            safe_input_data = payload.input_data.replace("\x00", "") if payload.input_data else None
             cur.execute(
                 """
                 INSERT INTO prediction_history
@@ -46,7 +48,7 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
                 (
                     user_id,
                     payload.prediction_result,
-                    payload.input_data,
+                    safe_input_data,
                     payload.confidence_score,
                     json.dumps(payload.top_predictions) if payload.top_predictions else None,
                     payload.filename,
