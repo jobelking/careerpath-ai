@@ -607,6 +607,40 @@ class AdvancedCareerPathClassifier:
         # Convert to lowercase
         text = text.lower()
 
+        # STEP 1.5: Remove date/noise tokens
+        # Years, months, and date-range words have no career predictive value
+        # but pollute bigrams heavily (e.g. "sale 2016", "construction march")
+
+        # Remove month names
+        text = re.sub(
+            r'\b(january|february|march|april|may|june|july|august|september|'
+            r'october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b',
+            '', text, flags=re.I
+        )
+
+        # Remove 4-digit years (1900–2099)
+        text = re.sub(r'\b(19|20)\d{2}\b', '', text)
+
+        # Remove date-endpoint words (e.g. "2020 – present", "to present")
+        text = re.sub(r'[-\u2013]?\s*\b(present|current|till|ongoing)\b', '', text, flags=re.I)
+
+        # Remove ordinal grade levels (5th, 6th, 10th, etc.)
+        text = re.sub(r'\b\d+(st|nd|rd|th)\b', '', text, flags=re.I)
+
+        # Remove resume section headers (boilerplate in all resumes)
+        text = re.sub(
+            r'\b(summary|objective|profile|references?|curriculum vitae|'
+            r'date of birth|dob|nationality|gender|marital status|religion|hobbies?)\b',
+            '', text, flags=re.I
+        )
+
+        # Remove standalone 1-3 digit numbers (no career signal)
+        # Keep 4+ digit numbers like "1099", "9001" (product/tax codes)
+        text = re.sub(r'(?<![a-z\d])\d{1,3}(?![a-z\d])', '', text)
+
+        # Collapse whitespace created by removals
+        text = re.sub(r'\s+', ' ', text).strip()
+
         # Normalize synonyms (match longer phrases first)
         for term in sorted(self.synonyms.keys(), key=len, reverse=True):
             replacement = self.synonyms[term]

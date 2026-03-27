@@ -1,16 +1,16 @@
 {
-  "accuracy": 0.8212255211623499,
-  "weighted_precision": 0.8411871063780254,
-  "weighted_recall": 0.8212255211623499,
-  "weighted_f1": 0.8218437705732354,
-  "macro_precision": 0.8242048710861078,
-  "macro_recall": 0.8134975974670915,
-  "macro_f1": 0.8086233378462678,
+  "accuracy": 0.8205938092229943,
+  "weighted_precision": 0.8392496042431841,
+  "weighted_recall": 0.8205938092229943,
+  "weighted_f1": 0.8209047846779061,
+  "macro_precision": 0.8190097445016398,
+  "macro_recall": 0.8133068816231485,
+  "macro_f1": 0.8059900663782074,
   "classification_report": {
     "advocate": {
-      "precision": 0.9767441860465116,
-      "recall": 0.65625,
-      "f1-score": 0.7850467289719626,
+      "precision": 0.9761904761904762,
+      "recall": 0.640625,
+      "f1-score": 0.7735849056603774,
       "support": 64.0
     },
     "agriculture": {
@@ -32,21 +32,21 @@
       "support": 79.0
     },
     "business-development": {
-      "precision": 0.725,
+      "precision": 0.6744186046511628,
       "recall": 0.6590909090909091,
-      "f1-score": 0.6904761904761905,
+      "f1-score": 0.6666666666666666,
       "support": 44.0
     },
     "chef": {
-      "precision": 0.6428571428571429,
+      "precision": 0.6666666666666666,
       "recall": 0.8372093023255814,
-      "f1-score": 0.7272727272727273,
+      "f1-score": 0.7422680412371134,
       "support": 43.0
     },
     "construction": {
-      "precision": 0.65625,
+      "precision": 0.6176470588235294,
       "recall": 1.0,
-      "f1-score": 0.7924528301886793,
+      "f1-score": 0.7636363636363637,
       "support": 21.0
     },
     "consultant": {
@@ -56,15 +56,15 @@
       "support": 49.0
     },
     "cyber security": {
-      "precision": 0.9344262295081968,
-      "recall": 0.9047619047619048,
-      "f1-score": 0.9193548387096774,
+      "precision": 0.9333333333333333,
+      "recall": 0.8888888888888888,
+      "f1-score": 0.9105691056910569,
       "support": 63.0
     },
     "datascience": {
-      "precision": 0.8350515463917526,
+      "precision": 0.8393782383419689,
       "recall": 0.9529411764705882,
-      "f1-score": 0.8901098901098901,
+      "f1-score": 0.8925619834710744,
       "support": 170.0
     },
     "design-creative": {
@@ -74,51 +74,51 @@
       "support": 110.0
     },
     "devops": {
-      "precision": 0.9054054054054054,
-      "recall": 0.7790697674418605,
-      "f1-score": 0.8375,
+      "precision": 0.9066666666666666,
+      "recall": 0.7906976744186046,
+      "f1-score": 0.84472049689441,
       "support": 86.0
     },
     "digital-media": {
-      "precision": 0.9285714285714286,
-      "recall": 0.6666666666666666,
-      "f1-score": 0.7761194029850746,
+      "precision": 0.9310344827586207,
+      "recall": 0.6923076923076923,
+      "f1-score": 0.7941176470588235,
       "support": 39.0
     },
     "engineering": {
-      "precision": 0.7450980392156863,
+      "precision": 0.76,
       "recall": 0.8085106382978723,
-      "f1-score": 0.7755102040816326,
+      "f1-score": 0.7835051546391752,
       "support": 47.0
     },
     "finance-accounting": {
-      "precision": 0.5981308411214953,
-      "recall": 0.9014084507042254,
-      "f1-score": 0.7191011235955056,
+      "precision": 0.63,
+      "recall": 0.8873239436619719,
+      "f1-score": 0.7368421052631579,
       "support": 71.0
     },
     "fitness": {
-      "precision": 0.8611111111111112,
+      "precision": 0.8378378378378378,
       "recall": 0.7209302325581395,
-      "f1-score": 0.7848101265822784,
+      "f1-score": 0.775,
       "support": 43.0
     },
     "healthcare": {
-      "precision": 0.5735294117647058,
+      "precision": 0.582089552238806,
       "recall": 0.8297872340425532,
-      "f1-score": 0.6782608695652174,
+      "f1-score": 0.6842105263157895,
       "support": 47.0
     },
     "hr": {
-      "precision": 0.7941176470588235,
+      "precision": 0.7714285714285715,
       "recall": 0.75,
-      "f1-score": 0.7714285714285715,
+      "f1-score": 0.7605633802816901,
       "support": 36.0
     },
     "it-support": {
-      "precision": 0.8,
+      "precision": 0.7804878048780488,
       "recall": 1.0,
-      "f1-score": 0.8888888888888888,
+      "f1-score": 0.8767123287671232,
       "support": 32.0
     },
     "mobile app developer": {
@@ -134,9 +134,9 @@
       "support": 78.0
     },
     "public-relations": {
-      "precision": 0.8,
-      "recall": 0.8571428571428571,
-      "f1-score": 0.8275862068965517,
+      "precision": 0.7708333333333334,
+      "recall": 0.8809523809523809,
+      "f1-score": 0.8222222222222222,
       "support": 42.0
     },
     "quality assurance": {
@@ -146,9 +146,9 @@
       "support": 82.0
     },
     "sales": {
-      "precision": 0.7111111111111111,
-      "recall": 0.7272727272727273,
-      "f1-score": 0.7191011235955056,
+      "precision": 0.6818181818181818,
+      "recall": 0.6818181818181818,
+      "f1-score": 0.6818181818181818,
       "support": 44.0
     },
     "software engineer": {
@@ -158,26 +158,26 @@
       "support": 113.0
     },
     "teacher": {
-      "precision": 0.6875,
-      "recall": 0.825,
-      "f1-score": 0.75,
+      "precision": 0.68,
+      "recall": 0.85,
+      "f1-score": 0.7555555555555555,
       "support": 40.0
     },
-    "accuracy": 0.8212255211623499,
+    "accuracy": 0.8205938092229943,
     "macro avg": {
-      "precision": 0.8242048710861078,
-      "recall": 0.8134975974670915,
-      "f1-score": 0.8086233378462678,
+      "precision": 0.8190097445016398,
+      "recall": 0.8133068816231485,
+      "f1-score": 0.8059900663782074,
       "support": 1583.0
     },
     "weighted avg": {
-      "precision": 0.8411871063780254,
-      "recall": 0.8212255211623499,
-      "f1-score": 0.8218437705732354,
+      "precision": 0.8392496042431841,
+      "recall": 0.8205938092229943,
+      "f1-score": 0.8209047846779061,
       "support": 1583.0
     }
   },
-  "training_date": "2026-02-22T17:22:41.705315",
+  "training_date": "2026-03-27T21:09:08.236164",
   "model_parameters": {
     "model": "ComplementNB",
     "alpha": 0.1,
