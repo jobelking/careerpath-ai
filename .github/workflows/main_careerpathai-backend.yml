@@ -30,6 +30,19 @@ jobs:
           source antenv/bin/activate
           pip install -r backend/requirements.txt
 
+      - name: Download NLTK data into backend folder
+        run: |
+          source antenv/bin/activate
+          python -c "
+          import nltk
+          import os
+          nltk_dir = 'backend/nltk_data'
+          os.makedirs(nltk_dir, exist_ok=True)
+          for pkg in ['punkt', 'punkt_tab', 'stopwords', 'wordnet', 'averaged_perceptron_tagger', 'omw-1.4']:
+              nltk.download(pkg, download_dir=nltk_dir, quiet=True)
+          print('NLTK data downloaded successfully')
+          "
+
       # Only upload the backend/ folder — this is what Azure will run
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
