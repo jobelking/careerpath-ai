@@ -8,7 +8,8 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import os
-from typing import Dict, List, Optional, Any
+from typing import Dict, List
+from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
 from app.services.groq_service import generate_learning_roadmap, generate_certifications
 from app.services.jsearch_service import search_jobs as jsearch_search_jobs
@@ -60,29 +61,8 @@ app.include_router(history_router)
 # Register admin routes (requires is_admin=True in JWT)
 app.include_router(admin_router)
 
-# Initialize predictor lazily to keep container startup fast/stable in cloud
-predictor: Optional[Any] = None
-predictor_init_error: Optional[str] = None
-
-
-def get_predictor():
-    """Lazily initialize predictor on first use."""
-    global predictor, predictor_init_error
-    if predictor is not None and predictor.is_loaded():
-        return predictor
-
-    try:
-        from app.prediction.predictor import CareerPathPredictor
-        predictor = CareerPathPredictor()
-        predictor_init_error = None
-        return predictor
-    except Exception as e:
-        predictor_init_error = str(e)
-        print(f"⚠️  Warning: Predictor failed to initialize: {predictor_init_error}")
-        raise HTTPException(
-            status_code=503,
-            detail=f"Prediction model is unavailable: {predictor_init_error}"
-        )
+# Initialize predictor (loads model on startup)
+predictor = CareerPathPredictor()
 
 
 @app.get("/")
@@ -98,26 +78,10 @@ async def root():
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     """Health check endpoint with model status"""
-    model_loaded = predictor is not None and predictor.is_loaded()
-    health_predictor_error = predictor_init_error
-
-    if not model_loaded and health_predictor_error is None:
-        try:
-            get_predictor()
-            model_loaded = predictor is not None and predictor.is_loaded()
-        except HTTPException as exc:
-            health_predictor_error = str(exc.detail)
-        except Exception as exc:
-            health_predictor_error = str(exc)
-
-    if not model_loaded and not health_predictor_error:
-        health_predictor_error = "Predictor not initialized"
-
     return {
-        "status": "healthy" if model_loaded else "degraded",
-        "model_loaded": model_loaded,
-        "model_classes": len(predictor.classes) if model_loaded else 0,
-        "predictor_error": health_predictor_error
+        "status": "healthy",
+        "model_loaded": predictor.is_loaded(),
+        "model_classes": len(predictor.classes) if predictor.is_loaded() else 0
     }
 
 
@@ -133,8 +97,6 @@ async def predict_career_path(file: UploadFile = File(...)):
         JSON with predicted career path, confidence, and top predictions
     """
     try:
-        active_predictor = get_predictor()
-
         # Validate file type
         if not file.filename.lower().endswith('.pdf'):
             raise HTTPException(
@@ -171,7 +133,7 @@ async def predict_career_path(file: UploadFile = File(...)):
                 )
             
             # Get prediction from model (return all classes, max 100 safe limit)
-            prediction_result = active_predictor.predict(resume_text, top_n=100)
+            prediction_result = predictor.predict(resume_text, top_n=100)
 
             # Use all predictions returned by the model
             top_preds = prediction_result["top_predictions"]
@@ -355,12 +317,16 @@ async def search_jobs_endpoint(request: Dict):
 async def get_available_careers():
     """Get list of all available career paths the model can predict"""
     try:
-        active_predictor = get_predictor()
+        if not predictor.is_loaded():
+            raise HTTPException(
+                status_code=500,
+                detail="Model not loaded"
+            )
         
         return {
             "success": True,
-            "careers": sorted(active_predictor.classes),
-            "total": len(active_predictor.classes)
+            "careers": sorted(predictor.classes),
+            "total": len(predictor.classes)
         }
     except Exception as e:
         raise HTTPException(
