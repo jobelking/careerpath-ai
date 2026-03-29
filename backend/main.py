@@ -99,11 +99,25 @@ async def root():
 async def health_check():
     """Health check endpoint with model status"""
     model_loaded = predictor is not None and predictor.is_loaded()
+    health_predictor_error = predictor_init_error
+
+    if not model_loaded and health_predictor_error is None:
+        try:
+            get_predictor()
+            model_loaded = predictor is not None and predictor.is_loaded()
+        except HTTPException as exc:
+            health_predictor_error = str(exc.detail)
+        except Exception as exc:
+            health_predictor_error = str(exc)
+
+    if not model_loaded and not health_predictor_error:
+        health_predictor_error = "Predictor not initialized"
+
     return {
         "status": "healthy" if model_loaded else "degraded",
         "model_loaded": model_loaded,
         "model_classes": len(predictor.classes) if model_loaded else 0,
-        "predictor_error": predictor_init_error
+        "predictor_error": health_predictor_error
     }
 
 
