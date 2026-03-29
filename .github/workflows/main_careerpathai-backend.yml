@@ -76,5 +76,5 @@ jobs:
         with:
           app-name: 'careerpathai-backend'
           slot-name: 'Production'
-          package: ./backend
+          package: .
           
