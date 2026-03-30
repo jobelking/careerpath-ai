@@ -66,7 +66,7 @@ const CAREER_CATEGORIES = [
  * CareerPathsModal
  * Displays all 26 career paths the system can predict, grouped by category.
  */
-const CareerPathsModal = ({ isOpen = true, onClose }) => {
+const CareerPathsModal = ({ onClose }) => {
     const modalRef = useRef(null);
     const closeButtonRef = useRef(null);
     const previousActiveElement = useRef(null);
@@ -80,10 +80,6 @@ const CareerPathsModal = ({ isOpen = true, onClose }) => {
     );
 
     useEffect(() => {
-        if (!isOpen) {
-            return undefined;
-        }
-
         previousActiveElement.current = document.activeElement;
         document.addEventListener('keydown', handleKeyDown);
         document.body.style.overflow = 'hidden';
@@ -94,15 +90,11 @@ const CareerPathsModal = ({ isOpen = true, onClose }) => {
             document.body.style.overflow = '';
             previousActiveElement.current?.focus();
         };
-    }, [handleKeyDown, isOpen]);
+    }, [handleKeyDown]);
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) onClose();
     };
-
-    if (!isOpen) {
-        return null;
-    }
 
     const totalPaths = CAREER_CATEGORIES.reduce((sum, cat) => sum + cat.paths.length, 0);
 

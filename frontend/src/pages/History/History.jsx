@@ -4,7 +4,6 @@ import { exportToPdf } from '../../utils/exportToPdf';
 import Logo from '../../components/common/Logo';
 import apiService from '../../services/api/apiService';
 import { useAuth } from '../../context/AuthContext';
-import { useDashboard } from '../../context/DashboardContext';
 import { otherIcons } from '../../utils/otherIcons';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import './History.css';
@@ -13,13 +12,6 @@ const History = () => {
     const RECORDS_PER_PAGE = 10;
     const navigate = useNavigate();
     const { currentUser, logout, getToken } = useAuth();
-    const {
-        setPredictionResults,
-        setResumeText,
-        setLearningRoadmap,
-        setCertificationData,
-        setHistoryRecordId,
-    } = useDashboard();
     const [history, setHistory] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
@@ -135,83 +127,30 @@ const History = () => {
         }
     };
 
-    const getResumeHash = (text) => {
-        if (!text) return null;
-        return `${text.substring(0, 100)}_${text.length}`;
-    };
-
-    const handleViewDetailedAnalysis = (record) => {
-        const resumeText = record.input_data || '';
-        const rawConfidence = parseFloat(record.confidence_score || 0);
-        const extractedKeywords = Array.isArray(record.extracted_keywords) ? record.extracted_keywords : [];
-        const totalDistinctiveKeywords = typeof record.total_distinctive_keywords === 'number'
-            ? record.total_distinctive_keywords
-            : extractedKeywords.length;
-        const topPredictions = Array.isArray(record.top_predictions) && record.top_predictions.length > 0
-            ? record.top_predictions
-            : [{ career_path: record.prediction_result, raw_confidence: rawConfidence }];
-
-        setPredictionResults({
-            prediction: record.prediction_result,
-            raw_confidence: rawConfidence,
-            top_predictions: topPredictions,
-            extracted_keywords: extractedKeywords,
-            total_distinctive_keywords: totalDistinctiveKeywords,
-        });
-
-        setResumeText(resumeText);
-
-        const resumeHash = getResumeHash(resumeText);
-        setLearningRoadmap(
-            record.learning_roadmap
-                ? { ...record.learning_roadmap, resumeHash }
-                : null
-        );
-        setCertificationData(
-            record.certification_data
-                ? { ...record.certification_data, resumeHash }
-                : null
-        );
-
-        setHistoryRecordId(record.id || null);
-        navigate('/learnmore');
-    };
-
     // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="history-container">
             {/* Header */}
             <header className="history-header">
                 <div className="history-header-content">
-                    <div className="history-header-left">
-                        <h1 className="history-brand" onClick={() => navigate('/')}>
-                            <Logo variant="modern" />
-                        </h1>
-                    </div>
+                    <h1 className="history-brand" onClick={() => navigate('/')}>
+                        <Logo variant="modern" />
+                    </h1>
 
-                    <nav className="history-top-nav">
-                        <button className="history-nav-tab" onClick={() => navigate('/dashboard')}>Dashboard</button>
-                        <button className="history-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
-                        <button className="history-nav-tab active" type="button" disabled>History</button>
-                    </nav>
-
-                    <div className="history-header-right">
+                    {/* Desktop Nav */}
+                    <div className="history-header-actions">
                         {currentUser && (
-                            <div className="history-profile-chip">
-                                <span className="history-profile-dot" aria-hidden="true"></span>
-                                <span className="history-greeting">{currentUser.username}</span>
-                            </div>
+                            <span className="history-greeting">Hello, {currentUser.username}</span>
                         )}
-                        <div className="history-action-group">
-                            {currentUser?.is_admin && (
-                                <button className="history-admin-btn" onClick={() => navigate('/admin')}>
-                                    🛡 Admin
-                                </button>
-                            )}
-                            <button className="history-logout-btn" onClick={() => setShowLogoutConfirm(true)}>
-                                Logout
-                            </button>
-                        </div>
+                        <button className="history-dashboard-btn" onClick={() => setShowCareerPaths(true)}>
+                            Career Paths
+                        </button>
+                        <button className="history-dashboard-btn" onClick={() => navigate('/dashboard')}>
+                            Dashboard
+                        </button>
+                        <button className="history-logout-btn" onClick={() => setShowLogoutConfirm(true)}>
+                            Logout
+                        </button>
                     </div>
 
                     {/* Hamburger Button (mobile only) */}
@@ -254,25 +193,10 @@ const History = () => {
                     </button>
                     <button
                         className="mobile-menu-item dashboard-item"
-                        type="button"
-                        disabled
-                    >
-                        History
-                    </button>
-                    <button
-                        className="mobile-menu-item dashboard-item"
                         onClick={() => { setMenuOpen(false); navigate('/dashboard'); }}
                     >
                         Dashboard
                     </button>
-                    {currentUser?.is_admin && (
-                        <button
-                            className="mobile-menu-item dashboard-item"
-                            onClick={() => { setMenuOpen(false); navigate('/admin'); }}
-                        >
-                            🛡 Admin
-                        </button>
-                    )}
                     <button
                         className="mobile-menu-item logout-item"
                         onClick={() => { setMenuOpen(false); setShowLogoutConfirm(true); }}
@@ -388,14 +312,6 @@ const History = () => {
                                                             </>
                                                         )}
                                                     </button>
-                                                    <button
-                                                        className="view-analysis-btn"
-                                                        onClick={() => handleViewDetailedAnalysis(record)}
-                                                        title="View Detailed Analysis"
-                                                    >
-                                                        {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
-                                                        <span>View Detailed Analysis</span>
-                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -457,13 +373,6 @@ const History = () => {
                                                         <span>Download PDF</span>
                                                     </>
                                                 )}
-                                            </button>
-                                            <button
-                                                className="view-analysis-btn"
-                                                onClick={() => handleViewDetailedAnalysis(record)}
-                                            >
-                                                {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
-                                                <span>View Detailed Analysis</span>
                                             </button>
                                         </div>
                                     </div>

@@ -31,16 +31,9 @@
 .learnmore-header .header-content {
     margin: 0 auto;
     padding: 1rem 3rem;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 1rem;
-}
-
-.learnmore-header-left {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-start;
 }
 
 .learnmore-brand {
@@ -67,163 +60,6 @@
 .learnmore-nav {
     display: flex;
     gap: 1rem;
-}
-
-.learnmore-top-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.35rem;
-    border: 1px solid #dbeafe;
-    background: #eff6ff;
-    border-radius: 999px;
-}
-
-.learnmore-nav-tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 999px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: #1d4ed8;
-    cursor: pointer;
-    transition: background 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        color 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.learnmore-nav-tab:hover {
-    background: #dbeafe;
-    color: #1e40af;
-    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.18);
-    transform: translateY(-1px);
-}
-
-.learnmore-nav-tab.active,
-.learnmore-nav-tab:disabled {
-    background: #2563eb;
-    color: #ffffff;
-    cursor: default;
-    box-shadow: none;
-    transform: none;
-}
-
-.learnmore-nav-tab:disabled:hover {
-    background: #2563eb;
-    color: #ffffff;
-}
-
-.learnmore-header-right {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.75rem;
-}
-
-.learnmore-action-group {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.learnmore-profile-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 999px;
-    padding: 0.4rem 0.8rem;
-}
-
-.learnmore-profile-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #10b981;
-}
-
-.learnmore-greeting {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.learnmore-export-btn,
-.learnmore-admin-btn,
-.learnmore-logout-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.92rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 8px;
-    font-family: var(--font-body);
-    border: 1.5px solid transparent;
-    transition: background 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        color 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
-        border-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.learnmore-export-btn {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #2563eb;
-}
-
-.learnmore-export-btn:hover:not(:disabled) {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
-    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.28);
-    transform: translateY(-1px);
-}
-
-.learnmore-export-btn:disabled {
-    background: #93c5fd;
-    border-color: #93c5fd;
-    cursor: not-allowed;
-    opacity: 0.75;
-    box-shadow: none;
-    transform: none;
-}
-
-.learnmore-admin-btn {
-    background: #7c3aed;
-    color: #ffffff;
-    border-color: #7c3aed;
-}
-
-.learnmore-admin-btn:hover {
-    background: #6d28d9;
-    border-color: #6d28d9;
-    box-shadow: 0 3px 12px rgba(124, 58, 237, 0.3);
-    transform: translateY(-1px);
-}
-
-.learnmore-logout-btn {
-    background: #f1f5f9;
-    color: #475569;
-    border-color: #e2e8f0;
-}
-
-.learnmore-logout-btn:hover {
-    background: #fef2f2;
-    color: #dc2626;
-    border-color: #fecaca;
-    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.12);
-    transform: translateY(-1px);
 }
 
 .learnmore-header .nav-link {
@@ -363,35 +199,6 @@
 .mobile-nav-btn {
     width: 100%;
     justify-content: center;
-    background: #f8fafc;
-    color: #1e293b;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.625rem 1rem;
-    font-weight: 600;
-}
-
-.mobile-nav-btn:hover {
-    background: #eff6ff;
-    color: #2563eb;
-}
-
-.mobile-nav-btn-logout {
-    background: #fff7f7;
-    border-color: #fecaca;
-    color: #dc2626;
-}
-
-.mobile-nav-btn-logout:hover {
-    background: #fef2f2;
-    color: #dc2626;
-}
-
-.mobile-nav-greeting {
-    padding: 0.2rem 0.15rem 0.5rem;
-    font-size: 0.88rem;
-    color: #64748b;
-    font-weight: 500;
 }
 
 @keyframes slideDown {
@@ -637,6 +444,7 @@
     margin-bottom: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     border: 1px solid #e2e8f0;
+    border-left: 4px solid #10b981;
     animation: fadeInUp 0.6s ease-out 0.5s both;
 }
 
@@ -1285,29 +1093,6 @@
    Responsive Design
    ============================================ */
 @media (max-width: 900px) {
-    .learnmore-header .header-content {
-        grid-template-columns: auto 1fr auto;
-        padding: 1rem 1.5rem;
-    }
-
-    .learnmore-top-nav {
-        gap: 0.25rem;
-        padding: 0.25rem;
-    }
-
-    .learnmore-nav-tab,
-    .learnmore-export-btn,
-    .learnmore-admin-btn,
-    .learnmore-logout-btn,
-    .learnmore-profile-chip {
-        padding: 0.55rem 0.95rem;
-        font-size: 0.85rem;
-    }
-
-    .learnmore-profile-chip {
-        gap: 0.35rem;
-    }
-
     .summary-grid {
         grid-template-columns: 1fr;
     }
@@ -1332,12 +1117,9 @@
 @media (max-width: 768px) {
     .learnmore-header .header-content {
         padding: 0.75rem 1rem;
-        grid-template-columns: 1fr auto;
     }
 
-    .learnmore-nav,
-    .learnmore-top-nav,
-    .learnmore-header-right {
+    .learnmore-nav {
         display: none;
     }
 

@@ -9,7 +9,6 @@ import { useAuth } from '../../context/AuthContext';
 import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
-import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import { exportToPdf } from '../../utils/exportToPdf';
 import './learnmore.css';
 
@@ -205,11 +204,10 @@ const careerContent = {
 const Learnmore = () => {
     const navigate = useNavigate();
     const { predictionResults, resumeText, learningRoadmap, setLearningRoadmap, certificationData, setCertificationData, historyRecordId } = useDashboard();
-    const { currentUser, logout, getToken } = useAuth();
+    const { getToken } = useAuth();
     const [showWhyOthersLower, setShowWhyOthersLower] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const [showCareerPaths, setShowCareerPaths] = useState(false);
 
     // Right drawer state - default to closed
     const [activePanel, setActivePanel] = useState(null);
@@ -285,9 +283,7 @@ const Learnmore = () => {
     const thirdPrediction = predictionResults?.top_predictions?.[2];
 
     // Get extracted keywords from resume
-    const totalDistinctiveKeywords = typeof predictionResults?.total_distinctive_keywords === 'number'
-        ? predictionResults.total_distinctive_keywords
-        : extractedKeywords.length;
+    const totalDistinctiveKeywords = predictionResults?.total_distinctive_keywords || 0;
 
     // Calculate profile fit score (same logic as Dashboard)
     // Uses historical accuracy from Feb 2026 calibration data (26 classes, 1583 test samples, 81.87% overall accuracy)
@@ -387,28 +383,13 @@ const Learnmore = () => {
 
     // If no prediction results, show message
     if (!topPrediction) {
-        const handleLogout = () => {
-            setMenuOpen(false);
-            logout();
-            navigate('/');
-        };
-
         return (
             <div className="learnmore-container">
                 <header className="learnmore-header">
                     <div className="header-content">
-                        <div className="learnmore-header-left">
-                            <h1 className="learnmore-brand" onClick={() => navigate('/')}>
-                                <Logo variant="modern" />
-                            </h1>
-                        </div>
-
-                        <nav className="learnmore-top-nav">
-                            <button className="learnmore-nav-tab" onClick={() => navigate('/dashboard')}>Dashboard</button>
-                            <button className="learnmore-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
-                            <button className="learnmore-nav-tab" onClick={() => navigate('/history')}>History</button>
-                            <button className="learnmore-nav-tab active" type="button" disabled>Detailed</button>
-                        </nav>
+                        <h1 className="learnmore-brand" onClick={() => navigate('/')}>
+                            <Logo variant="modern" />
+                        </h1>
 
                         {/* Hamburger Button (mobile only) */}
                         <button
@@ -421,48 +402,20 @@ const Learnmore = () => {
                             <span></span>
                         </button>
 
-                        <div className="learnmore-header-right">
-                            {currentUser && (
-                                <div className="learnmore-profile-chip">
-                                    <span className="learnmore-profile-dot" aria-hidden="true"></span>
-                                    <span className="learnmore-greeting">{currentUser.username}</span>
-                                </div>
-                            )}
-                            <div className="learnmore-action-group">
-                                {currentUser?.is_admin && (
-                                    <button className="learnmore-admin-btn" onClick={() => navigate('/admin')}>
-                                        🛡 Admin
-                                    </button>
-                                )}
-                                <button className="learnmore-logout-btn" onClick={handleLogout}>
-                                    Logout
-                                </button>
-                            </div>
-                        </div>
+                        <nav className="learnmore-nav">
+                            <button className="nav-link" onClick={() => navigate('/dashboard')}>
+                                {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                                <span>Back to Dashboard</span>
+                            </button>
+                        </nav>
                     </div>
 
                     {/* Mobile nav drawer */}
                     {menuOpen && (
                         <div className="mobile-nav-drawer">
-                            {currentUser && (
-                                <span className="mobile-nav-greeting">Hello, {currentUser.username}</span>
-                            )}
-                            <button className="mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
-                                Dashboard
-                            </button>
-                            <button className="mobile-nav-btn" onClick={() => { setShowCareerPaths(true); setMenuOpen(false); }}>
-                                Career Paths
-                            </button>
-                            <button className="mobile-nav-btn" onClick={() => { navigate('/history'); setMenuOpen(false); }}>
-                                History
-                            </button>
-                            {currentUser?.is_admin && (
-                                <button className="mobile-nav-btn" onClick={() => { navigate('/admin'); setMenuOpen(false); }}>
-                                    🛡 Admin
-                                </button>
-                            )}
-                            <button className="mobile-nav-btn mobile-nav-btn-logout" onClick={handleLogout}>
-                                Logout
+                            <button className="nav-link mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
+                                {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                                <span>Back to Dashboard</span>
                             </button>
                         </div>
                     )}
@@ -476,40 +429,21 @@ const Learnmore = () => {
                         </button>
                     </div>
                 </main>
-
-                <CareerPathsModal
-                    isOpen={showCareerPaths}
-                    onClose={() => setShowCareerPaths(false)}
-                />
             </div>
         );
     }
 
     const whyReasons = generateWhyExplanation();
     const whyOthersLower = generateWhyOthersLowerExplanation();
-    const handleLogout = () => {
-        setMenuOpen(false);
-        logout();
-        navigate('/');
-    };
 
     return (
         <div className="learnmore-container">
             {/* Header */}
             <header className="learnmore-header">
                 <div className="header-content">
-                    <div className="learnmore-header-left">
-                        <h1 ref={logoRef} className="learnmore-brand" onClick={() => navigate('/')}>
-                            <Logo variant="modern" />
-                        </h1>
-                    </div>
-
-                    <nav className="learnmore-top-nav">
-                        <button className="learnmore-nav-tab" onClick={() => navigate('/dashboard')}>Dashboard</button>
-                        <button className="learnmore-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
-                        <button className="learnmore-nav-tab" onClick={() => navigate('/history')}>History</button>
-                        <button className="learnmore-nav-tab active" type="button" disabled>Detailed</button>
-                    </nav>
+                    <h1 ref={logoRef} className="learnmore-brand" onClick={() => navigate('/')}>
+                        <Logo variant="modern" />
+                    </h1>
 
                     {/* Hamburger Button (mobile only) */}
                     <button
@@ -522,56 +456,28 @@ const Learnmore = () => {
                         <span></span>
                     </button>
 
-                    <div className="learnmore-header-right">
-                        {currentUser && (
-                            <div className="learnmore-profile-chip">
-                                <span className="learnmore-profile-dot" aria-hidden="true"></span>
-                                <span className="learnmore-greeting">{currentUser.username}</span>
-                            </div>
-                        )}
-                        <div className="learnmore-action-group">
-                            <button className="learnmore-export-btn" onClick={handleExportPdf} disabled={isExporting}>
-                                {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
-                                <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
-                            </button>
-                            {currentUser?.is_admin && (
-                                <button className="learnmore-admin-btn" onClick={() => navigate('/admin')}>
-                                    🛡 Admin
-                                </button>
-                            )}
-                            <button className="learnmore-logout-btn" onClick={handleLogout}>
-                                Logout
-                            </button>
-                        </div>
-                    </div>
+                    <nav className="learnmore-nav">
+                        <button className="nav-link" onClick={() => navigate('/dashboard')}>
+                            {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                            <span>Back to Dashboard</span>
+                        </button>
+                        <button className="nav-link nav-link--export" onClick={handleExportPdf} disabled={isExporting}>
+                            {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
+                            <span>{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
+                        </button>
+                    </nav>
                 </div>
 
                 {/* Mobile nav drawer */}
                 {menuOpen && (
                     <div className="mobile-nav-drawer">
-                        {currentUser && (
-                            <span className="mobile-nav-greeting">Hello, {currentUser.username}</span>
-                        )}
-                        <button className="mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
-                            Dashboard
+                        <button className="nav-link mobile-nav-btn" onClick={() => { navigate('/dashboard'); setMenuOpen(false); }}>
+                            {React.createElement(otherIcons["FaArrowLeft"], { size: 14 })}
+                            <span>Back to Dashboard</span>
                         </button>
-                        <button className="mobile-nav-btn" onClick={() => { setShowCareerPaths(true); setMenuOpen(false); }}>
-                            Career Paths
-                        </button>
-                        <button className="mobile-nav-btn" onClick={() => { navigate('/history'); setMenuOpen(false); }}>
-                            History
-                        </button>
-                        <button className="mobile-nav-btn" onClick={() => { handleExportPdf(); setMenuOpen(false); }} disabled={isExporting}>
+                        <button className="nav-link nav-link--export mobile-nav-btn" onClick={() => { handleExportPdf(); setMenuOpen(false); }} disabled={isExporting}>
                             {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
-                            <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
-                        </button>
-                        {currentUser?.is_admin && (
-                            <button className="mobile-nav-btn" onClick={() => { navigate('/admin'); setMenuOpen(false); }}>
-                                🛡 Admin
-                            </button>
-                        )}
-                        <button className="mobile-nav-btn mobile-nav-btn-logout" onClick={handleLogout}>
-                            Logout
+                            <span>{isExporting ? 'Exporting...' : 'Export to PDF'}</span>
                         </button>
                     </div>
                 )}
@@ -815,11 +721,6 @@ const Learnmore = () => {
                     />
                 )}
             </RightDrawer>
-
-            <CareerPathsModal
-                isOpen={showCareerPaths}
-                onClose={() => setShowCareerPaths(false)}
-            />
 
         </div>
     );

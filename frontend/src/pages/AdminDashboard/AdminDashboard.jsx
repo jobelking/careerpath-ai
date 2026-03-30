@@ -19,24 +19,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import apiService from '../../services/api/apiService';
-import Logo from '../../components/common/Logo';
-import { exportToPdf } from '../../utils/exportToPdf';
-import {
-  FiAlertTriangle,
-  FiCheckCircle,
-  FiDownload,
-  FiClock,
-  FiEdit2,
-  FiFileText,
-  FiGrid,
-  FiHome,
-  FiLogOut,
-  FiMenu,
-  FiRefreshCw,
-  FiShield,
-  FiTrash2,
-  FiUsers,
-} from 'react-icons/fi';
 import './AdminDashboard.css';
 
 // ─── Small helper components ───────────────────────────────────────────────────
@@ -298,7 +280,6 @@ const AdminDashboard = () => {
   const [historyPage, setHistoryPage] = useState(1);
   const [historySearch, setHistorySearch] = useState('');
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [exportingRecordId, setExportingRecordId] = useState(null);
   const [deletingRecord, setDeletingRecord] = useState(null); // history record | null
   const [deleteRecordLoading, setDeleteRecordLoading] = useState(false);
   const [loadingResumeId, setLoadingResumeId] = useState(null); // record id being fetched
@@ -343,32 +324,6 @@ const AdminDashboard = () => {
       showAlert('error', err.message);
     } finally {
       setDeleteRecordLoading(false);
-    }
-  };
-
-  const handleExportRecordPdf = async (record) => {
-    setExportingRecordId(record.id);
-    try {
-      const topThree = Array.isArray(record.top_predictions) && record.top_predictions.length
-        ? record.top_predictions.slice(0, 3)
-        : [{
-          career_path: record.prediction_result,
-          raw_confidence: record.confidence_score ?? 0,
-        }];
-
-      await exportToPdf({
-        topThree,
-        calculateProfileFit,
-        learningRoadmap: record.learning_roadmap ?? null,
-        certificationData: record.certification_data ?? null,
-        careerContent: null,
-        logoRef: null,
-        extractedKeywords: Array.isArray(record.extracted_keywords) ? record.extracted_keywords : [],
-      });
-    } catch (err) {
-      showAlert('error', `Failed to export report: ${err.message}`);
-    } finally {
-      setExportingRecordId(null);
     }
   };
 
@@ -450,15 +405,16 @@ const AdminDashboard = () => {
       <aside className={`adm-sidebar ${sidebarOpen ? 'adm-sidebar-open' : ''}`}>
         {/* Brand */}
         <div className="adm-sidebar-brand" onClick={() => navigate('/dashboard')}>
-          <Logo variant="modern" className="adm-brand-logo" />
+          <span className="adm-brand-icon">🎯</span>
+          <span className="adm-brand-text">CareerPath AI</span>
         </div>
 
         {/* Nav items */}
         <nav className="adm-nav">
           {[
-            { id: 'overview', icon: <FiGrid />, label: 'Overview' },
-            { id: 'users', icon: <FiUsers />, label: 'Users' },
-            { id: 'history', icon: <FiFileText />, label: 'History' },
+            { id: 'overview', icon: '📊', label: 'Overview' },
+            { id: 'users', icon: '👥', label: 'Users' },
+            { id: 'history', icon: '📋', label: 'History' },
           ].map(({ id, icon, label }) => (
             <button
               key={id}
@@ -474,11 +430,11 @@ const AdminDashboard = () => {
         {/* Sidebar footer */}
         <div className="adm-sidebar-footer">
           <button className="adm-nav-item adm-nav-back" onClick={() => navigate('/dashboard')}>
-            <span className="adm-nav-icon"><FiHome /></span>
+            <span className="adm-nav-icon">🏠</span>
             <span>App Dashboard</span>
           </button>
           <button className="adm-nav-item adm-nav-logout" onClick={handleLogout}>
-            <span className="adm-nav-icon"><FiLogOut /></span>
+            <span className="adm-nav-icon">🚪</span>
             <span>Logout</span>
           </button>
         </div>
@@ -500,7 +456,7 @@ const AdminDashboard = () => {
               onClick={() => setSidebarOpen(s => !s)}
               aria-label="Toggle sidebar"
             >
-              <FiMenu />
+              ☰
             </button>
             <div className="adm-breadcrumb">
               <span className="adm-breadcrumb-root">Admin</span>
@@ -537,10 +493,10 @@ const AdminDashboard = () => {
             ) : stats ? (
               <>
                 <div className="adm-stats-grid">
-                  <StatCard icon={<FiUsers />} value={stats.total_users} label="Total Users" accent="blue" />
-                  <StatCard icon={<FiCheckCircle />} value={stats.verified_users} label="Verified Users" accent="green" />
-                  <StatCard icon={<FiShield />} value={stats.admin_users} label="Admin Accounts" accent="purple" />
-                  <StatCard icon={<FiFileText />} value={stats.total_predictions} label="Total Predictions" accent="orange" />
+                  <StatCard icon="👥" value={stats.total_users} label="Total Users" accent="blue" />
+                  <StatCard icon="✅" value={stats.verified_users} label="Verified Users" accent="green" />
+                  <StatCard icon="🛡️" value={stats.admin_users} label="Admin Accounts" accent="purple" />
+                  <StatCard icon="📄" value={stats.total_predictions} label="Total Predictions" accent="orange" />
                 </div>
 
                 {/* Quick-action buttons */}
@@ -557,7 +513,7 @@ const AdminDashboard = () => {
                       View All History
                     </button>
                     <button className="adm-btn adm-btn-ghost" onClick={loadStats}>
-                      <FiRefreshCw /> Refresh Stats
+                      ↺ Refresh Stats
                     </button>
                   </div>
                 </div>
@@ -609,7 +565,7 @@ const AdminDashboard = () => {
                 <option value="false">Regular Users</option>
               </select>
               <button className="adm-btn adm-btn-ghost" onClick={() => loadUsers(userPage)}>
-                <FiRefreshCw /> Refresh
+                ↺ Refresh
               </button>
             </div>
 
@@ -641,25 +597,19 @@ const AdminDashboard = () => {
                           <td>{user.email}</td>
                           <td>
                             <span className={`adm-badge ${user.is_verified ? 'adm-badge-green' : 'adm-badge-yellow'}`}>
-                              {user.is_verified ? (
-                                <span className="adm-badge-content"><FiCheckCircle /> Verified</span>
-                              ) : (
-                                <span className="adm-badge-content"><FiClock /> Pending</span>
-                              )}
+                              {user.is_verified ? '✓ Verified' : '⏳ Pending'}
                             </span>
                           </td>
                           <td>
                             <span className={`adm-badge ${user.is_admin ? 'adm-badge-purple' : 'adm-badge-gray'}`}>
-                              {user.is_admin ? (
-                                <span className="adm-badge-content"><FiShield /> Admin</span>
-                              ) : 'User'}
+                              {user.is_admin ? '🛡 Admin' : 'User'}
                             </span>
                           </td>
                           <td className="adm-cell-muted">{fmtDate(user.created_at)}</td>
                           <td>
                             <div className="adm-actions">
                               <button className="adm-btn-icon adm-btn-edit" onClick={() => openEditUser(user)} title="Edit user">
-                                <FiEdit2 />
+                                ✏️
                               </button>
                               <button
                                 className="adm-btn-icon adm-btn-delete"
@@ -667,7 +617,7 @@ const AdminDashboard = () => {
                                 title="Delete user"
                                 disabled={user.id === currentUser?.id}
                               >
-                                <FiTrash2 />
+                                🗑️
                               </button>
                             </div>
                           </td>
@@ -706,7 +656,7 @@ const AdminDashboard = () => {
                 onChange={e => setHistorySearch(e.target.value)}
               />
               <button className="adm-btn adm-btn-ghost" onClick={() => loadHistory(historyPage)}>
-                <FiRefreshCw /> Refresh
+                ↺ Refresh
               </button>
             </div>
 
@@ -773,7 +723,7 @@ const AdminDashboard = () => {
                                   }
                                 }}
                               >
-                                {loadingResumeId === rec.id ? <FiClock /> : 'View'}
+                                {loadingResumeId === rec.id ? '⏳' : 'View'}
                               </button>
                             ) : (
                               <span className="adm-cell-muted">—</span>
@@ -781,19 +731,11 @@ const AdminDashboard = () => {
                           </td>
                           <td>
                             <button
-                              className="adm-btn-icon adm-btn-export"
-                              title="Export report PDF"
-                              onClick={() => handleExportRecordPdf(rec)}
-                              disabled={exportingRecordId === rec.id}
-                            >
-                              {exportingRecordId === rec.id ? <FiClock /> : <FiDownload />}
-                            </button>
-                            <button
                               className="adm-btn-icon adm-btn-delete"
                               onClick={() => setDeletingRecord(rec)}
                               title="Delete record"
                             >
-                              <FiTrash2 />
+                              🗑️
                             </button>
                           </td>
                         </tr>
@@ -946,7 +888,7 @@ const AdminDashboard = () => {
       {deletingUser && (
         <Modal title="Confirm Delete" onClose={() => setDeletingUser(null)}>
           <div className="adm-confirm-body">
-            <span className="adm-confirm-icon"><FiAlertTriangle /></span>
+            <span className="adm-confirm-icon">⚠️</span>
             <p>
               You are about to permanently delete user{' '}
               <strong>{deletingUser.username}</strong> ({deletingUser.email}).
@@ -970,7 +912,7 @@ const AdminDashboard = () => {
       {deletingRecord && (
         <Modal title="Delete History Record" onClose={() => setDeletingRecord(null)}>
           <div className="adm-confirm-body">
-            <span className="adm-confirm-icon"><FiAlertTriangle /></span>
+            <span className="adm-confirm-icon">⚠️</span>
             <p>
               Delete prediction record <strong>#{deletingRecord.id}</strong> (
               {deletingRecord.prediction_result})?

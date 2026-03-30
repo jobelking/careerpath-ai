@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 import { useAuth } from '../../context/AuthContext';
 import AuthModal from '../../components/auth/AuthModal';
+import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
-import logoutIcon from '../../styles/logout.svg';
+import { authIcons } from '../../utils/authIcons';
 import './LandingPage.css';
 
 const LandingPage = () => {
@@ -12,7 +13,6 @@ const LandingPage = () => {
   const { currentUser, logout } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = React.useState(false);
   const [authModalView, setAuthModalView] = React.useState('login');
-  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
 
   const handleGetStarted = () => {
     if (currentUser) {
@@ -28,69 +28,32 @@ const LandingPage = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleRegisterClick = () => {
-    setAuthModalView('register');
-    setIsAuthModalOpen(true);
-  };
-
   const handleLogout = () => {
     logout();
-    setShowLogoutConfirm(false);
   };
-
-  const userDisplayName =
-    currentUser?.fullName ||
-    currentUser?.name ||
-    (currentUser?.email ? currentUser.email.split('@')[0] : 'User');
 
   return (
     <div className="landing-container">
 
-      <header className="landing-header">
-        <div className="header-logo">
-          <Logo variant="modern" />
-        </div>
-        <div className="header-actions">
-          {!currentUser ? (
-            <div className="auth-buttons">
-              <button className="auth-btn login-btn" onClick={handleLoginClick}>Login</button>
-              <button className="auth-btn register-btn" onClick={handleRegisterClick}>Get Started</button>
-            </div>
-          ) : (
-            <div className="user-profile-menu">
-              <span className="user-greeting">Hi, {userDisplayName}</span>
-              <button className="auth-btn dashboard-btn" onClick={() => navigate('/dashboard')}>Dashboard</button>
-              <button className="auth-btn logout" onClick={() => setShowLogoutConfirm(true)} aria-label="Logout" title="Logout">
-                <img src={logoutIcon} alt="" className="logout-icon" />
-              </button>
-            </div>
-          )}
-        </div>
-      </header>
-
-      {showLogoutConfirm && (
-        <div className="landing-logout-bar">
-          <span>Are you sure you want to logout?</span>
-          <div className="landing-logout-actions">
-            <button className="landing-logout-confirm" onClick={handleLogout}>Yes, Logout</button>
-            <button className="landing-logout-cancel" onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
       {/* Hero Section */}
-      <main className="hero-section">
+      <div className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <h1 className="brand-name">Find your best-fit career path, faster.</h1>
+            <Logo variant="modern" className="brand-name" />
             <h2 className="hero-tagline">
               Discover Your Perfect Career Path with AI-Powered Resume Analysis
             </h2>
-            <p className="hero-description">
+            <p className="hero-description" style={{ textAlign: 'justify' }}>
               Upload your resume and let our <strong>machine learning</strong>-powered AI analyze your skills,
               experience, and qualifications to recommend the most suitable career paths tailored just for you
               across <strong>26 career paths</strong>.
             </p>
+            <div className="hero-cta-buttons">
+              <button className="cta-button cta-register" onClick={handleGetStarted}>
+                <span className="cta-text">Get Started</span>
+                <span className="cta-icon">➜</span>
+              </button>
+            </div>
           </div>
 
           <div className="hero-visual">
@@ -198,44 +161,41 @@ const LandingPage = () => {
           </div>
         </div>
 
-        <section className="features-section">
-
-          {/* Features Grid */}
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaBolt"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Lightning Fast</h3>
-              <p className="feature-description">Get career predictions in seconds with our optimized AI engine</p>
+        {/* Features Grid */}
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaBolt"], { size: 32, color: "#2563eb" })}
             </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaCheckCircle"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Highly Accurate</h3>
-              <p className="feature-description">Advanced machine learning ensures precise career recommendations</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaLock"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Secure & Private</h3>
-              <p className="feature-description">Your resume data is encrypted and never shared with third parties</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["MdInsights"], { size: 40, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Detailed Insights</h3>
-              <p className="feature-description">Comprehensive analysis with skill matching and career probabilities</p>
-            </div>
+            <h3 className="feature-title">Lightning Fast</h3>
+            <p className="feature-description">Get career predictions in seconds with our optimized AI engine</p>
           </div>
-        </section>
-      </main>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaCheckCircle"], { size: 32, color: "#2563eb" })}
+            </div>
+            <h3 className="feature-title">Highly Accurate</h3>
+            <p className="feature-description">Advanced machine learning ensures precise career recommendations</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaLock"], { size: 32, color: "#2563eb" })}
+            </div>
+            <h3 className="feature-title">Secure & Private</h3>
+            <p className="feature-description">Your resume data is encrypted and never shared with third parties</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["MdInsights"], { size: 40, color: "#2563eb" })}
+            </div>
+            <h3 className="feature-title">Detailed Insights</h3>
+            <p className="feature-description">Comprehensive analysis with skill matching and career probabilities</p>
+          </div>
+        </div>
+      </div>
 
       {/* Footer */}
       {/* <footer className="landing-footer">

@@ -144,7 +144,6 @@ const Dashboard = () => {
               ? result.resume_text.replace(/\0/g, '').slice(0, 500)
               : null,
             extracted_keywords: result.extracted_keywords ?? [],
-            total_distinctive_keywords: result.total_distinctive_keywords ?? 0,
           }).then((saved) => {
             // Store the record ID so LearnMore can PATCH roadmap/certs onto it
             if (saved?.id) {
@@ -258,17 +257,9 @@ const Dashboard = () => {
       {/* Header/Navigation */}
       <header className="dashboard-header">
         <div className="header-content">
-          <div className="dashboard-header-left">
-            <h1 className="dashboard-brand" onClick={() => navigate('/')}>
-              <Logo variant="modern" />
-            </h1>
-          </div>
-
-          <nav className="dashboard-top-nav">
-            <button className="dashboard-nav-tab active" type="button" disabled>Dashboard</button>
-            <button className="dashboard-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
-            <button className="dashboard-nav-tab" onClick={() => navigate('/history')}>History</button>
-          </nav>
+          <h1 className="dashboard-brand" onClick={() => navigate('/')}>
+            <Logo variant="modern" />
+          </h1>
 
           {/* Hamburger Button (mobile only) */}
           <button
@@ -281,31 +272,39 @@ const Dashboard = () => {
             <span></span>
           </button>
 
-          {/* Desktop actions */}
-          <div className="dashboard-header-right">
+          {/* Desktop nav */}
+          <div className="dashboard-header-actions">
             {currentUser && (
-              <div className="dashboard-profile-chip">
-                <span className="dashboard-profile-dot" aria-hidden="true"></span>
-                <span className="dashboard-greeting">{currentUser.username}</span>
-              </div>
+              <span className="dashboard-greeting">Hello, {currentUser.username}</span>
             )}
-            <div className="dashboard-action-group">
-              {/* Admin Panel button — only visible to admin users */}
-              {currentUser?.is_admin && (
-                <button
-                  className="dashboard-admin-btn"
-                  onClick={() => navigate('/admin')}
-                >
-                  🛡 Admin
-                </button>
-              )}
+            <button
+              className="dashboard-history-btn"
+              onClick={() => setShowCareerPaths(true)}
+              id="career-paths-btn"
+            >
+              Career Paths
+            </button>
+            <button
+              className="dashboard-history-btn"
+              onClick={() => navigate('/history')}
+            >
+              History
+            </button>
+            {/* Admin Panel button — only visible to admin users */}
+            {currentUser?.is_admin && (
               <button
-                className="dashboard-logout-btn"
-                onClick={() => setShowLogoutConfirm(true)}
+                className="dashboard-admin-btn"
+                onClick={() => navigate('/admin')}
               >
-                Logout
+                🛡 Admin Panel
               </button>
-            </div>
+            )}
+            <button
+              className="dashboard-logout-btn"
+              onClick={() => setShowLogoutConfirm(true)}
+            >
+              Logout
+            </button>
           </div>
         </div>
 
@@ -320,13 +319,6 @@ const Dashboard = () => {
               onClick={() => { setShowCareerPaths(true); setMenuOpen(false); }}
             >
               Career Paths
-            </button>
-            <button
-              className="dashboard-history-btn mobile-nav-btn"
-              type="button"
-              disabled
-            >
-              Dashboard
             </button>
             <button
               className="dashboard-history-btn mobile-nav-btn"
