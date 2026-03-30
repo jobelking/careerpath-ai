@@ -12,7 +12,7 @@ import sys
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from app.models.naive_bayes.train_model_advanced import AdvancedCareerPathClassifier
+from app.prediction.inference_classifier import InferenceCareerPathClassifier
 
 
 class CareerPathPredictor:
@@ -21,7 +21,13 @@ class CareerPathPredictor:
     Loads trained model and provides prediction methods.
     """
     
-    def __init__(self, model_dir: Optional[str] = None, model_name: str = 'advanced_career_path_cnb'):
+    def __init__(
+        self,
+        model_dir: Optional[str] = None,
+        model_name: str = 'advanced_career_path_cnb',
+        eager_load: Optional[bool] = None,
+        enable_location_removal: Optional[bool] = None
+    ):
         """
         Initialize the predictor and load the trained model.
         
@@ -38,7 +44,17 @@ class CareerPathPredictor:
         self.model_name = model_name
         self.classifier = None
         self.classes = []
-        self._load_model()
+
+        if eager_load is None:
+            eager_load = os.getenv("MODEL_EAGER_LOAD", "false").lower() == "true"
+        if enable_location_removal is None:
+            enable_location_removal = os.getenv("ENABLE_LOCATION_REMOVAL_INFERENCE", "false").lower() == "true"
+
+        self.eager_load = eager_load
+        self.enable_location_removal = enable_location_removal
+
+        if self.eager_load:
+            self._load_model()
     
     def _load_model(self):
         """Load the trained model from disk."""
@@ -58,10 +74,11 @@ class CareerPathPredictor:
                 if not os.path.exists(file_path):
                     raise FileNotFoundError(f"Model file not found: {file_path}")
             
-            # Load model using the AdvancedCareerPathClassifier
-            self.classifier = AdvancedCareerPathClassifier.load_model(
+            # Load model using lightweight inference wrapper
+            self.classifier = InferenceCareerPathClassifier.load_model(
                 self.model_dir, 
-                self.model_name
+                self.model_name,
+                enable_location_removal=self.enable_location_removal
             )
             
             # Store classes
@@ -77,6 +94,11 @@ class CareerPathPredictor:
     def is_loaded(self) -> bool:
         """Check if model is loaded."""
         return self.classifier is not None and self.classes is not None
+
+    def _ensure_loaded(self):
+        """Lazy-load model on first inference request."""
+        if not self.is_loaded():
+            self._load_model()
     
     def predict(self, resume_text: str, top_n: int = 5) -> Dict:
         """
@@ -92,8 +114,7 @@ class CareerPathPredictor:
                 - confidence: Confidence score (0-1)
                 - top_predictions: List of top N predictions with scores
         """
-        if not self.is_loaded():
-            raise Exception("Model not loaded. Cannot make predictions.")
+        self._ensure_loaded()
         
         if not resume_text or len(resume_text.strip()) < 10:
             raise ValueError("Resume text is too short or empty")
