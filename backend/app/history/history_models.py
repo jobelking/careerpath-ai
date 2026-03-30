@@ -14,6 +14,7 @@ class SaveHistoryRequest(BaseModel):
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
     extracted_keywords: Optional[List[Any]] = None
+    total_distinctive_keywords: Optional[int] = None
 
 
 class UpdateHistoryRequest(BaseModel):
@@ -31,6 +32,7 @@ class HistoryRecord(BaseModel):
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
     extracted_keywords: Optional[List[Any]] = None
+    total_distinctive_keywords: Optional[int] = None
     learning_roadmap: Optional[Any] = None
     certification_data: Optional[Any] = None
     has_resume: Optional[bool] = False

@@ -421,6 +421,8 @@ async def list_history(
                     ph.id, ph.user_id, u.email AS user_email, u.username,
                     ph.prediction_result, ph.confidence_score,
                     ph.filename, ph.date_created, ph.top_predictions,
+                    ph.learning_roadmap, ph.certification_data,
+                    ph.extracted_keywords, ph.total_distinctive_keywords,
                     (ph.resume_path IS NOT NULL) AS has_resume
                 FROM prediction_history ph
                 JOIN users u ON u.id = ph.user_id
@@ -433,12 +435,19 @@ async def list_history(
             rows = []
             for r in cur.fetchall():
                 row_dict = dict(r)
-                # top_predictions may already be a list (psycopg2 JSONB auto-decodes)
-                if isinstance(row_dict.get("top_predictions"), str):
-                    try:
-                        row_dict["top_predictions"] = json.loads(row_dict["top_predictions"])
-                    except Exception:
-                        row_dict["top_predictions"] = None
+                # JSONB fields may already be decoded by psycopg2; if not, decode safely.
+                json_fields = [
+                    "top_predictions",
+                    "learning_roadmap",
+                    "certification_data",
+                    "extracted_keywords",
+                ]
+                for field in json_fields:
+                    if isinstance(row_dict.get(field), str):
+                        try:
+                            row_dict[field] = json.loads(row_dict[field])
+                        except Exception:
+                            row_dict[field] = None
                 rows.append(AdminHistoryRecord(**row_dict))
 
         return AdminHistoryResponse(success=True, history=rows, total=total)

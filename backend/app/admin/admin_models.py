@@ -91,6 +91,10 @@ class AdminHistoryRecord(BaseModel):
     filename: Optional[str] = None
     date_created: Optional[datetime] = None
     top_predictions: Optional[List[Any]] = None
+    learning_roadmap: Optional[Any] = None
+    certification_data: Optional[Any] = None
+    extracted_keywords: Optional[List[Any]] = None
+    total_distinctive_keywords: Optional[int] = None
     has_resume: Optional[bool] = False
 
     class Config:
