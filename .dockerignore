@@ -1,0 +1,44 @@
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+!requirements.txt
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+.Python
+**/env/
+**/venv/
+**/ENV/
+
+# Node
+**/node_modules/
+**/dist/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+**/tests/
+**/.pytest_cache/
+**/.coverage
+**/htmlcov/
+
+# Environment
+.env
+.env.local

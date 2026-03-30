@@ -7,10 +7,10 @@
 /* ── Tokens (CSS variables) ─────────────────────────────────────────────── */
 .adm-layout {
   --adm-sidebar-w: 240px;
-  --adm-bg: #f8fafc;
-  --adm-sidebar-bg: #ffffff;
-  --adm-sidebar-hover: #eff6ff;
-  --adm-sidebar-active: #dbeafe;
+  --adm-bg: #f0f4f8;
+  --adm-sidebar-bg: #1e293b;
+  --adm-sidebar-hover: #334155;
+  --adm-sidebar-active: #2563eb;
   --adm-text: #1e293b;
   --adm-text-muted: #64748b;
   --adm-border: #e2e8f0;
@@ -27,7 +27,7 @@
 
   display: flex;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--adm-bg);
   font-family: var(--font-body);
   color: var(--adm-text);
 }
@@ -37,7 +37,6 @@
   width: var(--adm-sidebar-w);
   min-height: 100vh;
   background: var(--adm-sidebar-bg);
-  border-right: 1px solid var(--adm-border);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -50,26 +49,22 @@
 .adm-sidebar-brand {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 1.4rem 1.25rem;
   cursor: pointer;
-  border-bottom: 1px solid var(--adm-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   user-select: none;
 }
 
-.adm-brand-logo {
-  pointer-events: none;
+.adm-brand-icon {
+  font-size: 1.5rem;
 }
 
-.adm-brand-logo.logo-modern {
-  font-size: 1.45rem;
-}
-
-.adm-brand-logo.logo-modern .text-primary {
-  color: var(--adm-text);
-}
-
-.adm-brand-logo.logo-modern .text-accent {
-  color: var(--adm-blue);
+.adm-brand-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
 }
 
 /* Nav */
@@ -90,7 +85,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #475569;
+  color: #94a3b8;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -100,33 +95,31 @@
 
 .adm-nav-item:hover {
   background: var(--adm-sidebar-hover);
-  color: var(--adm-blue);
+  color: #ffffff;
 }
 
 .adm-nav-active {
   background: var(--adm-sidebar-active) !important;
-  color: var(--adm-blue) !important;
+  color: #ffffff !important;
 }
 
 .adm-nav-icon {
-  font-size: 1rem;
+  font-size: 1.1rem;
   width: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
 }
 
 /* Footer */
 .adm-sidebar-footer {
   padding: 0.75rem;
-  border-top: 1px solid var(--adm-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .adm-nav-back {
-  color: var(--adm-text-muted);
+  color: #94a3b8;
 }
 
 .adm-nav-logout {
@@ -134,8 +127,8 @@
 }
 
 .adm-nav-logout:hover {
-  background: #fef2f2 !important;
-  color: var(--adm-red) !important;
+  background: rgba(220, 38, 38, 0.18) !important;
+  color: #fca5a5 !important;
 }
 
 /* Overlay (mobile) */
@@ -186,14 +179,12 @@
   display: none;
   background: none;
   border: none;
-  font-size: 1.15rem;
+  font-size: 1.4rem;
   cursor: pointer;
   color: var(--adm-text);
   padding: 4px 8px;
   border-radius: 6px;
   line-height: 1;
-  align-items: center;
-  justify-content: center;
 }
 
 .adm-hamburger:hover {
@@ -223,9 +214,8 @@
 }
 
 .adm-admin-badge {
-  background: #dbeafe;
-  border: 1px solid #bfdbfe;
-  color: var(--adm-blue);
+  background: var(--adm-purple);
+  color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
@@ -326,6 +316,7 @@
   align-items: flex-start;
   gap: 6px;
   box-shadow: var(--adm-shadow);
+  border-left: 4px solid transparent;
 }
 
 .adm-stat-blue {
@@ -345,16 +336,7 @@
 }
 
 .adm-stat-icon {
-  font-size: 1.55rem;
-  color: var(--adm-text);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.adm-stat-icon svg {
-  width: 1.1em;
-  height: 1.1em;
+  font-size: 1.75rem;
 }
 
 .adm-stat-value {
@@ -546,12 +528,6 @@
   white-space: nowrap;
 }
 
-.adm-badge-content {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .adm-badge-green {
   background: #dcfce7;
   color: #166534;
@@ -584,10 +560,7 @@
   border: 1.5px solid var(--adm-border);
   border-radius: 7px;
   padding: 4px 8px;
-  font-size: 0.95rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1rem;
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s;
   line-height: 1.3;
@@ -601,12 +574,6 @@
 .adm-btn-edit:hover {
   background: #eff6ff;
   border-color: var(--adm-blue);
-}
-
-.adm-btn-export:hover {
-  background: #eff6ff;
-  border-color: var(--adm-blue);
-  color: var(--adm-blue);
 }
 
 .adm-btn-delete:hover {
@@ -929,12 +896,6 @@
   font-size: 2.5rem;
   display: block;
   margin-bottom: 0.75rem;
-  color: var(--adm-red);
-}
-
-.adm-confirm-icon svg {
-  width: 1em;
-  height: 1em;
 }
 
 .adm-confirm-body p {
