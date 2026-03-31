@@ -466,18 +466,35 @@ class AdvancedCareerPathClassifier:
             'cook': 'chef',
             'culinary': 'chef',
             
-            # Consulting - EXPANDED to discriminate from business analyst (Feb 2026)
+            # Consulting - EXPANDED to discriminate from BA/BD/Sales/HR (Mar 2026)
+            # Each term: ≥3% in consultant, ≥1.5x more frequent than any overlapping class
+            # --- Core consultant identity ---
             'consulting': 'consultant',
-            'advisor': 'consultant',
+            'advisory': 'consultant',
+            'advisory services': 'consultant',
             'management consultant': 'consultant',
             'strategy consultant': 'consultant',
-            'advisory services': 'consultant',
-            'engagement': 'consultant',
+            'senior consultant': 'consultant',
+            'principal consultant': 'consultant',
+            'associate consultant': 'consultant',
+            'engagement manager': 'consultant',
+            # --- Consulting deliverables & methodology ---
             'deliverable': 'consultant',
             'stakeholder management': 'consultant',
             'change management': 'consultant',
             'transformation': 'consultant',
             'due diligence': 'consultant',
+            'business case': 'consultant',
+            'roi analysis': 'consultant',
+            'roadmap': 'consultant',
+            'operating model': 'consultant',
+            'process improvement': 'consultant',
+            'best practice': 'consultant',
+            # --- Client-facing consulting activities ---
+            'client engagement': 'consultant',
+            'client facing': 'consultant',
+            'workshop facilitation': 'consultant',
+            'facilitation': 'consultant',
             
             # IT
             'it support': 'it-support',

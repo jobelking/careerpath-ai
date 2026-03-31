@@ -5,9 +5,9 @@ TRAINING CLASS DISTRIBUTION (After Balancing - Train Set Only)
 Dataset: final_dataset_careerpath-ai_preprocessed.csv
 Pipeline: Split → Balance Train Only → Vectorize
 Total Classes Used: 26
-Total Training Samples (after balancing): 6547
-Total Test Samples (untouched): 1583
-Date: 2026-03-27 21:09:07
+Total Training Samples (after balancing): 6405
+Total Test Samples (untouched): 1497
+Date: 2026-03-31 12:00:30
 
 ================================================================================
 REMOVED CLASSES (0 classes with <50 samples)
@@ -18,39 +18,39 @@ REMOVED CLASSES (0 classes with <50 samples)
 OVERSAMPLED CLASSES (15 classes boosted to 200)
 ================================================================================
   ↑ consultant: 196 → 200 samples
-  ↑ engineering: 188 → 200 samples
+  ↑ engineering: 187 → 200 samples
   ↑ healthcare: 186 → 200 samples
-  ↑ sales: 176 → 200 samples
-  ↑ business-development: 174 → 200 samples
-  ↑ chef: 174 → 200 samples
-  ↑ fitness: 173 → 200 samples
-  ↑ aviation: 172 → 200 samples
-  ↑ public-relations: 168 → 200 samples
+  ↑ business-development: 172 → 200 samples
+  ↑ chef: 171 → 200 samples
+  ↑ fitness: 166 → 200 samples
+  ↑ aviation: 166 → 200 samples
   ↑ teacher: 162 → 200 samples
-  ↑ digital-media: 156 → 200 samples
-  ↑ hr: 143 → 200 samples
-  ↑ agriculture: 130 → 200 samples
+  ↑ sales: 158 → 200 samples
+  ↑ digital-media: 146 → 200 samples
+  ↑ public-relations: 136 → 200 samples
+  ↑ hr: 131 → 200 samples
   ↑ it-support: 128 → 200 samples
+  ↑ agriculture: 108 → 200 samples
   ↑ construction: 87 → 200 samples
 
 ================================================================================
-DOWNSAMPLED CLASSES (3 classes reduced to 400)
+DOWNSAMPLED CLASSES (2 classes reduced to 400)
 ================================================================================
-  ↓ datascience: 678 → 400 samples
-  ↓ software engineer: 452 → 400 samples
-  ↓ design-creative: 439 → 400 samples
+  ↓ datascience: 674 → 400 samples
+  ↓ software engineer: 405 → 400 samples
 
 ================================================================================
-UNCHANGED CLASSES (8 classes with 200-400 samples)
+UNCHANGED CLASSES (9 classes with 200-400 samples)
 ================================================================================
-  = devops: 342 samples
+  = devops: 328 samples
   = quality assurance: 327 samples
-  = business analyst: 314 samples
-  = network engineer: 313 samples
-  = finance-accounting: 285 samples
-  = advocate: 258 samples
-  = mobile app developer: 256 samples
-  = cyber security: 252 samples
+  = design-creative: 324 samples
+  = business analyst: 313 samples
+  = network engineer: 288 samples
+  = finance-accounting: 278 samples
+  = mobile app developer: 255 samples
+  = cyber security: 246 samples
+  = advocate: 246 samples
 
 ================================================================================
 FINAL BALANCED CLASS DISTRIBUTION
@@ -58,29 +58,29 @@ FINAL BALANCED CLASS DISTRIBUTION
 CLASS NAME                                      | SAMPLE COUNT
 --------------------------------------------------------------------------------
   1. software engineer                             |    400
-  2. design-creative                               |    400
-  3. datascience                                   |    400
-  4. devops                                        |    342
-  5. quality assurance                             |    327
-  6. business analyst                              |    314
-  7. network engineer                              |    313
-  8. finance-accounting                            |    285
-  9. advocate                                      |    258
- 10. mobile app developer                          |    256
- 11. cyber security                                |    252
- 12. digital-media                                 |    200
- 13. chef                                          |    200
- 14. construction                                  |    200
- 15. public-relations                              |    200
- 16. hr                                            |    200
- 17. teacher                                       |    200
- 18. business-development                          |    200
- 19. consultant                                    |    200
- 20. it-support                                    |    200
- 21. engineering                                   |    200
- 22. healthcare                                    |    200
- 23. agriculture                                   |    200
- 24. aviation                                      |    200
- 25. fitness                                       |    200
- 26. sales                                         |    200
+  2. datascience                                   |    400
+  3. devops                                        |    328
+  4. quality assurance                             |    327
+  5. design-creative                               |    324
+  6. business analyst                              |    313
+  7. network engineer                              |    288
+  8. finance-accounting                            |    278
+  9. mobile app developer                          |    255
+ 10. cyber security                                |    246
+ 11. advocate                                      |    246
+ 12. chef                                          |    200
+ 13. teacher                                       |    200
+ 14. public-relations                              |    200
+ 15. aviation                                      |    200
+ 16. healthcare                                    |    200
+ 17. it-support                                    |    200
+ 18. agriculture                                   |    200
+ 19. hr                                            |    200
+ 20. construction                                  |    200
+ 21. sales                                         |    200
+ 22. consultant                                    |    200
+ 23. fitness                                       |    200
+ 24. digital-media                                 |    200
+ 25. engineering                                   |    200
+ 26. business-development                          |    200
 ================================================================================
