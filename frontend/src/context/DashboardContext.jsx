@@ -30,8 +30,8 @@ export const DashboardProvider = ({ children }) => {
     // File objects cannot be serialized; always start null (user can re-pick if needed)
     const [uploadedFile, setUploadedFile] = useState(null);
     const [resumeText, setResumeText] = useState(persisted.resumeText ?? null);
-    const [learningRoadmap, setLearningRoadmap] = useState(persisted.learningRoadmap ?? null);
-    const [certificationData, setCertificationData] = useState(persisted.certificationData ?? null);
+    const [learningRoadmapByPath, setLearningRoadmapByPath] = useState(persisted.learningRoadmapByPath ?? null);
+    const [certificationDataByPath, setCertificationDataByPath] = useState(persisted.certificationDataByPath ?? null);
     // ID of the latest prediction_history record — needed to PATCH roadmap/certs later
     const [historyRecordId, setHistoryRecordId] = useState(persisted.historyRecordId ?? null);
 
@@ -42,14 +42,14 @@ export const DashboardProvider = ({ children }) => {
                 predictionResults,
                 uploadedFileName,
                 resumeText,
-                learningRoadmap,
-                certificationData,
+                learningRoadmapByPath,
+                certificationDataByPath,
                 historyRecordId,
             }));
         } catch {
             // Ignore storage quota errors
         }
-    }, [predictionResults, uploadedFileName, resumeText, learningRoadmap, certificationData, historyRecordId]);
+    }, [predictionResults, uploadedFileName, resumeText, learningRoadmapByPath, certificationDataByPath, historyRecordId]);
 
     // When the user logs out, wipe all in-memory dashboard state immediately.
     // sessionStorage is already cleared by AuthContext.logout(), but React state
@@ -60,8 +60,8 @@ export const DashboardProvider = ({ children }) => {
             setUploadedFileName(null);
             setUploadedFile(null);
             setResumeText(null);
-            setLearningRoadmap(null);
-            setCertificationData(null);
+            setLearningRoadmapByPath(null);
+            setCertificationDataByPath(null);
             setHistoryRecordId(null);
         };
         window.addEventListener('careerpath:logout', handleLogout);
@@ -73,8 +73,8 @@ export const DashboardProvider = ({ children }) => {
         setUploadedFileName(null);
         setUploadedFile(null);
         setResumeText(null);
-        setLearningRoadmap(null);
-        setCertificationData(null);
+        setLearningRoadmapByPath(null);
+        setCertificationDataByPath(null);
         setHistoryRecordId(null);
         sessionStorage.removeItem(SESSION_KEY);
     };
@@ -90,10 +90,10 @@ export const DashboardProvider = ({ children }) => {
                 setUploadedFile,
                 resumeText,
                 setResumeText,
-                learningRoadmap,
-                setLearningRoadmap,
-                certificationData,
-                setCertificationData,
+                learningRoadmapByPath,
+                setLearningRoadmapByPath,
+                certificationDataByPath,
+                setCertificationDataByPath,
                 historyRecordId,
                 setHistoryRecordId,
                 clearResults,

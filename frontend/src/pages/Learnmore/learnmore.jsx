@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '../../components/common/Logo';
 import RightDock from '../../components/common/RightDock';
 import RightDrawer from '../../components/common/RightDrawer';
@@ -204,8 +204,17 @@ const careerContent = {
 
 const Learnmore = () => {
     const navigate = useNavigate();
-    const { predictionResults, resumeText, learningRoadmap, setLearningRoadmap, certificationData, setCertificationData, historyRecordId } = useDashboard();
+    const {
+        predictionResults,
+        resumeText,
+        learningRoadmapByPath,
+        setLearningRoadmapByPath,
+        certificationDataByPath,
+        setCertificationDataByPath,
+        historyRecordId,
+    } = useDashboard();
     const { currentUser, logout, getToken } = useAuth();
+    const [searchParams] = useSearchParams();
     const [showWhyOthersLower, setShowWhyOthersLower] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -230,25 +239,6 @@ const Learnmore = () => {
     // Get extracted keywords — declared here so it's available in the handleExportPdf dep array below
     const extractedKeywords = predictionResults?.extracted_keywords || [];
 
-    // Export to PDF handler
-    const handleExportPdf = useCallback(async () => {
-        if (isExporting) return;
-        setIsExporting(true);
-        try {
-            await exportToPdf({
-                topThree: predictionResults?.top_predictions?.slice(0, 3) ?? [],
-                calculateProfileFit,
-                learningRoadmap,
-                certificationData,
-                careerContent,
-                logoRef,
-                extractedKeywords,
-            });
-        } finally {
-            setIsExporting(false);
-        }
-    }, [isExporting, predictionResults, learningRoadmap, certificationData, extractedKeywords]);
-
     // Scroll to top when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -256,38 +246,43 @@ const Learnmore = () => {
 
     // ── Auto-save learning roadmap to history when generated ─────────────────────
     useEffect(() => {
-        if (!learningRoadmap || !historyRecordId) return;
+        if (!learningRoadmapByPath || !historyRecordId) return;
         const token = getToken();
         if (!token) return;
         apiService.updateHistory(token, historyRecordId, {
-            learning_roadmap: learningRoadmap,
+            learning_roadmap_by_path: learningRoadmapByPath,
         }).catch((err) => console.warn('History roadmap update failed (non-critical):', err));
-    }, [learningRoadmap]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [learningRoadmapByPath, historyRecordId, getToken]);
 
     // ── Auto-save certification data to history when generated ─────────────────
     useEffect(() => {
-        if (!certificationData || !historyRecordId) return;
+        if (!certificationDataByPath || !historyRecordId) return;
         const token = getToken();
         if (!token) return;
         apiService.updateHistory(token, historyRecordId, {
-            certification_data: certificationData,
+            certification_data_by_path: certificationDataByPath,
         }).catch((err) => console.warn('History cert update failed (non-critical):', err));
-    }, [certificationData]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [certificationDataByPath, historyRecordId, getToken]);
 
-    // Get top prediction data
-    const topPrediction = predictionResults?.top_predictions?.[0];
-    const careerName = topPrediction?.career_path || 'This Career';
-    const rawConfidence = topPrediction?.raw_confidence || 0;
-
-    // Get top 3 predictions for comparison
     const topThree = predictionResults?.top_predictions?.slice(0, 3) || [];
-    const secondPrediction = predictionResults?.top_predictions?.[1];
-    const thirdPrediction = predictionResults?.top_predictions?.[2];
+    const requestedCareerPath = searchParams.get('career');
+    const requestedCareerName = requestedCareerPath ? requestedCareerPath.trim() : null;
+    const selectedIndex = requestedCareerName
+        ? topThree.findIndex((item) => item.career_path === requestedCareerName)
+        : 0;
+    const resolvedIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    const selectedPrediction = topThree[resolvedIndex];
+    const careerName = selectedPrediction?.career_path || 'This Career';
+    const rawConfidence = selectedPrediction?.raw_confidence || 0;
+    const selectedRank = selectedPrediction ? resolvedIndex + 1 : 1;
 
-    // Get extracted keywords from resume
-    const totalDistinctiveKeywords = typeof predictionResults?.total_distinctive_keywords === 'number'
-        ? predictionResults.total_distinctive_keywords
-        : extractedKeywords.length;
+    const extractedKeywordsByPath = predictionResults?.extracted_keywords_by_path || {};
+    const totalDistinctiveKeywordsByPath = predictionResults?.total_distinctive_keywords_by_path || {};
+    const selectedExtractedKeywords = extractedKeywordsByPath[careerName] || extractedKeywords;
+    const totalDistinctiveKeywords = totalDistinctiveKeywordsByPath[careerName]
+        ?? predictionResults?.total_distinctive_keywords
+        ?? selectedExtractedKeywords.length
+        ?? extractedKeywords.length;
 
     // Calculate profile fit score (same logic as Dashboard)
     // Uses historical accuracy from Feb 2026 calibration data (26 classes, 1583 test samples, 81.87% overall accuracy)
@@ -312,13 +307,37 @@ const Learnmore = () => {
         return Math.round(90 + ((p - 50) / 50) * 5);             // 50-100% → 90-95%
     };
 
+    const selectedLearningRoadmap = learningRoadmapByPath?.[careerName] ?? null;
+    const selectedCertificationData = certificationDataByPath?.[careerName] ?? null;
+
+    // Export to PDF handler
+    const handleExportPdf = useCallback(async () => {
+        if (isExporting) return;
+        setIsExporting(true);
+        try {
+            await exportToPdf({
+                topThree: predictionResults?.top_predictions?.slice(0, 3) ?? [],
+                calculateProfileFit,
+                learningRoadmap: selectedLearningRoadmap,
+                certificationData: selectedCertificationData,
+                careerContent,
+                logoRef,
+                extractedKeywords: selectedExtractedKeywords,
+                selectedCareerPath: careerName,
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [isExporting, predictionResults, selectedLearningRoadmap, selectedCertificationData, selectedExtractedKeywords, calculateProfileFit, careerContent, logoRef]);
+
     const profileFitScore = calculateProfileFit(rawConfidence);
-    const secondScore = secondPrediction ? calculateProfileFit(secondPrediction.raw_confidence) : 0;
-    const thirdScore = thirdPrediction ? calculateProfileFit(thirdPrediction.raw_confidence) : 0;
+    const nextMatchScore = topThree[resolvedIndex + 1]
+        ? calculateProfileFit(topThree[resolvedIndex + 1].raw_confidence)
+        : 0;
 
     // Calculate evidence breakdown factors (based on actual data)
     const keywordCount = totalDistinctiveKeywords;
-    const scoreDifferential = profileFitScore - secondScore;
+    const scoreDifferential = Math.max(0, profileFitScore - nextMatchScore);
 
     // Dynamic factor weights based on actual data
     const resumeSignalStrength = Math.min(40, Math.round(keywordCount * 4));
@@ -357,36 +376,29 @@ const Learnmore = () => {
     };
 
     // Generate why others ranked lower
-    const generateWhyOthersLowerExplanation = () => {
-        const explanations = [];
+    const generateComparisonExplanation = () => {
+        return topThree
+            .filter((_, index) => index !== resolvedIndex)
+            .map((item) => {
+                const score = calculateProfileFit(item.raw_confidence);
+                const gap = profileFitScore - score;
+                const absGap = Math.abs(gap);
+                const direction = gap >= 0 ? 'lower' : 'higher';
+                const reason = gap >= 0
+                    ? `${absGap}% lower due to fewer matching keywords and weaker experience signals.`
+                    : `${absGap}% higher, indicating this path aligns more strongly with your current resume.`;
 
-        if (secondPrediction) {
-            const gap = profileFitScore - secondScore;
-            explanations.push({
-                career: secondPrediction.career_path,
-                score: secondScore,
-                reason: gap > 5
-                    ? `${gap}% lower due to fewer matching keywords and weaker experience signals.`
-                    : `${gap}% lower—close match but slightly weaker alignment in key skill areas.`
+                return {
+                    career: item.career_path,
+                    score,
+                    reason,
+                    direction,
+                };
             });
-        }
-
-        if (thirdPrediction) {
-            const gap = profileFitScore - thirdScore;
-            explanations.push({
-                career: thirdPrediction.career_path,
-                score: thirdScore,
-                reason: gap > 10
-                    ? `${gap}% lower, indicating a larger skills gap for this path.`
-                    : `${gap}% lower—still a viable option but not your strongest match.`
-            });
-        }
-
-        return explanations;
     };
 
     // If no prediction results, show message
-    if (!topPrediction) {
+    if (!selectedPrediction) {
         const handleLogout = () => {
             setMenuOpen(false);
             logout();
@@ -486,7 +498,35 @@ const Learnmore = () => {
     }
 
     const whyReasons = generateWhyExplanation();
-    const whyOthersLower = generateWhyOthersLowerExplanation();
+    const comparisonItems = generateComparisonExplanation();
+    const comparisonLabel = selectedRank === 1
+        ? 'Why Other Career Paths Ranked Lower'
+        : 'How This Career Compares';
+    const comparisonHelper = selectedRank === 1
+        ? 'These alternatives scored lower based on the same resume signals.'
+        : 'These are your other top matches and how they compare to this path.';
+    const setLearningRoadmapForPath = useCallback((roadmap) => {
+        setLearningRoadmapByPath((prev) => {
+            const next = { ...(prev || {}) };
+            if (!roadmap) {
+                delete next[careerName];
+                return Object.keys(next).length ? next : null;
+            }
+            next[careerName] = roadmap;
+            return next;
+        });
+    }, [careerName, setLearningRoadmapByPath]);
+    const setCertificationDataForPath = useCallback((certs) => {
+        setCertificationDataByPath((prev) => {
+            const next = { ...(prev || {}) };
+            if (!certs) {
+                delete next[careerName];
+                return Object.keys(next).length ? next : null;
+            }
+            next[careerName] = certs;
+            return next;
+        });
+    }, [careerName, setCertificationDataByPath]);
     const handleLogout = () => {
         setMenuOpen(false);
         logout();
@@ -589,13 +629,15 @@ const Learnmore = () => {
                                     {getCareerIcon(careerName)}
                                 </div>
                                 <div className="hero-info">
-                                    <span className="hero-label">#1 Career Match</span>
+                                    <span className="hero-label">#{selectedRank} Career Match</span>
                                     <h1 className="hero-title">{careerName}</h1>
                                     <p className="hero-insight">{content.marketInsight}</p>
                                 </div>
                             </div>
                             <div className="hero-meta">
-                                <span className="hero-meta-pill">Top Recommendation</span>
+                                <span className="hero-meta-pill">
+                                    {selectedRank === 1 ? 'Top Recommendation' : 'Alternate Recommendation'}
+                                </span>
                                 <span className="hero-meta-text">Compared across 26 career paths</span>
                             </div>
                         </div>
@@ -656,8 +698,8 @@ const Learnmore = () => {
                             </h3>
                             <p className="summary-card-desc">These keywords influenced your match</p>
                             <div className="keyword-list">
-                                {extractedKeywords.length > 0 ? (
-                                    extractedKeywords.slice(0, 6).map((item, index) => (
+                                {selectedExtractedKeywords.length > 0 ? (
+                                    selectedExtractedKeywords.slice(0, 6).map((item, index) => (
                                         <span key={index} className="keyword-chip">{item.keyword}</span>
                                     ))
                                 ) : (
@@ -707,7 +749,7 @@ const Learnmore = () => {
                         <p className="comparison-subtitle">Compared against 26 career paths</p>
                         <div className="comparison-bars">
                             {topThree.map((career, index) => (
-                                <div key={index} className={`comparison-row ${index === 0 ? 'top' : ''}`}>
+                                <div key={index} className={`comparison-row ${index === resolvedIndex ? 'top' : ''}`}>
                                     <div className="comparison-rank">#{index + 1}</div>
                                     <div className="comparison-name">{career.career_path}</div>
                                     <div className="comparison-bar-wrap">
@@ -722,7 +764,7 @@ const Learnmore = () => {
                         </div>
 
                         {/* Why Others Ranked Lower - Collapsible */}
-                        {whyOthersLower.length > 0 && (
+                        {comparisonItems.length > 0 && (
                             <div className="why-others-section">
                                 <button
                                     className="why-others-toggle"
@@ -734,11 +776,12 @@ const Learnmore = () => {
                                             : React.createElement(otherIcons["FaChevronDown"], { size: 10, color: "#64748b" })
                                         }
                                     </span>
-                                    Why Other Career Paths Ranked Lower
+                                    {comparisonLabel}
                                 </button>
                                 {showWhyOthersLower && (
                                     <div className="why-others-content">
-                                        {whyOthersLower.map((item, index) => (
+                                        <p className="why-others-helper">{comparisonHelper}</p>
+                                        {comparisonItems.map((item, index) => (
                                             <div key={index} className="why-others-item">
                                                 <div className="why-others-career">
                                                     <strong>{item.career}</strong>
@@ -801,8 +844,8 @@ const Learnmore = () => {
                         careerPath={careerName}
                         growthAreas={content.growthAreas}
                         resumeText={resumeText}
-                        learningRoadmap={learningRoadmap}
-                        setLearningRoadmap={setLearningRoadmap}
+                        learningRoadmap={selectedLearningRoadmap}
+                        setLearningRoadmap={setLearningRoadmapForPath}
                     />
                 )}
                 {activePanel === 'certifications' && (
@@ -810,8 +853,8 @@ const Learnmore = () => {
                         careerPath={careerName}
                         growthAreas={content.growthAreas}
                         resumeText={resumeText}
-                        certificationData={certificationData}
-                        setCertificationData={setCertificationData}
+                        certificationData={selectedCertificationData}
+                        setCertificationData={setCertificationDataForPath}
                     />
                 )}
             </RightDrawer>

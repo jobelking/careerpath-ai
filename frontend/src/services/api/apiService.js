@@ -439,7 +439,7 @@ class ApiService {
    * Update an existing history record with learning roadmap / certification data
    * @param {string} token - JWT token
    * @param {number} historyId - history record ID returned by saveHistory
-   * @param {Object} payload - { learning_roadmap?, certification_data? }
+    * @param {Object} payload - { learning_roadmap_by_path?, certification_data_by_path?, learning_roadmap?, certification_data? }
    */
   async updateHistory(token, historyId, payload) {
     try {

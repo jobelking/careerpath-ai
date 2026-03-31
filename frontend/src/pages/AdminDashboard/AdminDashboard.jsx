@@ -356,14 +356,20 @@ const AdminDashboard = () => {
           raw_confidence: record.confidence_score ?? 0,
         }];
 
+      const selectedCareer = topThree[0]?.career_path || record.prediction_result;
+      const roadmapByPath = record.learning_roadmap_by_path ?? null;
+      const certsByPath = record.certification_data_by_path ?? null;
+      const keywordsByPath = record.extracted_keywords_by_path ?? null;
+
       await exportToPdf({
         topThree,
         calculateProfileFit,
-        learningRoadmap: record.learning_roadmap ?? null,
-        certificationData: record.certification_data ?? null,
+        learningRoadmap: roadmapByPath?.[selectedCareer] ?? record.learning_roadmap ?? null,
+        certificationData: certsByPath?.[selectedCareer] ?? record.certification_data ?? null,
         careerContent: null,
         logoRef: null,
-        extractedKeywords: Array.isArray(record.extracted_keywords) ? record.extracted_keywords : [],
+        extractedKeywords: keywordsByPath?.[selectedCareer] ?? (Array.isArray(record.extracted_keywords) ? record.extracted_keywords : []),
+        selectedCareerPath: selectedCareer,
       });
     } catch (err) {
       showAlert('error', `Failed to export report: ${err.message}`);

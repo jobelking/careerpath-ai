@@ -144,7 +144,9 @@ const Dashboard = () => {
               ? result.resume_text.replace(/\0/g, '').slice(0, 500)
               : null,
             extracted_keywords: result.extracted_keywords ?? [],
+            extracted_keywords_by_path: result.extracted_keywords_by_path ?? {},
             total_distinctive_keywords: result.total_distinctive_keywords ?? 0,
+            total_distinctive_keywords_by_path: result.total_distinctive_keywords_by_path ?? {},
           }).then((saved) => {
             // Store the record ID so LearnMore can PATCH roadmap/certs onto it
             if (saved?.id) {
@@ -181,6 +183,11 @@ const Dashboard = () => {
     setShowAllPaths(false);
     setError(null);
     setPreviewUrl(null);
+  };
+
+  const handleViewDetailedAnalysis = (careerPath) => {
+    if (!careerPath) return;
+    navigate(`/learnmore?career=${encodeURIComponent(careerPath)}`);
   };
 
   const handleDragOver = (e) => {
@@ -563,7 +570,7 @@ const Dashboard = () => {
 
                               <button
                                 className="learn-more-button"
-                                onClick={() => navigate('/learnmore')}
+                                onClick={() => handleViewDetailedAnalysis(predictionResults.top_predictions[0].career_path)}
                               >
                                 <span>View Detailed Analysis</span>
                                 {React.createElement(otherIcons["FaArrowRight"], { size: 14 })}
@@ -610,6 +617,12 @@ const Dashboard = () => {
                                       </div>
                                     </div>
                                   </div>
+                                  <button
+                                    className="secondary-view-button"
+                                    onClick={() => handleViewDetailedAnalysis(career.career_path)}
+                                  >
+                                    View Analysis
+                                  </button>
                                 </div>
                               ))}
                             </div>

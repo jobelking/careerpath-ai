@@ -16,8 +16,8 @@ const History = () => {
     const {
         setPredictionResults,
         setResumeText,
-        setLearningRoadmap,
-        setCertificationData,
+        setLearningRoadmapByPath,
+        setCertificationDataByPath,
         setHistoryRecordId,
     } = useDashboard();
     const [history, setHistory] = useState([]);
@@ -26,6 +26,8 @@ const History = () => {
     const [error, setError] = useState(null);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [exportingId, setExportingId] = useState(null);
+    const [exportMenuOpenId, setExportMenuOpenId] = useState(null);
+    const [analysisMenuOpenId, setAnalysisMenuOpenId] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [showCareerPaths, setShowCareerPaths] = useState(false);
     const menuRef = useRef(null);
@@ -40,6 +42,19 @@ const History = () => {
         if (menuOpen) document.addEventListener('mousedown', handleOutsideClick);
         return () => document.removeEventListener('mousedown', handleOutsideClick);
     }, [menuOpen]);
+
+    useEffect(() => {
+        const handleExportMenuClick = (e) => {
+            if (!e.target.closest('.export-menu')) {
+                setExportMenuOpenId(null);
+            }
+            if (!e.target.closest('.analysis-menu')) {
+                setAnalysisMenuOpenId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleExportMenuClick);
+        return () => document.removeEventListener('mousedown', handleExportMenuClick);
+    }, []);
 
     // Close menu on route change / resize past breakpoint
     useEffect(() => {
@@ -116,22 +131,30 @@ const History = () => {
     };
 
     // ── Export single record to PDF using shared exportToPdf utility ──────────
-    const handleExportPdf = async (record) => {
+    const handleExportPdf = async (record, rankIndex = 0) => {
         setExportingId(record.id);
         try {
+            const topThree = (record.top_predictions ?? []).slice(0, 3);
+            const selectedCareer = topThree[rankIndex]?.career_path || record.prediction_result;
+            const roadmapByPath = record.learning_roadmap_by_path ?? null;
+            const certsByPath = record.certification_data_by_path ?? null;
+            const keywordsByPath = record.extracted_keywords_by_path ?? null;
+
             await exportToPdf({
-                topThree: (record.top_predictions ?? []).slice(0, 3),
+                topThree,
                 calculateProfileFit,
-                learningRoadmap: record.learning_roadmap ?? null,
-                certificationData: record.certification_data ?? null,
+                learningRoadmap: roadmapByPath?.[selectedCareer] ?? record.learning_roadmap ?? null,
+                certificationData: certsByPath?.[selectedCareer] ?? record.certification_data ?? null,
                 careerContent: null,
                 logoRef: null,
-                extractedKeywords: record.extracted_keywords ?? [],
+                extractedKeywords: keywordsByPath?.[selectedCareer] ?? (record.extracted_keywords ?? []),
+                selectedCareerPath: selectedCareer,
             });
         } catch (err) {
             console.error('PDF export failed:', err);
         } finally {
             setExportingId(null);
+            setExportMenuOpenId(null);
         }
     };
 
@@ -144,6 +167,8 @@ const History = () => {
         const resumeText = record.input_data || '';
         const rawConfidence = parseFloat(record.confidence_score || 0);
         const extractedKeywords = Array.isArray(record.extracted_keywords) ? record.extracted_keywords : [];
+        const extractedKeywordsByPath = record.extracted_keywords_by_path || {};
+        const totalDistinctiveKeywordsByPath = record.total_distinctive_keywords_by_path || {};
         const totalDistinctiveKeywords = typeof record.total_distinctive_keywords === 'number'
             ? record.total_distinctive_keywords
             : extractedKeywords.length;
@@ -156,25 +181,109 @@ const History = () => {
             raw_confidence: rawConfidence,
             top_predictions: topPredictions,
             extracted_keywords: extractedKeywords,
+            extracted_keywords_by_path: extractedKeywordsByPath,
             total_distinctive_keywords: totalDistinctiveKeywords,
+            total_distinctive_keywords_by_path: totalDistinctiveKeywordsByPath,
         });
 
         setResumeText(resumeText);
 
         const resumeHash = getResumeHash(resumeText);
-        setLearningRoadmap(
-            record.learning_roadmap
-                ? { ...record.learning_roadmap, resumeHash }
-                : null
-        );
-        setCertificationData(
-            record.certification_data
-                ? { ...record.certification_data, resumeHash }
-                : null
-        );
+        const selectedCareer = topPredictions[0]?.career_path || record.prediction_result;
+        const hydrateMap = (map) => {
+            if (!map) return null;
+            return Object.fromEntries(
+                Object.entries(map).map(([career, data]) => [
+                    career,
+                    data && !data.resumeHash ? { ...data, resumeHash } : data,
+                ])
+            );
+        };
+
+        if (record.learning_roadmap_by_path) {
+            setLearningRoadmapByPath(hydrateMap(record.learning_roadmap_by_path));
+        } else if (record.learning_roadmap) {
+            setLearningRoadmapByPath({
+                [selectedCareer]: { ...record.learning_roadmap, resumeHash },
+            });
+        } else {
+            setLearningRoadmapByPath(null);
+        }
+
+        if (record.certification_data_by_path) {
+            setCertificationDataByPath(hydrateMap(record.certification_data_by_path));
+        } else if (record.certification_data) {
+            setCertificationDataByPath({
+                [selectedCareer]: { ...record.certification_data, resumeHash },
+            });
+        } else {
+            setCertificationDataByPath(null);
+        }
 
         setHistoryRecordId(record.id || null);
-        navigate('/learnmore');
+        navigate(`/learnmore?career=${encodeURIComponent(selectedCareer)}`);
+    };
+
+    const handleViewDetailedAnalysisForRank = (record, rankIndex = 0) => {
+        const resumeText = record.input_data || '';
+        const rawConfidence = parseFloat(record.confidence_score || 0);
+        const extractedKeywords = Array.isArray(record.extracted_keywords) ? record.extracted_keywords : [];
+        const extractedKeywordsByPath = record.extracted_keywords_by_path || {};
+        const totalDistinctiveKeywordsByPath = record.total_distinctive_keywords_by_path || {};
+        const totalDistinctiveKeywords = typeof record.total_distinctive_keywords === 'number'
+            ? record.total_distinctive_keywords
+            : extractedKeywords.length;
+        const topPredictions = Array.isArray(record.top_predictions) && record.top_predictions.length > 0
+            ? record.top_predictions
+            : [{ career_path: record.prediction_result, raw_confidence: rawConfidence }];
+        const selectedCareer = topPredictions[rankIndex]?.career_path || record.prediction_result;
+
+        setPredictionResults({
+            prediction: record.prediction_result,
+            raw_confidence: rawConfidence,
+            top_predictions: topPredictions,
+            extracted_keywords: extractedKeywords,
+            extracted_keywords_by_path: extractedKeywordsByPath,
+            total_distinctive_keywords: totalDistinctiveKeywords,
+            total_distinctive_keywords_by_path: totalDistinctiveKeywordsByPath,
+        });
+
+        setResumeText(resumeText);
+
+        const resumeHash = getResumeHash(resumeText);
+        const hydrateMap = (map) => {
+            if (!map) return null;
+            return Object.fromEntries(
+                Object.entries(map).map(([career, data]) => [
+                    career,
+                    data && !data.resumeHash ? { ...data, resumeHash } : data,
+                ])
+            );
+        };
+
+        if (record.learning_roadmap_by_path) {
+            setLearningRoadmapByPath(hydrateMap(record.learning_roadmap_by_path));
+        } else if (record.learning_roadmap) {
+            setLearningRoadmapByPath({
+                [selectedCareer]: { ...record.learning_roadmap, resumeHash },
+            });
+        } else {
+            setLearningRoadmapByPath(null);
+        }
+
+        if (record.certification_data_by_path) {
+            setCertificationDataByPath(hydrateMap(record.certification_data_by_path));
+        } else if (record.certification_data) {
+            setCertificationDataByPath({
+                [selectedCareer]: { ...record.certification_data, resumeHash },
+            });
+        } else {
+            setCertificationDataByPath(null);
+        }
+
+        setHistoryRecordId(record.id || null);
+        setAnalysisMenuOpenId(null);
+        navigate(`/learnmore?career=${encodeURIComponent(selectedCareer)}`);
     };
 
     // ── Render ────────────────────────────────────────────────────────────────
@@ -336,7 +445,9 @@ const History = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {paginatedHistory.map((record, idx) => (
+                                        {paginatedHistory.map((record, idx) => {
+                                            const topThree = (record.top_predictions ?? []).slice(0, 3);
+                                            return (
                                             <tr key={record.id} className="history-row">
                                                 <td className="history-rank">{startIndex + idx + 1}</td>
                                                 <td className="history-date">{formatDate(record.date_created)}</td>
@@ -370,42 +481,99 @@ const History = () => {
                                                     )}
                                                 </td>
                                                 <td className="history-actions">
-                                                    <button
-                                                        className={`pdf-download-btn ${exportingId === record.id ? 'loading' : ''}`}
-                                                        onClick={() => handleExportPdf(record)}
-                                                        disabled={exportingId === record.id}
-                                                        title="Download PDF Report"
-                                                    >
-                                                        {exportingId === record.id ? (
-                                                            <>
-                                                                {React.createElement(otherIcons['FaSpinner'], { size: 13 })}
-                                                                <span>Generating...</span>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {React.createElement(otherIcons['FaDownload'], { size: 13 })}
-                                                                <span>Download PDF</span>
-                                                            </>
+                                                    <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                                                        <button
+                                                            className={`pdf-download-btn ${exportingId === record.id ? 'loading' : ''}`}
+                                                            onClick={() => handleExportPdf(record, 0)}
+                                                            disabled={exportingId === record.id}
+                                                            title="Download PDF Report"
+                                                        >
+                                                            {exportingId === record.id ? (
+                                                                <>
+                                                                    {React.createElement(otherIcons['FaSpinner'], { size: 13 })}
+                                                                    <span>Generating...</span>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    {React.createElement(otherIcons['FaDownload'], { size: 13 })}
+                                                                    <span>Download PDF</span>
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            className="export-menu-toggle"
+                                                            onClick={() => setExportMenuOpenId((prev) => prev === record.id ? null : record.id)}
+                                                            title="Choose which match to export"
+                                                            aria-expanded={exportMenuOpenId === record.id}
+                                                        >
+                                                            {React.createElement(otherIcons['FaChevronDown'], { size: 12 })}
+                                                        </button>
+                                                        {exportMenuOpenId === record.id && (
+                                                            <div className="export-menu-dropdown">
+                                                                <button onClick={() => handleExportPdf(record, 0)}>
+                                                                    Export #1 • {topThree[0]?.career_path || 'Primary Match'}
+                                                                </button>
+                                                                {topThree[1] && (
+                                                                    <button onClick={() => handleExportPdf(record, 1)}>
+                                                                        Export #2 • {topThree[1].career_path}
+                                                                    </button>
+                                                                )}
+                                                                {topThree[2] && (
+                                                                    <button onClick={() => handleExportPdf(record, 2)}>
+                                                                        Export #3 • {topThree[2].career_path}
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
-                                                    </button>
-                                                    <button
-                                                        className="view-analysis-btn"
-                                                        onClick={() => handleViewDetailedAnalysis(record)}
-                                                        title="View Detailed Analysis"
-                                                    >
-                                                        {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
-                                                        <span>View Detailed Analysis</span>
-                                                    </button>
+                                                    </div>
+                                                    <div className="analysis-menu" onClick={(e) => e.stopPropagation()}>
+                                                        <button
+                                                            className="view-analysis-btn"
+                                                            onClick={() => handleViewDetailedAnalysisForRank(record, 0)}
+                                                            title="View Detailed Analysis"
+                                                        >
+                                                            {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
+                                                            <span>View Detailed Analysis</span>
+                                                        </button>
+                                                        <button
+                                                            className="analysis-menu-toggle"
+                                                            onClick={() => setAnalysisMenuOpenId((prev) => prev === record.id ? null : record.id)}
+                                                            aria-expanded={analysisMenuOpenId === record.id}
+                                                            title="Choose which match to view"
+                                                        >
+                                                            {React.createElement(otherIcons['FaChevronDown'], { size: 12 })}
+                                                        </button>
+                                                        {analysisMenuOpenId === record.id && (
+                                                            <div className="analysis-menu-dropdown">
+                                                                <button onClick={() => handleViewDetailedAnalysisForRank(record, 0)}>
+                                                                    View #1 • {topThree[0]?.career_path || 'Primary Match'}
+                                                                </button>
+                                                                {topThree[1] && (
+                                                                    <button onClick={() => handleViewDetailedAnalysisForRank(record, 1)}>
+                                                                        View #2 • {topThree[1].career_path}
+                                                                    </button>
+                                                                )}
+                                                                {topThree[2] && (
+                                                                    <button onClick={() => handleViewDetailedAnalysisForRank(record, 2)}>
+                                                                        View #3 • {topThree[2].career_path}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
 
                             {/* Mobile Cards (hidden on desktop via CSS) */}
                             <div className="history-cards">
-                                {paginatedHistory.map((record, idx) => (
+                                {paginatedHistory.map((record, idx) => {
+                                    const topThree = (record.top_predictions ?? []).slice(0, 3);
+                                    return (
                                     <div key={record.id} className="history-card">
                                         <div className="history-card-top">
                                             <span className="history-card-rank">#{startIndex + idx + 1}</span>
@@ -441,33 +609,86 @@ const History = () => {
                                             </div>
                                         )}
                                         <div className="history-card-actions">
-                                            <button
-                                                className={`pdf-download-btn ${exportingId === record.id ? 'loading' : ''}`}
-                                                onClick={() => handleExportPdf(record)}
-                                                disabled={exportingId === record.id}
-                                            >
-                                                {exportingId === record.id ? (
-                                                    <>
-                                                        {React.createElement(otherIcons['FaSpinner'], { size: 13 })}
-                                                        <span>Generating...</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        {React.createElement(otherIcons['FaDownload'], { size: 13 })}
-                                                        <span>Download PDF</span>
-                                                    </>
+                                            <div className="export-menu" onClick={(e) => e.stopPropagation()}>
+                                                <button
+                                                    className={`pdf-download-btn ${exportingId === record.id ? 'loading' : ''}`}
+                                                    onClick={() => handleExportPdf(record, 0)}
+                                                    disabled={exportingId === record.id}
+                                                >
+                                                    {exportingId === record.id ? (
+                                                        <>
+                                                            {React.createElement(otherIcons['FaSpinner'], { size: 13 })}
+                                                            <span>Generating...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            {React.createElement(otherIcons['FaDownload'], { size: 13 })}
+                                                            <span>Download PDF</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <button
+                                                    className="export-menu-toggle"
+                                                    onClick={() => setExportMenuOpenId((prev) => prev === record.id ? null : record.id)}
+                                                    aria-expanded={exportMenuOpenId === record.id}
+                                                >
+                                                    {React.createElement(otherIcons['FaChevronDown'], { size: 12 })}
+                                                </button>
+                                                {exportMenuOpenId === record.id && (
+                                                    <div className="export-menu-dropdown">
+                                                        <button onClick={() => handleExportPdf(record, 0)}>
+                                                            Export #1 • {topThree[0]?.career_path || 'Primary Match'}
+                                                        </button>
+                                                        {topThree[1] && (
+                                                            <button onClick={() => handleExportPdf(record, 1)}>
+                                                                Export #2 • {topThree[1].career_path}
+                                                            </button>
+                                                        )}
+                                                        {topThree[2] && (
+                                                            <button onClick={() => handleExportPdf(record, 2)}>
+                                                                Export #3 • {topThree[2].career_path}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 )}
-                                            </button>
-                                            <button
-                                                className="view-analysis-btn"
-                                                onClick={() => handleViewDetailedAnalysis(record)}
-                                            >
-                                                {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
-                                                <span>View Detailed Analysis</span>
-                                            </button>
+                                            </div>
+                                            <div className="analysis-menu" onClick={(e) => e.stopPropagation()}>
+                                                <button
+                                                    className="view-analysis-btn"
+                                                    onClick={() => handleViewDetailedAnalysisForRank(record, 0)}
+                                                >
+                                                    {React.createElement(otherIcons['FaArrowRight'], { size: 12 })}
+                                                    <span>View Detailed Analysis</span>
+                                                </button>
+                                                <button
+                                                    className="analysis-menu-toggle"
+                                                    onClick={() => setAnalysisMenuOpenId((prev) => prev === record.id ? null : record.id)}
+                                                    aria-expanded={analysisMenuOpenId === record.id}
+                                                >
+                                                    {React.createElement(otherIcons['FaChevronDown'], { size: 12 })}
+                                                </button>
+                                                {analysisMenuOpenId === record.id && (
+                                                    <div className="analysis-menu-dropdown">
+                                                        <button onClick={() => handleViewDetailedAnalysisForRank(record, 0)}>
+                                                            View #1 • {topThree[0]?.career_path || 'Primary Match'}
+                                                        </button>
+                                                        {topThree[1] && (
+                                                            <button onClick={() => handleViewDetailedAnalysisForRank(record, 1)}>
+                                                                View #2 • {topThree[1].career_path}
+                                                            </button>
+                                                        )}
+                                                        {topThree[2] && (
+                                                            <button onClick={() => handleViewDetailedAnalysisForRank(record, 2)}>
+                                                                View #3 • {topThree[2].career_path}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
+                                );
+                                })}
                             </div>
 
                             {history.length > RECORDS_PER_PAGE && (

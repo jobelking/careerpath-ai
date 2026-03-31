@@ -153,40 +153,47 @@ class CareerPathPredictor:
             feature_weights = self.classifier.classifier.feature_log_prob_
             mean_weights = np.mean(feature_weights, axis=0)
             
-            # Get distinctiveness scores for the TOP PREDICTED career path
-            class_weights = feature_weights[top_idx]
-            distinctiveness = class_weights - mean_weights
-            
             # Get non-zero features (keywords present in resume)
             non_zero_indices = np.where(tfidf_scores > 0)[0]
-            
-            # Filter to only keywords that are DISTINCTIVE for the predicted career
-            # (positive distinctiveness = more common in this career than average)
-            career_distinctive_keywords = []
-            for idx in non_zero_indices:
-                if distinctiveness[idx] > 0:  # Only include career-distinctive keywords
-                    career_distinctive_keywords.append({
-                        "keyword": feature_names[idx],
-                        "score": float(distinctiveness[idx]),  # Use distinctiveness as score
-                        "tfidf": float(tfidf_scores[idx])
-                    })
-            
-            # Sort by distinctiveness score (highest first) and take top 12
-            extracted_keywords = sorted(
-                career_distinctive_keywords, 
-                key=lambda x: x["score"], 
-                reverse=True
-            )[:12]
-            
-            # Total count of all distinctive keywords found
-            total_distinctive_keywords = len(career_distinctive_keywords)
+
+            def extract_distinctive_keywords(class_index: int) -> List[Dict[str, float]]:
+                class_weights = feature_weights[class_index]
+                distinctiveness = class_weights - mean_weights
+
+                career_distinctive_keywords: List[Dict[str, float]] = []
+                for idx in non_zero_indices:
+                    if distinctiveness[idx] > 0:  # Only include career-distinctive keywords
+                        career_distinctive_keywords.append({
+                            "keyword": feature_names[idx],
+                            "score": float(distinctiveness[idx]),
+                            "tfidf": float(tfidf_scores[idx])
+                        })
+
+                return sorted(
+                    career_distinctive_keywords,
+                    key=lambda x: x["score"],
+                    reverse=True
+                )
+
+            extracted_keywords_by_path = {}
+            total_distinctive_keywords_by_path = {}
+            for idx in top_indices[:3]:
+                display_name = self.classifier.get_display_name(self.classes[idx])
+                full_keywords = extract_distinctive_keywords(idx)
+                extracted_keywords_by_path[display_name] = full_keywords[:12]
+                total_distinctive_keywords_by_path[display_name] = len(full_keywords)
+
+            extracted_keywords = extracted_keywords_by_path.get(top_prediction_display, [])
+            total_distinctive_keywords = total_distinctive_keywords_by_path.get(top_prediction_display, 0)
             
             return {
                 "prediction": top_prediction_display,
                 "confidence": float(top_confidence),
                 "top_predictions": top_predictions,
                 "extracted_keywords": extracted_keywords,
-                "total_distinctive_keywords": total_distinctive_keywords
+                "extracted_keywords_by_path": extracted_keywords_by_path,
+                "total_distinctive_keywords": total_distinctive_keywords,
+                "total_distinctive_keywords_by_path": total_distinctive_keywords_by_path
             }
             
         except Exception as e:

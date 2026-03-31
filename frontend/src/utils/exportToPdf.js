@@ -29,6 +29,7 @@ export const exportToPdf = async ({
     careerContent,
     logoRef,
     extractedKeywords,
+    selectedCareerPath,
 }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
@@ -243,6 +244,16 @@ export const exportToPdf = async ({
     // SECTION 2 — KEY INFLUENCING FACTORS
     // ══════════════════════════════════════════════════════════════════════════
     sectionHeader('KEY INFLUENCING FACTORS');
+
+    if (selectedCareerPath) {
+        writeText({
+            text: `Factors for: ${sanitize(selectedCareerPath)}`,
+            size: 9,
+            color: [100, 116, 139],
+            lineH: 4.8,
+        });
+        y += 2;
+    }
 
     if (!extractedKeywords || extractedKeywords.length === 0) {
         writeText({

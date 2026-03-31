@@ -422,7 +422,9 @@ async def list_history(
                     ph.prediction_result, ph.confidence_score,
                     ph.filename, ph.date_created, ph.top_predictions,
                     ph.learning_roadmap, ph.certification_data,
-                    ph.extracted_keywords, ph.total_distinctive_keywords,
+                    ph.learning_roadmap_by_path, ph.certification_data_by_path,
+                    ph.extracted_keywords, ph.extracted_keywords_by_path,
+                    ph.total_distinctive_keywords, ph.total_distinctive_keywords_by_path,
                     (ph.resume_path IS NOT NULL) AS has_resume
                 FROM prediction_history ph
                 JOIN users u ON u.id = ph.user_id
@@ -440,7 +442,11 @@ async def list_history(
                     "top_predictions",
                     "learning_roadmap",
                     "certification_data",
+                    "learning_roadmap_by_path",
+                    "certification_data_by_path",
                     "extracted_keywords",
+                    "extracted_keywords_by_path",
+                    "total_distinctive_keywords_by_path",
                 ]
                 for field in json_fields:
                     if isinstance(row_dict.get(field), str):

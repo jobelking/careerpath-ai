@@ -14,13 +14,17 @@ class SaveHistoryRequest(BaseModel):
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
     extracted_keywords: Optional[List[Any]] = None
+    extracted_keywords_by_path: Optional[Any] = None
     total_distinctive_keywords: Optional[int] = None
+    total_distinctive_keywords_by_path: Optional[Any] = None
 
 
 class UpdateHistoryRequest(BaseModel):
     """Partial update — only the fields provided will be written."""
     learning_roadmap: Optional[Any] = None
     certification_data: Optional[Any] = None
+    learning_roadmap_by_path: Optional[Any] = None
+    certification_data_by_path: Optional[Any] = None
 
 
 class HistoryRecord(BaseModel):
@@ -32,9 +36,13 @@ class HistoryRecord(BaseModel):
     top_predictions: Optional[List[Any]] = None
     filename: Optional[str] = None
     extracted_keywords: Optional[List[Any]] = None
+    extracted_keywords_by_path: Optional[Any] = None
     total_distinctive_keywords: Optional[int] = None
+    total_distinctive_keywords_by_path: Optional[Any] = None
     learning_roadmap: Optional[Any] = None
     certification_data: Optional[Any] = None
+    learning_roadmap_by_path: Optional[Any] = None
+    certification_data_by_path: Optional[Any] = None
     has_resume: Optional[bool] = False
     date_created: Optional[datetime] = None
 

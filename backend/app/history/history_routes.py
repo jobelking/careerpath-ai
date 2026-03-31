@@ -41,8 +41,10 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
                 """
                 INSERT INTO prediction_history
                     (user_id, prediction_result, input_data, confidence_score,
-                     top_predictions, filename, extracted_keywords, total_distinctive_keywords)
-                VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s::jsonb, %s)
+                     top_predictions, filename, extracted_keywords,
+                     extracted_keywords_by_path, total_distinctive_keywords,
+                     total_distinctive_keywords_by_path)
+                VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s::jsonb, %s::jsonb, %s, %s::jsonb)
                 RETURNING id, date_created;
                 """,
                 (
@@ -53,7 +55,9 @@ async def save_history(payload: SaveHistoryRequest, request: Request):
                     json.dumps(payload.top_predictions) if payload.top_predictions else None,
                     payload.filename,
                     json.dumps(payload.extracted_keywords) if payload.extracted_keywords else None,
+                    json.dumps(payload.extracted_keywords_by_path) if payload.extracted_keywords_by_path else None,
                     payload.total_distinctive_keywords,
+                    json.dumps(payload.total_distinctive_keywords_by_path) if payload.total_distinctive_keywords_by_path else None,
                 )
             )
             row = dict(cur.fetchone())
@@ -102,6 +106,10 @@ async def update_history(history_id: int, payload: UpdateHistoryRequest, request
                 updates["learning_roadmap"] = json.dumps(payload.learning_roadmap)
             if payload.certification_data is not None:
                 updates["certification_data"] = json.dumps(payload.certification_data)
+            if payload.learning_roadmap_by_path is not None:
+                updates["learning_roadmap_by_path"] = json.dumps(payload.learning_roadmap_by_path)
+            if payload.certification_data_by_path is not None:
+                updates["certification_data_by_path"] = json.dumps(payload.certification_data_by_path)
 
             if not updates:
                 return JSONResponse(content={"success": True, "message": "Nothing to update."})
@@ -159,10 +167,13 @@ async def get_history(request: Request):
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
-                SELECT id, user_id, prediction_result, input_data,
-                       confidence_score, top_predictions, filename,
-                      extracted_keywords, total_distinctive_keywords, learning_roadmap, certification_data,
-                       resume_path, date_created
+                  SELECT id, user_id, prediction_result, input_data,
+                      confidence_score, top_predictions, filename,
+                      extracted_keywords, extracted_keywords_by_path,
+                      total_distinctive_keywords, total_distinctive_keywords_by_path,
+                      learning_roadmap, certification_data,
+                      learning_roadmap_by_path, certification_data_by_path,
+                      resume_path, date_created
                 FROM prediction_history
                 WHERE user_id = %s
                 ORDER BY date_created DESC;

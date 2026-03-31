@@ -119,9 +119,13 @@ def init_db():
                     top_predictions   JSONB,
                     filename          VARCHAR(255),
                     extracted_keywords JSONB,
+                    extracted_keywords_by_path JSONB,
                     total_distinctive_keywords INTEGER,
+                    total_distinctive_keywords_by_path JSONB,
                     learning_roadmap  JSONB,
                     certification_data JSONB,
+                    learning_roadmap_by_path JSONB,
+                    certification_data_by_path JSONB,
                     resume_path       TEXT,
                     date_created      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
@@ -130,9 +134,13 @@ def init_db():
             history_columns = [
                 ("learning_roadmap",    "JSONB"),
                 ("certification_data",  "JSONB"),
+                ("learning_roadmap_by_path", "JSONB"),
+                ("certification_data_by_path", "JSONB"),
                 ("resume_path",         "TEXT"),
                 ("extracted_keywords",  "JSONB"),
+                ("extracted_keywords_by_path", "JSONB"),
                 ("total_distinctive_keywords",  "INTEGER"),
+                ("total_distinctive_keywords_by_path", "JSONB"),
             ]
             for col_name, col_type in history_columns:
                 cur.execute(f"""
