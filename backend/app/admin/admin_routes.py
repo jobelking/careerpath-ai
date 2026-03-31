@@ -25,6 +25,8 @@ from app.admin.admin_models import (
     AdminUsersResponse,
     AdminHistoryRecord,
     AdminHistoryResponse,
+    AdminHistoryUser,
+    AdminHistoryUsersResponse,
     AdminStatsResponse,
 )
 from app.services.storage_service import get_resume_signed_url, delete_resume
@@ -365,6 +367,35 @@ async def delete_user(user_id: int, request: Request):
 # ═════════════════════════════════════════════════════════════════════════════
 # PREDICTION HISTORY CRUD
 # ═════════════════════════════════════════════════════════════════════════════
+
+# ── GET /api/admin/history/users ─────────────────────────────────────────────
+
+@router.get("/history/users", response_model=AdminHistoryUsersResponse)
+async def list_history_users(request: Request):
+    """Return all users that have prediction history records."""
+    require_admin(request)
+
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT
+                    u.id,
+                    u.username,
+                    u.email,
+                    COUNT(ph.id) AS total_predictions
+                FROM prediction_history ph
+                JOIN users u ON u.id = ph.user_id
+                GROUP BY u.id, u.username, u.email
+                ORDER BY u.username ASC, u.email ASC;
+                """
+            )
+            users = [AdminHistoryUser(**dict(row)) for row in cur.fetchall()]
+
+        return AdminHistoryUsersResponse(success=True, users=users)
+    finally:
+        release_connection(conn)
 
 # ── GET /api/admin/history ────────────────────────────────────────────────────
 

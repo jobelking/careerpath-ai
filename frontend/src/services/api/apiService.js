@@ -585,6 +585,14 @@ class ApiService {
   }
 
   /**
+   * List users that have prediction history (admin view).
+   * @param {string} token
+   */
+  async getAdminHistoryUsers(token) {
+    return this._adminFetch('GET', '/api/admin/history/users', token);
+  }
+
+  /**
    * Delete a prediction history record by ID.
    * @param {string} token
    * @param {number} recordId

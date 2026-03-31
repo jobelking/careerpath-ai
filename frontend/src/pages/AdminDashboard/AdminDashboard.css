@@ -7,10 +7,14 @@
 /* ── Tokens (CSS variables) ─────────────────────────────────────────────── */
 .adm-layout {
   --adm-sidebar-w: 240px;
-  --adm-bg: #f0f4f8;
-  --adm-sidebar-bg: #1e293b;
-  --adm-sidebar-hover: #334155;
-  --adm-sidebar-active: #2563eb;
+  --adm-bg: #f8fafc;
+  --adm-bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --adm-sidebar-bg: #ffffff;
+  --adm-sidebar-hover: #eff6ff;
+  --adm-sidebar-active: #dbeafe;
+  --adm-sidebar-active-text: #1d4ed8;
+  --adm-sidebar-text: #475569;
+  --adm-sidebar-border: #e2e8f0;
   --adm-text: #1e293b;
   --adm-text-muted: #64748b;
   --adm-border: #e2e8f0;
@@ -27,7 +31,7 @@
 
   display: flex;
   min-height: 100vh;
-  background: var(--adm-bg);
+  background: var(--adm-bg-gradient);
   font-family: var(--font-body);
   color: var(--adm-text);
 }
@@ -44,6 +48,7 @@
   left: 0;
   z-index: 200;
   transition: transform 0.25s ease;
+  border-right: 1px solid var(--adm-sidebar-border);
 }
 
 .adm-sidebar-brand {
@@ -52,7 +57,7 @@
   gap: 10px;
   padding: 1.4rem 1.25rem;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--adm-sidebar-border);
   user-select: none;
 }
 
@@ -63,7 +68,7 @@
 .adm-brand-text {
   font-size: 1rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--adm-text);
   letter-spacing: 0.01em;
 }
 
@@ -85,7 +90,7 @@
   border-radius: 8px;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: var(--adm-sidebar-text);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -95,12 +100,12 @@
 
 .adm-nav-item:hover {
   background: var(--adm-sidebar-hover);
-  color: #ffffff;
+  color: var(--adm-blue);
 }
 
 .adm-nav-active {
   background: var(--adm-sidebar-active) !important;
-  color: #ffffff !important;
+  color: var(--adm-sidebar-active-text) !important;
 }
 
 .adm-nav-icon {
@@ -112,23 +117,23 @@
 /* Footer */
 .adm-sidebar-footer {
   padding: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--adm-sidebar-border);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
 .adm-nav-back {
-  color: #94a3b8;
+  color: var(--adm-sidebar-text);
 }
 
 .adm-nav-logout {
-  color: #f87171;
+  color: #dc2626;
 }
 
 .adm-nav-logout:hover {
-  background: rgba(220, 38, 38, 0.18) !important;
-  color: #fca5a5 !important;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
 }
 
 /* Overlay (mobile) */
@@ -166,8 +171,22 @@
 .adm-topbar-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
+.adm-topbar-logo {
+  transform: scale(0.85);
+  transform-origin: left center;
+  margin-left: 2px;
+}
+
+.adm-topbar-logo .text-primary {
+  color: var(--adm-text);
+}
+
+.adm-topbar-logo .text-accent {
+  color: var(--adm-blue);
+}
+
 
 .adm-topbar-right {
   display: flex;
@@ -214,7 +233,7 @@
 }
 
 .adm-admin-badge {
-  background: var(--adm-purple);
+  background: var(--adm-blue);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -418,6 +437,38 @@
   border-color: var(--adm-blue);
 }
 
+.adm-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+}
+
+.adm-filter-pill strong {
+  font-weight: 700;
+}
+
+.adm-pill-clear {
+  border: none;
+  background: #fff;
+  color: #1d4ed8;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.adm-pill-clear:hover {
+  background: #dbeafe;
+}
+
 /* ── Table ─────────────────────────────────────────────────────────────────── */
 .adm-table-wrapper {
   background: var(--adm-card-bg);
@@ -486,6 +537,36 @@
 .adm-cell-email {
   font-size: 0.78rem;
   color: var(--adm-text-muted);
+}
+
+.adm-top-preds {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.adm-top-pred-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--adm-text);
+}
+
+.adm-top-pred-rank {
+  font-weight: 700;
+  color: var(--adm-text-muted);
+  min-width: 20px;
+}
+
+.adm-top-pred-name {
+  flex: 1;
+}
+
+.adm-top-pred-score {
+  font-weight: 600;
+  color: var(--adm-blue);
 }
 
 /* Career badge */

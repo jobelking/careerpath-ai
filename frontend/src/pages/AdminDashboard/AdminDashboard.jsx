@@ -297,6 +297,9 @@ const AdminDashboard = () => {
   const [historyTotal, setHistoryTotal] = useState(0);
   const [historyPage, setHistoryPage] = useState(1);
   const [historySearch, setHistorySearch] = useState('');
+  const [historyUserId, setHistoryUserId] = useState(0);
+  const [historyUsers, setHistoryUsers] = useState([]);
+  const [historyUsersLoading, setHistoryUsersLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [exportingRecordId, setExportingRecordId] = useState(null);
   const [deletingRecord, setDeletingRecord] = useState(null); // history record | null
@@ -315,6 +318,7 @@ const AdminDashboard = () => {
     try {
       const data = await apiService.getAdminHistory(token, {
         search: historySearch,
+        user_id: historyUserId,
         page,
         page_size: PAGE_SIZE,
       });
@@ -325,7 +329,20 @@ const AdminDashboard = () => {
     } finally {
       setHistoryLoading(false);
     }
-  }, [token, historySearch, historyPage]);
+  }, [token, historySearch, historyUserId, historyPage]);
+
+  /** Fetch users who have prediction history (for filter dropdown) */
+  const loadHistoryUsers = useCallback(async () => {
+    setHistoryUsersLoading(true);
+    try {
+      const data = await apiService.getAdminHistoryUsers(token);
+      setHistoryUsers(data.users || []);
+    } catch (err) {
+      showAlert('error', `Failed to load history users: ${err.message}`);
+    } finally {
+      setHistoryUsersLoading(false);
+    }
+  }, [token]);
 
   /** Execute history record deletion */
   const handleDeleteRecord = async () => {
@@ -395,7 +412,14 @@ const AdminDashboard = () => {
   // Load history whenever search or page changes on History tab
   useEffect(() => {
     if (activeTab === 'history') loadHistory(historyPage);
-  }, [activeTab, historySearch, historyPage, loadHistory]);
+  }, [activeTab, historySearch, historyUserId, historyPage, loadHistory]);
+
+  // Load list of users with predictions for History filter
+  useEffect(() => {
+    if (activeTab === 'history' && historyUsers.length === 0 && !historyUsersLoading) {
+      loadHistoryUsers();
+    }
+  }, [activeTab, historyUsers.length, historyUsersLoading, loadHistoryUsers]);
 
   // Debounce user search input (300 ms) to avoid hammering the API
   useEffect(() => {
@@ -413,6 +437,22 @@ const AdminDashboard = () => {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historySearch]);
+
+  const getTopPredictions = (record) => {
+    if (Array.isArray(record?.top_predictions) && record.top_predictions.length) {
+      return record.top_predictions.slice(0, 3);
+    }
+    return record?.prediction_result
+      ? [{ career_path: record.prediction_result, raw_confidence: record.confidence_score }]
+      : [];
+  };
+
+  const getHistoryUserLabel = (user) => {
+    if (!user) return 'All Users';
+    const name = user.username || 'Unknown';
+    const email = user.email ? ` (${user.email})` : '';
+    return `${name}${email}`;
+  };
 
   // ── Logout ──────────────────────────────────────────────────────────────────
   const handleLogout = () => {
@@ -508,6 +548,7 @@ const AdminDashboard = () => {
             >
               <FiMenu />
             </button>
+            <Logo variant="modern" className="adm-topbar-logo" />
             <div className="adm-breadcrumb">
               <span className="adm-breadcrumb-root">Admin</span>
               <span className="adm-breadcrumb-sep">›</span>
@@ -711,10 +752,38 @@ const AdminDashboard = () => {
                 value={historySearch}
                 onChange={e => setHistorySearch(e.target.value)}
               />
+              <select
+                className="adm-select"
+                value={historyUserId}
+                onChange={e => { setHistoryUserId(Number(e.target.value)); setHistoryPage(1); }}
+              >
+                <option value={0}>All Users</option>
+                {historyUsers.map(user => (
+                  <option key={user.id} value={user.id}>
+                    {getHistoryUserLabel(user)} ({user.total_predictions})
+                  </option>
+                ))}
+              </select>
               <button className="adm-btn adm-btn-ghost" onClick={() => loadHistory(historyPage)}>
                 <FiRefreshCw /> Refresh
               </button>
             </div>
+
+            {historyUserId !== 0 && (
+              <div className="adm-filter-pill">
+                <span>Filtered by:</span>
+                <strong>
+                  {getHistoryUserLabel(historyUsers.find(u => u.id === historyUserId))}
+                </strong>
+                <button
+                  type="button"
+                  className="adm-pill-clear"
+                  onClick={() => { setHistoryUserId(0); setHistoryPage(1); }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
 
             {historyLoading ? (
               <div className="adm-loading">Loading history…</div>
@@ -729,6 +798,7 @@ const AdminDashboard = () => {
                         <th>ID</th>
                         <th>User</th>
                         <th>Predicted Career</th>
+                        <th>Top 3 Predictions</th>
                         <th>Profile Fit</th>
                         <th>File</th>
                         <th>Date</th>
@@ -748,6 +818,25 @@ const AdminDashboard = () => {
                           </td>
                           <td>
                             <span className="adm-career-tag">{rec.prediction_result}</span>
+                          </td>
+                          <td>
+                            <div className="adm-top-preds">
+                              {(() => {
+                                const topPreds = getTopPredictions(rec);
+                                if (topPreds.length === 0) {
+                                  return <span className="adm-cell-muted">—</span>;
+                                }
+                                return topPreds.map((pred, idx) => (
+                                  <div key={`${rec.id}-${idx}`} className="adm-top-pred-row">
+                                    <span className="adm-top-pred-rank">#{idx + 1}</span>
+                                    <span className="adm-top-pred-name">{pred.career_path || '—'}</span>
+                                    {pred.raw_confidence != null && (
+                                      <span className="adm-top-pred-score">{fmtConfidence(pred.raw_confidence)}</span>
+                                    )}
+                                  </div>
+                                ));
+                              })()}
+                            </div>
                           </td>
                           <td>
                             {rec.confidence_score != null

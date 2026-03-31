@@ -111,6 +111,22 @@ class AdminHistoryResponse(BaseModel):
     total: int
 
 
+class AdminHistoryUser(BaseModel):
+    """User summary for history filters."""
+    id: int
+    username: Optional[str] = None
+    email: Optional[str] = None
+    total_predictions: int
+
+    class Config:
+        from_attributes = True
+
+
+class AdminHistoryUsersResponse(BaseModel):
+    success: bool
+    users: List[AdminHistoryUser]
+
+
 # ── Stats model ────────────────────────────────────────────────────────────────
 
 class AdminStatsResponse(BaseModel):
