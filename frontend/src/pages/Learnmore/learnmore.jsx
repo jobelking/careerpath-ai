@@ -211,6 +211,8 @@ const Learnmore = () => {
         setLearningRoadmapByPath,
         certificationDataByPath,
         setCertificationDataByPath,
+        skillsInsightsByPath,
+        setSkillsInsightsByPath,
         historyRecordId,
     } = useDashboard();
     const { currentUser, logout, getToken } = useAuth();
@@ -219,6 +221,8 @@ const Learnmore = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [showCareerPaths, setShowCareerPaths] = useState(false);
+    const [skillsInsightsLoading, setSkillsInsightsLoading] = useState(false);
+    const [skillsInsightsError, setSkillsInsightsError] = useState(null);
 
     // Right drawer state - default to closed
     const [activePanel, setActivePanel] = useState(null);
@@ -263,6 +267,16 @@ const Learnmore = () => {
             certification_data_by_path: certificationDataByPath,
         }).catch((err) => console.warn('History cert update failed (non-critical):', err));
     }, [certificationDataByPath, historyRecordId, getToken]);
+
+    // ── Auto-save skills insights to history when generated ────────────────────
+    useEffect(() => {
+        if (!skillsInsightsByPath || !historyRecordId) return;
+        const token = getToken();
+        if (!token) return;
+        apiService.updateHistory(token, historyRecordId, {
+            skills_insights_by_path: skillsInsightsByPath,
+        }).catch((err) => console.warn('History skills insights update failed (non-critical):', err));
+    }, [skillsInsightsByPath, historyRecordId, getToken]);
 
     const topThree = predictionResults?.top_predictions?.slice(0, 3) || [];
     const requestedCareerPath = searchParams.get('career');
@@ -309,6 +323,35 @@ const Learnmore = () => {
 
     const selectedLearningRoadmap = learningRoadmapByPath?.[careerName] ?? null;
     const selectedCertificationData = certificationDataByPath?.[careerName] ?? null;
+    const selectedSkillsInsights = skillsInsightsByPath?.[careerName] ?? null;
+
+    // ── Auto-fetch skills insights when page loads for a career ────────────────
+    useEffect(() => {
+        if (!careerName || !resumeText) return;
+        if (skillsInsightsByPath?.[careerName]) return; // Already cached
+        let cancelled = false;
+        setSkillsInsightsLoading(true);
+        setSkillsInsightsError(null);
+        apiService.generateSkillsInsights(careerName, resumeText)
+            .then((data) => {
+                if (cancelled) return;
+                if (data?.insights) {
+                    setSkillsInsightsByPath((prev) => ({
+                        ...(prev || {}),
+                        [careerName]: data.insights,
+                    }));
+                }
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                console.error('Skills insights error:', err);
+                setSkillsInsightsError(err.message || 'Failed to load');
+            })
+            .finally(() => {
+                if (!cancelled) setSkillsInsightsLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, [careerName, resumeText, skillsInsightsByPath, setSkillsInsightsByPath]);
 
     // Export to PDF handler
     const handleExportPdf = useCallback(async () => {
@@ -714,14 +757,31 @@ const Learnmore = () => {
                                 <span className="summary-icon">{React.createElement(otherIcons["FaCheckCircle"], { size: 15, color: "#10b981" })}</span>
                                 Skills Driving Your Score
                             </h3>
-                            <p className="summary-card-desc">Core competencies for this career</p>
+                            <p className="summary-card-desc">{selectedSkillsInsights ? 'Personalized to your resume' : 'Core competencies for this career'}</p>
                             <div className="skill-list-compact">
-                                {content.keySkills.slice(0, 4).map((skill, index) => (
-                                    <div key={index} className="skill-item-compact">
-                                        <span className="skill-item-icon">{React.createElement(otherIcons["FaCheck"], { size: 10, color: "#10b981" })}</span>
-                                        {skill}
-                                    </div>
-                                ))}
+                                {skillsInsightsLoading ? (
+                                    <>  
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <div key={i} className="skill-item-compact skeleton-item">
+                                                <span className="skeleton-line skeleton-line-long"></span>
+                                            </div>
+                                        ))}
+                                    </>
+                                ) : selectedSkillsInsights?.skills_driving_score ? (
+                                    selectedSkillsInsights.skills_driving_score.slice(0, 4).map((skill, index) => (
+                                        <div key={index} className="skill-item-compact">
+                                            <span className="skill-item-icon">{React.createElement(otherIcons["FaCheck"], { size: 10, color: "#10b981" })}</span>
+                                            {skill}
+                                        </div>
+                                    ))
+                                ) : (
+                                    content.keySkills.slice(0, 4).map((skill, index) => (
+                                        <div key={index} className="skill-item-compact">
+                                            <span className="skill-item-icon">{React.createElement(otherIcons["FaCheck"], { size: 10, color: "#10b981" })}</span>
+                                            {skill}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
 
@@ -731,14 +791,31 @@ const Learnmore = () => {
                                 <span className="summary-icon">{React.createElement(otherIcons["FaRocket"], { size: 15, color: "#f59e0b" })}</span>
                                 Improve Your Match
                             </h3>
-                            <p className="summary-card-desc">Developing these can boost your score</p>
+                            <p className="summary-card-desc">{selectedSkillsInsights ? 'Based on gaps found in your resume' : 'Developing these can boost your score'}</p>
                             <div className="growth-list-compact">
-                                {content.growthAreas.slice(0, 4).map((area, index) => (
-                                    <div key={index} className="growth-item-compact">
-                                        <span className="growth-item-icon">{React.createElement(otherIcons["FaPlus"], { size: 9, color: "#f59e0b" })}</span>
-                                        {area}
-                                    </div>
-                                ))}
+                                {skillsInsightsLoading ? (
+                                    <>
+                                        {[1, 2, 3, 4].map((i) => (
+                                            <div key={i} className="growth-item-compact skeleton-item">
+                                                <span className="skeleton-line skeleton-line-long"></span>
+                                            </div>
+                                        ))}
+                                    </>
+                                ) : selectedSkillsInsights?.improve_your_match ? (
+                                    selectedSkillsInsights.improve_your_match.slice(0, 4).map((area, index) => (
+                                        <div key={index} className="growth-item-compact">
+                                            <span className="growth-item-icon">{React.createElement(otherIcons["FaPlus"], { size: 9, color: "#f59e0b" })}</span>
+                                            {area}
+                                        </div>
+                                    ))
+                                ) : (
+                                    content.growthAreas.slice(0, 4).map((area, index) => (
+                                        <div key={index} className="growth-item-compact">
+                                            <span className="growth-item-icon">{React.createElement(otherIcons["FaPlus"], { size: 9, color: "#f59e0b" })}</span>
+                                            {area}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

@@ -141,6 +141,7 @@ def init_db():
                 ("extracted_keywords_by_path", "JSONB"),
                 ("total_distinctive_keywords",  "INTEGER"),
                 ("total_distinctive_keywords_by_path", "JSONB"),
+                ("skills_insights_by_path", "JSONB"),
             ]
             for col_name, col_type in history_columns:
                 cur.execute(f"""

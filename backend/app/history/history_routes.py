@@ -110,6 +110,8 @@ async def update_history(history_id: int, payload: UpdateHistoryRequest, request
                 updates["learning_roadmap_by_path"] = json.dumps(payload.learning_roadmap_by_path)
             if payload.certification_data_by_path is not None:
                 updates["certification_data_by_path"] = json.dumps(payload.certification_data_by_path)
+            if payload.skills_insights_by_path is not None:
+                updates["skills_insights_by_path"] = json.dumps(payload.skills_insights_by_path)
 
             if not updates:
                 return JSONResponse(content={"success": True, "message": "Nothing to update."})
@@ -173,6 +175,7 @@ async def get_history(request: Request):
                       total_distinctive_keywords, total_distinctive_keywords_by_path,
                       learning_roadmap, certification_data,
                       learning_roadmap_by_path, certification_data_by_path,
+                      skills_insights_by_path,
                       resume_path, date_created
                 FROM prediction_history
                 WHERE user_id = %s

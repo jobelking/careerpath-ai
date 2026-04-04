@@ -175,6 +175,44 @@ class ApiService {
   }
 
   /**
+   * Generate personalized skills insights (skills driving score + improve your match)
+   * @param {string} careerPath - The predicted career path
+   * @param {string} resumeText - Raw resume text
+   * @returns {Promise} Skills insights data
+   */
+  async generateSkillsInsights(careerPath, resumeText) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/skills-insights`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          career_path: careerPath,
+          resume_text: resumeText,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to generate skills insights';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error generating skills insights:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Search for jobs via backend JSearch proxy
    * @param {Object} params - Job search parameters
    * @returns {Promise} Job search results

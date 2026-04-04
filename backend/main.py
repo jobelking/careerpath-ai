@@ -12,6 +12,7 @@ from typing import Dict, List
 from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
 from app.services.groq_service import generate_learning_roadmap, generate_certifications
+from app.services.groq_learnmore_service import generate_skills_and_improvements
 from app.services.jsearch_service import search_jobs as jsearch_search_jobs
 from app.database import init_db
 from app.auth.auth_routes import router as auth_router
@@ -262,6 +263,45 @@ async def generate_certifications_endpoint(request: Dict):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate certifications: {str(e)}"
+        )
+
+
+@app.post("/api/skills-insights")
+async def generate_skills_insights(request: Dict):
+    """
+    Generate personalized skills insights using Groq LLM (LearnMore page).
+
+    Request body:
+        {
+            "career_path": str,
+            "resume_text": str
+        }
+
+    Returns:
+        JSON with skills_driving_score and improve_your_match
+    """
+    try:
+        career_path = request.get("career_path")
+        resume_text = request.get("resume_text")
+
+        if not career_path or not resume_text:
+            raise HTTPException(
+                status_code=400,
+                detail="Both career_path and resume_text are required"
+            )
+
+        insights = generate_skills_and_improvements(career_path, resume_text)
+
+        return JSONResponse(content={
+            "success": True,
+            "insights": insights
+        })
+
+    except Exception as e:
+        print(f"Error generating skills insights: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate skills insights: {str(e)}"
         )
 
 

@@ -32,6 +32,7 @@ export const DashboardProvider = ({ children }) => {
     const [resumeText, setResumeText] = useState(persisted.resumeText ?? null);
     const [learningRoadmapByPath, setLearningRoadmapByPath] = useState(persisted.learningRoadmapByPath ?? null);
     const [certificationDataByPath, setCertificationDataByPath] = useState(persisted.certificationDataByPath ?? null);
+    const [skillsInsightsByPath, setSkillsInsightsByPath] = useState(persisted.skillsInsightsByPath ?? null);
     // ID of the latest prediction_history record — needed to PATCH roadmap/certs later
     const [historyRecordId, setHistoryRecordId] = useState(persisted.historyRecordId ?? null);
 
@@ -44,12 +45,13 @@ export const DashboardProvider = ({ children }) => {
                 resumeText,
                 learningRoadmapByPath,
                 certificationDataByPath,
+                skillsInsightsByPath,
                 historyRecordId,
             }));
         } catch {
             // Ignore storage quota errors
         }
-    }, [predictionResults, uploadedFileName, resumeText, learningRoadmapByPath, certificationDataByPath, historyRecordId]);
+    }, [predictionResults, uploadedFileName, resumeText, learningRoadmapByPath, certificationDataByPath, skillsInsightsByPath, historyRecordId]);
 
     // When the user logs out, wipe all in-memory dashboard state immediately.
     // sessionStorage is already cleared by AuthContext.logout(), but React state
@@ -62,6 +64,7 @@ export const DashboardProvider = ({ children }) => {
             setResumeText(null);
             setLearningRoadmapByPath(null);
             setCertificationDataByPath(null);
+            setSkillsInsightsByPath(null);
             setHistoryRecordId(null);
         };
         window.addEventListener('careerpath:logout', handleLogout);
@@ -75,6 +78,7 @@ export const DashboardProvider = ({ children }) => {
         setResumeText(null);
         setLearningRoadmapByPath(null);
         setCertificationDataByPath(null);
+        setSkillsInsightsByPath(null);
         setHistoryRecordId(null);
         sessionStorage.removeItem(SESSION_KEY);
     };
@@ -94,6 +98,8 @@ export const DashboardProvider = ({ children }) => {
                 setLearningRoadmapByPath,
                 certificationDataByPath,
                 setCertificationDataByPath,
+                skillsInsightsByPath,
+                setSkillsInsightsByPath,
                 historyRecordId,
                 setHistoryRecordId,
                 clearResults,

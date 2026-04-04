@@ -894,6 +894,41 @@
     align-items: center;
 }
 
+/* Skeleton loading animations */
+.skeleton-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.3rem 0;
+}
+
+.skeleton-line {
+    display: block;
+    height: 10px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-line-long {
+    width: 85%;
+}
+
+.skeleton-line-short {
+    width: 60%;
+    height: 8px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 /* ============================================
    SECTION 5: Career Comparison
    ============================================ */

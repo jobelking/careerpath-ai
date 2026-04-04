@@ -18,6 +18,7 @@ const History = () => {
         setResumeText,
         setLearningRoadmapByPath,
         setCertificationDataByPath,
+        setSkillsInsightsByPath,
         setHistoryRecordId,
     } = useDashboard();
     const [history, setHistory] = useState([]);
@@ -220,6 +221,12 @@ const History = () => {
             setCertificationDataByPath(null);
         }
 
+        if (record.skills_insights_by_path) {
+            setSkillsInsightsByPath(record.skills_insights_by_path);
+        } else {
+            setSkillsInsightsByPath(null);
+        }
+
         setHistoryRecordId(record.id || null);
         navigate(`/learnmore?career=${encodeURIComponent(selectedCareer)}`);
     };
@@ -279,6 +286,12 @@ const History = () => {
             });
         } else {
             setCertificationDataByPath(null);
+        }
+
+        if (record.skills_insights_by_path) {
+            setSkillsInsightsByPath(record.skills_insights_by_path);
+        } else {
+            setSkillsInsightsByPath(null);
         }
 
         setHistoryRecordId(record.id || null);

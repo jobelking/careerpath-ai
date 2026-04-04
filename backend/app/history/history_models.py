@@ -25,6 +25,7 @@ class UpdateHistoryRequest(BaseModel):
     certification_data: Optional[Any] = None
     learning_roadmap_by_path: Optional[Any] = None
     certification_data_by_path: Optional[Any] = None
+    skills_insights_by_path: Optional[Any] = None
 
 
 class HistoryRecord(BaseModel):
@@ -43,6 +44,7 @@ class HistoryRecord(BaseModel):
     certification_data: Optional[Any] = None
     learning_roadmap_by_path: Optional[Any] = None
     certification_data_by_path: Optional[Any] = None
+    skills_insights_by_path: Optional[Any] = None
     has_resume: Optional[bool] = False
     date_created: Optional[datetime] = None
 
