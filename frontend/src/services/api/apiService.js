@@ -425,6 +425,97 @@ class ApiService {
       throw error;
     }
   }
+
+  /**
+   * Request a password reset OTP
+   * @param {string} email
+   * @returns {Promise<{success, message}>}
+   */
+  async forgotPassword(email) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Failed to send reset code'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Reset password with OTP code
+   * @param {string} email
+   * @param {string} code - 6-digit OTP
+   * @param {string} newPassword
+   * @returns {Promise<{success, message}>}
+   */
+  async resetPassword(email, code, newPassword) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code, new_password: newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Password reset failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Change password for authenticated user
+   * @param {string} token - JWT token
+   * @param {string} currentPassword
+   * @param {string} newPassword
+   * @returns {Promise<{success, message}>}
+   */
+  async changePassword(token, currentPassword, newPassword) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(this._parseDetail(data.detail, 'Password change failed'));
+      }
+
+      return data;
+    } catch (error) {
+      if (error.message.includes('Failed to fetch')) {
+        throw new Error('Cannot connect to the server. Please ensure the backend is running.');
+      }
+      throw error;
+    }
+  }
   /**
    * Save a prediction result to history
    * @param {string} token - JWT token

@@ -86,6 +86,16 @@ export const AuthProvider = ({ children }) => {
      */
     const getToken = () => localStorage.getItem(TOKEN_KEY);
 
+    /**
+     * Change password for the currently logged-in user.
+     * Calls POST /api/auth/change-password with JWT.
+     */
+    const changePassword = async (currentPassword, newPassword) => {
+        const token = getToken();
+        if (!token) throw new Error('Not authenticated');
+        return await apiService.changePassword(token, currentPassword, newPassword);
+    };
+
     const value = {
         currentUser,
         login,
@@ -93,6 +103,7 @@ export const AuthProvider = ({ children }) => {
         finalizeLogin,
         logout,
         getToken,
+        changePassword,
         loading,
     };
 

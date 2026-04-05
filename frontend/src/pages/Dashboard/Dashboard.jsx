@@ -4,9 +4,11 @@ import Logo from '../../components/common/Logo';
 import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
+import { authIcons } from '../../utils/authIcons';
 import { useDashboard } from '../../context/DashboardContext';
 import { useAuth } from '../../context/AuthContext';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
+import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -15,6 +17,9 @@ const Dashboard = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showCareerPaths, setShowCareerPaths] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userDropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -39,6 +44,19 @@ const Dashboard = () => {
   const [showAllPaths, setShowAllPaths] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    if (userDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
 
   // Derive showResults from predictionResults
   const showResults = predictionResults !== null;
@@ -290,29 +308,63 @@ const Dashboard = () => {
 
           {/* Desktop actions */}
           <div className="dashboard-header-right">
+            {/* Admin Panel button — only visible to admin users */}
+            {currentUser?.is_admin && (
+              <button
+                className="dashboard-admin-btn"
+                onClick={() => navigate('/admin')}
+              >
+                🛡 Admin
+              </button>
+            )}
+
+            {/* User dropdown (profile chip → clickable) */}
             {currentUser && (
-              <div className="dashboard-profile-chip">
-                <span className="dashboard-profile-dot" aria-hidden="true"></span>
-                <span className="dashboard-greeting">{currentUser.username}</span>
+              <div className="user-dropdown-container" ref={userDropdownRef}>
+                <button
+                  className={`user-dropdown-trigger ${userDropdownOpen ? 'open' : ''}`}
+                  onClick={() => setUserDropdownOpen(v => !v)}
+                  aria-expanded={userDropdownOpen}
+                  aria-haspopup="true"
+                >
+                  <span className="dashboard-profile-dot" aria-hidden="true"></span>
+                  <span className="dashboard-greeting">{currentUser.username}</span>
+                  {React.createElement(authIcons['FaChevronDown'], {
+                    className: `user-dropdown-chevron ${userDropdownOpen ? 'rotated' : ''}`,
+                    size: 11
+                  })}
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="user-dropdown-menu">
+                    <div className="user-dropdown-header">
+                      <span className="user-dropdown-email">{currentUser.email}</span>
+                    </div>
+                    <button
+                      className="user-dropdown-item"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        setShowChangePassword(true);
+                      }}
+                    >
+                      {React.createElement(authIcons['FaKey'], { size: 14 })}
+                      Change Password
+                    </button>
+                    <div className="user-dropdown-divider"></div>
+                    <button
+                      className="user-dropdown-item user-dropdown-item--danger"
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        setShowLogoutConfirm(true);
+                      }}
+                    >
+                      {React.createElement(authIcons['FaSignOutAlt'], { size: 14 })}
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             )}
-            <div className="dashboard-action-group">
-              {/* Admin Panel button — only visible to admin users */}
-              {currentUser?.is_admin && (
-                <button
-                  className="dashboard-admin-btn"
-                  onClick={() => navigate('/admin')}
-                >
-                  🛡 Admin
-                </button>
-              )}
-              <button
-                className="dashboard-logout-btn"
-                onClick={() => setShowLogoutConfirm(true)}
-              >
-                Logout
-              </button>
-            </div>
           </div>
         </div>
 
@@ -350,6 +402,13 @@ const Dashboard = () => {
                 🛡 Admin Panel
               </button>
             )}
+            <div className="mobile-nav-divider"></div>
+            <button
+              className="mobile-nav-btn mobile-nav-btn--subtle"
+              onClick={() => { setShowChangePassword(true); setMenuOpen(false); }}
+            >
+              Change Password
+            </button>
             <button
               className="dashboard-logout-btn mobile-nav-btn"
               onClick={() => { setShowLogoutConfirm(true); setMenuOpen(false); }}
@@ -679,6 +738,12 @@ const Dashboard = () => {
       {showCareerPaths && (
         <CareerPathsModal onClose={() => setShowCareerPaths(false)} />
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </div>
   );
 };

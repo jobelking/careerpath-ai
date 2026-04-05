@@ -34,6 +34,307 @@ const VerifiedView = ({ onDone }) => {
     );
 };
 
+// ─── Password Reset Success View ─────────────────────────────────────────────
+const PasswordResetSuccessView = ({ onDone }) => {
+    const [count, setCount] = useState(4);
+
+    useEffect(() => {
+        if (count <= 0) { onDone(); return; }
+        const t = setTimeout(() => setCount(c => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [count, onDone]);
+
+    return (
+        <div className="verified-view">
+            <div className="otp-icon-wrap" style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                {React.createElement(authIcons['FaShieldAlt'], { className: 'otp-envelope-icon' })}
+            </div>
+            <h2 className="verified-title">Password Reset!</h2>
+            <p className="verified-subtitle">
+                Your password has been changed successfully.<br />
+                You can now log in with your new password.
+            </p>
+            <p className="verified-redirect">
+                Redirecting to login in <strong>{count}</strong>…
+            </p>
+        </div>
+    );
+};
+
+// ─── Forgot Password View ────────────────────────────────────────────────────
+const ForgotPasswordView = ({ onSuccess, onBack }) => {
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!email.trim()) {
+            setError('Please enter your email address.');
+            return;
+        }
+        setIsLoading(true);
+        setError('');
+        try {
+            await apiService.forgotPassword(email);
+            onSuccess(email);
+        } catch (err) {
+            setError(err.message || 'Failed to send reset code.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="otp-view">
+            <div className="otp-icon-wrap" style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
+                {React.createElement(authIcons['FaKey'], { className: 'otp-envelope-icon' })}
+            </div>
+            <h2 className="otp-title">Forgot Password</h2>
+            <p className="otp-subtitle">
+                Enter the email address associated with your account.<br />
+                We'll send you a 6-digit code to reset your password.
+            </p>
+
+            {error && <div className="auth-error">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="otp-form" noValidate>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <div className="input-with-icon">
+                        {React.createElement(authIcons['FaEnvelope'], { className: 'input-icon' })}
+                        <input
+                            type="email"
+                            id="forgot-email"
+                            value={email}
+                            onChange={(e) => { setEmail(e.target.value); setError(''); }}
+                            placeholder="you@example.com"
+                            autoFocus
+                        />
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    className={`auth-submit-btn ${isLoading ? 'loading' : ''}`}
+                    disabled={isLoading || !email.trim()}
+                >
+                    {isLoading ? 'Sending…' : 'Send Reset Code'}
+                </button>
+            </form>
+
+            <button type="button" className="otp-back-btn" onClick={onBack}>
+                ← Back to Login
+            </button>
+        </div>
+    );
+};
+
+// ─── Reset Password View (OTP + New Password) ───────────────────────────────
+const ResetPasswordView = ({ email, onSuccess, onBack }) => {
+    const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''));
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [expiryLeft, setExpiryLeft] = useState(OTP_EXPIRY_SECONDS);
+    const [resendCooldown, setResendCooldown] = useState(RESEND_COOLDOWN_SECONDS);
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendSuccess, setResendSuccess] = useState('');
+    const inputRefs = useRef([]);
+
+    useEffect(() => {
+        const timer = setInterval(() => setExpiryLeft(prev => Math.max(0, prev - 1)), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const timer = setInterval(() => setResendCooldown(prev => Math.max(0, prev - 1)), 1000);
+        return () => clearInterval(timer);
+    }, [resendCooldown]);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    };
+
+    const handleDigitChange = (index, value) => {
+        const cleaned = value.replace(/\D/g, '').slice(-1);
+        const newDigits = [...digits];
+        newDigits[index] = cleaned;
+        setDigits(newDigits);
+        setError('');
+        if (cleaned && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
+    };
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === 'Backspace' && !digits[index] && index > 0) inputRefs.current[index - 1]?.focus();
+        if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1]?.focus();
+        if (e.key === 'ArrowRight' && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
+    };
+
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+        const newDigits = [...digits];
+        for (let i = 0; i < pasted.length; i++) newDigits[i] = pasted[i];
+        setDigits(newDigits);
+        inputRefs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const code = digits.join('');
+        if (code.length < OTP_LENGTH) { setError('Please enter all 6 digits.'); return; }
+        if (expiryLeft <= 0) { setError('The code has expired. Please request a new one.'); return; }
+        if (!newPassword) { setError('Please enter a new password.'); return; }
+        if (newPassword.length < 6) { setError('Password must be at least 6 characters.'); return; }
+        if (newPassword !== confirmPassword) { setError('Passwords do not match.'); return; }
+
+        setIsLoading(true);
+        setError('');
+        try {
+            await apiService.resetPassword(email, code, newPassword);
+            onSuccess();
+        } catch (err) {
+            setError(err.message || 'Reset failed. Please try again.');
+            setDigits(Array(OTP_LENGTH).fill(''));
+            inputRefs.current[0]?.focus();
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResend = async () => {
+        if (resendCooldown > 0 || resendLoading) return;
+        setResendLoading(true);
+        setResendSuccess('');
+        setError('');
+        try {
+            await apiService.forgotPassword(email);
+            setResendCooldown(RESEND_COOLDOWN_SECONDS);
+            setExpiryLeft(OTP_EXPIRY_SECONDS);
+            setDigits(Array(OTP_LENGTH).fill(''));
+            setResendSuccess('A new reset code has been sent to your email.');
+            inputRefs.current[0]?.focus();
+        } catch (err) {
+            setError(err.message || 'Failed to resend code. Please try again.');
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    const maskedEmail = email.replace(/(.{2})(.*)(?=@)/, (_, a, b) => a + '*'.repeat(b.length));
+    const EyeNewIcon = showNewPassword ? authIcons['FaEyeSlash'] : authIcons['FaEye'];
+    const EyeConfirmIcon = showConfirmPassword ? authIcons['FaEyeSlash'] : authIcons['FaEye'];
+
+    return (
+        <div className="otp-view">
+            <div className="otp-icon-wrap" style={{ background: 'linear-gradient(135deg, #dc2626, #ef4444)' }}>
+                {React.createElement(authIcons['FaKey'], { className: 'otp-envelope-icon' })}
+            </div>
+            <h2 className="otp-title">Reset Password</h2>
+            <p className="otp-subtitle">
+                Enter the 6-digit code sent to<br />
+                <strong>{maskedEmail}</strong>
+            </p>
+
+            {error && <div className="auth-error">{error}</div>}
+            {resendSuccess && <div className="otp-success-msg">{resendSuccess}</div>}
+
+            <form onSubmit={handleSubmit} className="otp-form" noValidate>
+                <div className="otp-boxes" onPaste={handlePaste}>
+                    {digits.map((digit, i) => (
+                        <input
+                            key={i}
+                            ref={el => inputRefs.current[i] = el}
+                            id={`reset-otp-digit-${i}`}
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={1}
+                            value={digit}
+                            onChange={e => handleDigitChange(i, e.target.value)}
+                            onKeyDown={e => handleKeyDown(i, e)}
+                            className={`otp-box ${digit ? 'otp-box--filled' : ''} ${error ? 'otp-box--error' : ''}`}
+                            autoFocus={i === 0}
+                            autoComplete="one-time-code"
+                        />
+                    ))}
+                </div>
+
+                <div className={`otp-expiry ${expiryLeft < 60 ? 'otp-expiry--urgent' : ''}`}>
+                    {expiryLeft > 0
+                        ? <>Code expires in <strong>{formatTime(expiryLeft)}</strong></>
+                        : <span className="otp-expired">Code expired — please resend</span>
+                    }
+                </div>
+
+                {/* New Password Fields */}
+                <div className="form-group" style={{ marginBottom: '16px', textAlign: 'left' }}>
+                    <label htmlFor="reset-new-pw" style={{ fontSize: '14px', fontWeight: 500, color: '#334155', marginBottom: '8px', display: 'block' }}>New Password</label>
+                    <div className="input-with-icon">
+                        {React.createElement(authIcons['FaLock'], { className: 'input-icon' })}
+                        <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            id="reset-new-pw"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="At least 6 characters"
+                        />
+                        <button type="button" className="eye-toggle" onClick={() => setShowNewPassword(v => !v)}>
+                            {React.createElement(EyeNewIcon, { size: 16 })}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '20px', textAlign: 'left' }}>
+                    <label htmlFor="reset-confirm-pw" style={{ fontSize: '14px', fontWeight: 500, color: '#334155', marginBottom: '8px', display: 'block' }}>Confirm Password</label>
+                    <div className="input-with-icon">
+                        {React.createElement(authIcons['FaLock'], { className: 'input-icon' })}
+                        <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            id="reset-confirm-pw"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter new password"
+                        />
+                        <button type="button" className="eye-toggle" onClick={() => setShowConfirmPassword(v => !v)}>
+                            {React.createElement(EyeConfirmIcon, { size: 16 })}
+                        </button>
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    className={`auth-submit-btn ${isLoading ? 'loading' : ''}`}
+                    disabled={isLoading || digits.join('').length < OTP_LENGTH}
+                >
+                    {isLoading ? 'Resetting…' : 'Reset Password'}
+                </button>
+            </form>
+
+            <div className="otp-resend-wrap">
+                <span className="otp-resend-label">Didn't receive the code?</span>
+                <button
+                    type="button"
+                    className={`otp-resend-btn ${resendCooldown > 0 ? 'otp-resend-btn--disabled' : ''}`}
+                    onClick={handleResend}
+                    disabled={resendCooldown > 0 || resendLoading}
+                >
+                    {resendLoading ? 'Sending…' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Code'}
+                </button>
+            </div>
+
+            <button type="button" className="otp-back-btn" onClick={onBack}>
+                ← Back to Forgot Password
+            </button>
+        </div>
+    );
+};
+
 // ─── OTP View ────────────────────────────────────────────────────────────────
 const OTPView = ({ email, onSuccess, onBack }) => {
     const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''));
@@ -245,6 +546,8 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     // OTP state
     const [pendingEmail, setPendingEmail] = useState('');
+    // Password reset state
+    const [resetEmail, setResetEmail] = useState('');
 
     const { login, register, finalizeLogin } = useAuth();
     const navigate = useNavigate();
@@ -360,6 +663,48 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
         resetFields();
     };
 
+    // ── Forgot Password handlers ──
+    const handleForgotPassword = () => {
+        setSlideDir('left');
+        setAnimKey(k => k + 1);
+        setView('forgot');
+        resetFields();
+    };
+
+    const handleForgotSuccess = (emailUsed) => {
+        setResetEmail(emailUsed);
+        setSlideDir('left');
+        setAnimKey(k => k + 1);
+        setView('reset');
+    };
+
+    const handleForgotBack = () => {
+        setSlideDir('right');
+        setAnimKey(k => k + 1);
+        setView('login');
+        resetFields();
+    };
+
+    const handleResetSuccess = () => {
+        setSlideDir('left');
+        setAnimKey(k => k + 1);
+        setView('reset-success');
+    };
+
+    const handleResetSuccessDone = () => {
+        setResetEmail('');
+        setSlideDir('right');
+        setAnimKey(k => k + 1);
+        setView('login');
+        setError('');
+    };
+
+    const handleResetBack = () => {
+        setSlideDir('right');
+        setAnimKey(k => k + 1);
+        setView('forgot');
+    };
+
     const toggleView = () => {
         const goingToRegister = view === 'login';
         setSlideDir(goingToRegister ? 'left' : 'right');
@@ -390,6 +735,25 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
                 {view === 'verified' ? (
                     <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
                         <VerifiedView onDone={handleVerifiedDone} />
+                    </div>
+                ) : view === 'reset-success' ? (
+                    <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
+                        <PasswordResetSuccessView onDone={handleResetSuccessDone} />
+                    </div>
+                ) : view === 'forgot' ? (
+                    <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
+                        <ForgotPasswordView
+                            onSuccess={handleForgotSuccess}
+                            onBack={handleForgotBack}
+                        />
+                    </div>
+                ) : view === 'reset' ? (
+                    <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
+                        <ResetPasswordView
+                            email={resetEmail}
+                            onSuccess={handleResetSuccess}
+                            onBack={handleResetBack}
+                        />
                     </div>
                 ) : view === 'verify' ? (
                     <div key={animKey} className={`auth-view-transition auth-slide-${slideDir}`}>
@@ -526,6 +890,15 @@ const AuthModal = ({ isOpen, onClose, initialView = 'login' }) => {
                                         : 'Create Account'}
                             </button>
                         </form>
+
+                        {/* Forgot Password link — login view only */}
+                        {view === 'login' && (
+                            <div className="auth-forgot-wrap">
+                                <button type="button" className="auth-forgot-link" onClick={handleForgotPassword}>
+                                    Forgot your password?
+                                </button>
+                            </div>
+                        )}
 
                         <div className="auth-footer">
                             <p>

@@ -361,6 +361,29 @@
     text-decoration: underline;
 }
 
+/* Forgot Password link */
+.auth-forgot-wrap {
+    text-align: center;
+    margin-top: 16px;
+}
+
+.auth-forgot-link {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.auth-forgot-link:hover {
+    color: #2563eb;
+    background: #f1f5f9;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

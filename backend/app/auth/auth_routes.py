@@ -10,7 +10,8 @@ from psycopg2.extras import RealDictCursor
 from app.database import get_connection, release_connection
 from app.auth.auth_models import (
     RegisterRequest, LoginRequest, AuthResponse,
-    UserResponse, VerifyOTPRequest, ResendOTPRequest
+    UserResponse, VerifyOTPRequest, ResendOTPRequest,
+    ForgotPasswordRequest, ResetPasswordRequest, ChangePasswordRequest
 )
 from app.auth.jwt_utils import create_access_token, get_current_user_payload
 from app.auth.otp_utils import (
@@ -18,7 +19,7 @@ from app.auth.otp_utils import (
     is_resend_allowed, seconds_until_resend_allowed,
     MAX_OTP_ATTEMPTS
 )
-from app.services.email_service import send_verification_email
+from app.services.email_service import send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -446,6 +447,290 @@ async def get_me(request: Request):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while fetching user data."
+        )
+    finally:
+        release_connection(conn)
+
+
+# ─────────────────────────────────────────────
+# POST /api/auth/forgot-password
+# ─────────────────────────────────────────────
+
+@router.post("/forgot-password", response_model=AuthResponse)
+async def forgot_password(payload: ForgotPasswordRequest):
+    """
+    Initiate password reset — sends a 6-digit OTP to the user's email.
+    Only works for verified accounts.
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, is_verified, last_otp_sent_at FROM users WHERE email = %s;",
+                (payload.email.lower(),)
+            )
+            user = cur.fetchone()
+
+        if not user:
+            # Don't reveal whether the email exists
+            return AuthResponse(
+                success=True,
+                message="If an account with that email exists, a reset code has been sent."
+            )
+
+        user = dict(user)
+
+        if not user["is_verified"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This account has not been verified yet. Please verify your email first."
+            )
+
+        # Rate limit check
+        if not is_resend_allowed(user["last_otp_sent_at"]):
+            remaining = seconds_until_resend_allowed(user["last_otp_sent_at"])
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Please wait {remaining} second(s) before requesting a new code."
+            )
+
+        # Generate OTP and store it
+        otp = generate_otp()
+        expiration = get_expiration()
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE users
+                SET verification_code = %s,
+                    code_expiration   = %s,
+                    otp_attempts      = 0,
+                    last_otp_sent_at  = NOW() AT TIME ZONE 'UTC'
+                WHERE email = %s;
+                """,
+                (otp, expiration, payload.email.lower())
+            )
+            conn.commit()
+
+        # Send password reset email
+        try:
+            send_password_reset_email(payload.email.lower(), otp)
+        except Exception as mail_err:
+            print(f"⚠️  Password reset email failed: {mail_err}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to send reset email. Please try again later."
+            )
+
+        return AuthResponse(
+            success=True,
+            message="If an account with that email exists, a reset code has been sent."
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        print(f"Forgot password error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred. Please try again."
+        )
+    finally:
+        release_connection(conn)
+
+
+# ─────────────────────────────────────────────
+# POST /api/auth/reset-password
+# ─────────────────────────────────────────────
+
+@router.post("/reset-password", response_model=AuthResponse)
+async def reset_password(payload: ResetPasswordRequest):
+    """
+    Verify the OTP and set a new password.
+    Same OTP validation rules as verify-otp (attempt limits, expiry).
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, email, verification_code, code_expiration,
+                       is_verified, otp_attempts
+                FROM users WHERE email = %s;
+                """,
+                (payload.email.lower(),)
+            )
+            user = cur.fetchone()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No account found with this email address."
+            )
+
+        user = dict(user)
+
+        if not user["is_verified"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This account has not been verified yet."
+            )
+
+        # Too many attempts?
+        if user["otp_attempts"] >= MAX_OTP_ATTEMPTS:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many incorrect attempts. Please request a new reset code."
+            )
+
+        # No active reset code?
+        if not user["verification_code"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No active reset code. Please request a new one."
+            )
+
+        # Code expired?
+        if is_expired(user["code_expiration"]):
+            raise HTTPException(
+                status_code=status.HTTP_410_GONE,
+                detail="Reset code has expired. Please request a new one."
+            )
+
+        # Wrong code? Increment attempts
+        if user["verification_code"] != payload.code:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE users SET otp_attempts = otp_attempts + 1 WHERE email = %s;",
+                    (payload.email.lower(),)
+                )
+                conn.commit()
+            remaining = MAX_OTP_ATTEMPTS - (user["otp_attempts"] + 1)
+            if remaining <= 0:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Too many incorrect attempts. Please request a new reset code."
+                )
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Incorrect reset code. {remaining} attempt(s) remaining."
+            )
+
+        # ✅ Code is valid — hash the new password and update
+        new_hash = bcrypt.hashpw(
+            payload.new_password.encode("utf-8"),
+            bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE users
+                SET password_hash      = %s,
+                    verification_code  = NULL,
+                    code_expiration    = NULL,
+                    otp_attempts       = 0
+                WHERE email = %s;
+                """,
+                (new_hash, payload.email.lower())
+            )
+            conn.commit()
+
+        return AuthResponse(
+            success=True,
+            message="Your password has been reset successfully. You can now log in."
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        print(f"Reset password error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during password reset. Please try again."
+        )
+    finally:
+        release_connection(conn)
+
+
+# ─────────────────────────────────────────────
+# POST /api/auth/change-password
+# ─────────────────────────────────────────────
+
+@router.post("/change-password", response_model=AuthResponse)
+async def change_password(payload: ChangePasswordRequest, request: Request):
+    """
+    Change password for an authenticated user.
+    Requires valid JWT token + current password verification.
+    """
+    jwt_payload = get_current_user_payload(request)
+    user_id = int(jwt_payload["sub"])
+
+    conn = get_connection()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, password_hash FROM users WHERE id = %s;",
+                (user_id,)
+            )
+            user = cur.fetchone()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User account not found."
+            )
+
+        user = dict(user)
+
+        # Verify current password
+        if not bcrypt.checkpw(
+            payload.current_password.encode("utf-8"),
+            user["password_hash"].encode("utf-8")
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Current password is incorrect."
+            )
+
+        # Prevent setting the same password
+        if bcrypt.checkpw(
+            payload.new_password.encode("utf-8"),
+            user["password_hash"].encode("utf-8")
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="New password must be different from your current password."
+            )
+
+        # Hash and save new password
+        new_hash = bcrypt.hashpw(
+            payload.new_password.encode("utf-8"),
+            bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
+
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET password_hash = %s WHERE id = %s;",
+                (new_hash, user_id)
+            )
+            conn.commit()
+
+        return AuthResponse(
+            success=True,
+            message="Password changed successfully."
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        print(f"Change password error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while changing your password."
         )
     finally:
         release_connection(conn)
