@@ -36,7 +36,7 @@ def calibrate_confidence():
     # 2. Load Model
     print("\nLoading trained model...")
     try:
-        predictor = CareerPathPredictor()
+        predictor = CareerPathPredictor(eager_load=True)
     except Exception as e:
         print(f"Error loading predictor: {e}")
         return
