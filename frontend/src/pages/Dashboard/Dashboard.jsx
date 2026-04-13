@@ -278,9 +278,13 @@ const Dashboard = () => {
     return Math.round(90 + ((p - 50) / 50) * 5);             // 50-100% → 90-95%
   };
 
+  // Determine current dashboard mode for layout
+  const hasFile = uploadedFile || (showResults && uploadedFileName);
+  const isCompactUpload = showResults || isLoading || showPreview;
+
   return (
     <div className="dashboard-container">
-      {/* Header/Navigation */}
+      {/* ── Header ──────────────────────────────────────────────── */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="dashboard-header-left">
@@ -430,307 +434,303 @@ const Dashboard = () => {
         )}
       </header>
 
-      {/* Main Content */}
+      {/* ── Main Content ────────────────────────────────────────── */}
       <main className="dashboard-main">
-        <div className="dashboard-content">
-          {/* Welcome Section */}
+        <div className="dashboard-flow">
 
+          {/* ── Upload Section ─────────────────────────────────── */}
+          <section className={`upload-section ${isCompactUpload ? 'compact' : 'hero'}`}>
+            <div className="upload-card">
 
-          {/* Layout Area */}
-          <div className={`dashboard-grid ${!showResults && !isLoading && !showPreview ? 'centered' : ''} ${showAllPaths ? 'paths-expanded' : ''}`}>
-            {/* Left Column - Upload Section */}
-            <div className="left-column">
-              <div className="upload-card">
-                <div className="upload-header">
-                  <div className="upload-icon-wrapper">
-                    <span className="upload-icon">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="#2563eb">
+              {/* Compact mode: horizontal inline strip */}
+              {isCompactUpload ? (
+                <div className="upload-compact-row">
+                  <div className="upload-compact-file">
+                    <span className="upload-compact-icon">
+                      {React.createElement(otherIcons["FaCheck"])}
+                    </span>
+                    <span className="upload-compact-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
+                  </div>
+                  <div className="upload-compact-actions">
+                    <button
+                      className="upload-compact-btn primary"
+                      onClick={handleReset}
+                    >
+                      New Resume
+                    </button>
+                    <button
+                      className="upload-compact-btn ghost"
+                      onClick={handleTogglePreview}
+                      disabled={!uploadedFile}
+                    >
+                      {showPreview ? 'Close PDF' : 'View PDF'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Hero mode: full centered upload */
+                <>
+                  <div className="upload-hero-header">
+                    <div className="upload-icon-wrapper">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="#2563eb">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" />
                       </svg>
-                    </span>
+                    </div>
+                    <div className="upload-hero-text">
+                      <h3>Upload Your Resume</h3>
+                      <p>Drop your PDF resume below to start the analysis</p>
+                    </div>
                   </div>
-                  <h3>Upload Your Resume</h3>
-                  <p>Drag and drop your resume below</p>
-                </div>
 
-                <div
-                  className="upload-area"
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                >
-                  <input
-                    type="file"
-                    id="resume-upload"
-                    ref={fileInputRef}
-                    className="file-input"
-                    accept=".pdf"
-                    onChange={handleFileUpload}
-                  />
-                  <div className="upload-label">
-                    {uploadedFile || (showResults && uploadedFileName) ? (
-                      <div className="file-uploaded">
-                        <span></span>
-                        <span className="file-icon">{React.createElement(otherIcons["FaCheck"])}</span>
-                        <span className="file-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
-                        {!showResults && uploadedFile && (
-                          <button
-                            className="change-file-btn"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setUploadedFile(null);
-                              setUploadedFileName('');
-                              setError(null);
-                              if (fileInputRef.current) fileInputRef.current.value = '';
-                            }}
-                          >
-                            Change File
-                          </button>
-                        )}
-                        <span></span>
-                      </div>
-                    ) : (
-                      <div className="upload-prompt">
-                        <div className="upload-cloud">
-                          {React.createElement(otherIcons["FaUpload"], { color: "#2563eb" })}
+                  <div
+                    className="upload-area"
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      type="file"
+                      id="resume-upload"
+                      ref={fileInputRef}
+                      className="file-input"
+                      accept=".pdf"
+                      onChange={handleFileUpload}
+                    />
+                    <div className="upload-label">
+                      {hasFile ? (
+                        <div className="file-uploaded">
+                          <span className="file-icon">{React.createElement(otherIcons["FaCheck"])}</span>
+                          <span className="file-name">{uploadedFile ? uploadedFile.name : uploadedFileName}</span>
+                          {!showResults && uploadedFile && (
+                            <button
+                              className="change-file-btn"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setUploadedFile(null);
+                                setUploadedFileName('');
+                                setError(null);
+                                if (fileInputRef.current) fileInputRef.current.value = '';
+                              }}
+                            >
+                              Change File
+                            </button>
+                          )}
                         </div>
-                        <span className="upload-text">Drag and drop your resume</span>
-                        <span className="upload-formats">PDF only (Max 10MB)</span>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="upload-prompt">
+                          <div className="upload-cloud">
+                            {React.createElement(otherIcons["FaUpload"], { color: "#2563eb" })}
+                          </div>
+                          <span className="upload-text">Drag and drop your resume</span>
+                          <span className="upload-formats">PDF only (Max 10MB)</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="upload-actions">
-                  {/* Upload Button */}
-                  <button
-                    className={`upload-button ${showResults ? 'reset-mode' : ''}`}
-                    onClick={() => {
-                      if (showResults) {
-                        handleReset();
-                      } else if (!uploadedFile) {
-                        fileInputRef.current?.click();
-                      } else {
-                        handleAnalyze();
-                      }
-                    }}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Analyzing...' : showResults ? 'Add New Resume' : uploadedFile ? 'Upload and Analyze' : 'Select Resume'}
-                  </button>
+                  <div className="upload-hero-actions">
+                    <button
+                      className="upload-button"
+                      onClick={() => {
+                        if (!uploadedFile) {
+                          fileInputRef.current?.click();
+                        } else {
+                          handleAnalyze();
+                        }
+                      }}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Analyzing...' : uploadedFile ? 'Upload and Analyze' : 'Select Resume'}
+                    </button>
+                    <button
+                      className="preview-button"
+                      onClick={handleTogglePreview}
+                      disabled={isLoading || !uploadedFile}
+                    >
+                      {showPreview ? 'Close Resume PDF' : 'View Resume PDF'}
+                    </button>
+                  </div>
 
-                  {/* View Resume Button (Secondary) */}
-                  <button
-                    className="preview-button"
-                    onClick={handleTogglePreview}
-                    disabled={isLoading || !uploadedFile}
-                  >
-                    {showPreview ? 'Close Resume PDF' : 'View Resume PDF'}
-                  </button>
-                </div>
+                  {/* Error Message */}
+                  {error && (
+                    <div className="error-message">
+                      <span className="error-icon" style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
+                        {React.createElement(otherIcons["FaExclamationTriangle"], { color: '#ef4444' })}
+                      </span>
+                      <span>{error}</span>
+                    </div>
+                  )}
 
-                {/* Error Message */}
-                {error && (
-                  <div className="error-message">
-                    <span className="error-icon" style={{ display: 'flex', alignItems: 'center', marginTop: '2px' }}>
-                      {React.createElement(otherIcons["FaExclamationTriangle"], { color: '#ef4444' })}
+                  {/* Privacy Note */}
+                  <div className="privacy-note">
+                    <span className="info-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                      </svg>
                     </span>
-                    <span>{error}</span>
+                    <p>Please remove sensitive information (e.g., address, SSN, personal contact details) before uploading your resume.</p>
                   </div>
-                )}
+                </>
+              )}
+            </div>
+          </section>
 
-                {/* Privacy Note */}
-                <div className="privacy-note">
-                  <span className="info-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                    </svg>
-                  </span>
-                  <p>Please remove sensitive information (e.g., address, SSN, personal contact details) before uploading your resume.</p>
+          {/* ── Results Area ───────────────────────────────────── */}
+          {isLoading && (
+            <section className="results-area">
+              <div className="loading-section">
+                <div className="loading-spinner"></div>
+                <h3>Analyzing Your Resume...</h3>
+                <p>Please wait while our AI processes your information</p>
+              </div>
+            </section>
+          )}
+
+          {showPreview && !isLoading && (
+            <section className="results-area">
+              <div className={`preview-panel ${isClosing ? 'closing' : ''}`}>
+                <div className="preview-panel-header">
+                  <h3>Resume Preview</h3>
+                  <button className="close-preview-btn" onClick={handleClosePreview} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {React.createElement(otherIcons["FaTimes"])} Close
+                  </button>
+                </div>
+                <div className="preview-content-full">
+                  <iframe
+                    src={previewUrl}
+                    className="preview-iframe-full"
+                    title="Resume Preview"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {showResults && !isLoading && !showPreview && predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (
+            <section className="results-area">
+              {/* Results Header */}
+              <div className="results-header-bar">
+                <div>
+                  <h3>Your Career Analysis</h3>
+                  <p className="results-context">
+                    These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength, not probability of success.
+                  </p>
                 </div>
               </div>
 
-            </div>
-
-            {/* Right Column - Results Section */}
-            <div className="right-column">
-              {isLoading ? (
-                <div className="loading-section">
-                  <div className="loading-spinner"></div>
-                  <h3>Analyzing Your Resume...</h3>
-                  <p>Please wait while our AI processes your information</p>
-                </div>
-              ) : showPreview ? (
-                // Resume Preview Mode
-                <div className={`results-section preview-mode ${isClosing ? 'closing' : ''}`}>
-                  <div className="results-header">
-                    <div className="results-title-row">
-                      <h3>Resume Preview</h3>
-                      <button className="close-preview-btn" onClick={handleClosePreview} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        {React.createElement(otherIcons["FaTimes"])} Close
-                      </button>
+              {/* Primary Match — Full Width Hero Card */}
+              {(() => {
+                const top = predictionResults.top_predictions[0];
+                const reliability = calculateProfileFit(top.raw_confidence);
+                return (
+                  <div className="primary-prediction-card">
+                    <div className="primary-card-header">
+                      <div className="primary-icon-wrapper">
+                        {getCareerIcon(top.career_path)}
+                      </div>
+                      <div className="primary-info">
+                        <h4 className="section-label">Strongest Match</h4>
+                        <h3 className="primary-career-name">{top.career_path}</h3>
+                        <span className="primary-label">Rank #1 based on your profile</span>
+                      </div>
+                      <div className="primary-fit-badge">
+                        <span className="fit-number">{reliability}%</span>
+                        <span className="fit-label">Profile Fit</span>
+                        <span className="fit-raw">({top.raw_confidence.toFixed(1)}% raw)</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="preview-content-full">
-                    <iframe
-                      src={previewUrl}
-                      className="preview-iframe-full"
-                      title="Resume Preview"
-                    />
-                  </div>
-                </div>
-              ) : showResults ? (
-                <div className="results-section">
-                  <div className="results-header">
-                    <div className="results-title-row">
-                      <h3>Your Career Analysis</h3>
+
+                    <div className="primary-profile-fit">
+                      <div className="profile-fit-bar">
+                        <div className="profile-fit-bar-fill" style={{ width: `${reliability}%` }}></div>
+                      </div>
                     </div>
-                    <p className="results-context">
-                      These results compare your profile against 26 career paths. The "Profile Fit" score reflects alignment strength, not probability of success.
-                    </p>
 
+                    <button
+                      className="learn-more-button"
+                      onClick={() => handleViewDetailedAnalysis(top.career_path)}
+                    >
+                      <span>View Detailed Analysis</span>
+                      {React.createElement(otherIcons["FaArrowRight"], { size: 14 })}
+                    </button>
                   </div>
+                );
+              })()}
 
-                  {predictionResults && predictionResults.top_predictions && predictionResults.top_predictions.length > 0 && (
-                    <>
-                      {/* 1. Summary Section (Strongest Match) */}
-                      {(() => {
-                        const reliability = calculateProfileFit(predictionResults.top_predictions[0].raw_confidence);
-                        return (
-                          <div className="primary-match-section">
-                            <h4 className="section-label">Strongest Match</h4>
-                            <div className="primary-prediction-card">
-                              <div className="primary-card-header">
-                                <div className="primary-icon-wrapper">
-                                  {getCareerIcon(predictionResults.top_predictions[0].career_path)}
-                                </div>
-                                <div className="primary-info">
-                                  <h3 className="primary-career-name">
-                                    {predictionResults.top_predictions[0].career_path}
-                                  </h3>
-                                  <span className="primary-label">Rank #1 based on your profile</span>
-                                </div>
-                              </div>
-
-                              <div className="primary-profile-fit">
-                                <div className="profile-fit-header">
-                                  <span className="profile-fit-label">Profile Fit</span>
-                                  <span className="profile-fit-value">
-                                    {reliability}%
-                                    <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginLeft: '6px', fontWeight: 'normal' }}>
-                                      ({predictionResults.top_predictions[0].raw_confidence.toFixed(1)}% raw)
-                                    </span>
-                                  </span>
-                                </div>
-                                <div className="profile-fit-bar">
-                                  <div className="profile-fit-bar-fill" style={{ width: `${reliability}%` }}></div>
-                                </div>
-                              </div>
-
-                              <button
-                                className="learn-more-button"
-                                onClick={() => handleViewDetailedAnalysis(predictionResults.top_predictions[0].career_path)}
-                              >
-                                <span>View Detailed Analysis</span>
-                                {React.createElement(otherIcons["FaArrowRight"], { size: 14 })}
-                              </button>
+              {/* Secondary Matches — Side by Side Cards */}
+              {predictionResults.top_predictions.length > 1 && (
+                <div className="secondary-matches-grid">
+                  <h4 className="section-label">Also Strong Matches</h4>
+                  <div className="secondary-cards-row">
+                    {predictionResults.top_predictions.slice(1, 3).map((career, index) => {
+                      const fit = calculateProfileFit(career.raw_confidence);
+                      return (
+                        <div key={index + 1} className="secondary-prediction-card">
+                          <div className="secondary-card-top">
+                            <div className="secondary-rank">#{index + 2}</div>
+                            <div className="secondary-icon">
+                              {getCareerIcon(career.career_path)}
+                            </div>
+                            <div className="secondary-info">
+                              <h5 className="secondary-career-name">{career.career_path}</h5>
                             </div>
                           </div>
-                        );
-                      })()}
 
-
-
-
-                      {/* 2. Next Best Matches (Rank 2 & 3) */}
-                      {predictionResults.top_predictions.length > 1 && (() => {
-                        return (
-                          <div className="secondary-matches-section">
-                            <h4 className="section-label">Also Strong Matches</h4>
-                            <div className="secondary-predictions-list">
-                              {predictionResults.top_predictions.slice(1, 3).map((career, index) => (
-                                <div key={index + 1} className="secondary-prediction-card">
-                                  <div className="secondary-card-content">
-                                    <div className="secondary-left">
-                                      <div className="secondary-rank">#{index + 2}</div>
-                                      <div className="secondary-icon">
-                                        {getCareerIcon(career.career_path)}
-                                      </div>
-                                      <div className="secondary-info">
-                                        <h5 className="secondary-career-name">{career.career_path}</h5>
-                                      </div>
-                                    </div>
-
-                                    <div className="secondary-profile-fit">
-                                      <div className="secondary-fit-header">
-                                        <span className="secondary-fit-label">Profile Fit</span>
-                                        <span className="secondary-fit-value">
-                                          {calculateProfileFit(career.raw_confidence)}%
-                                          <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 'normal' }}>
-                                            ({career.raw_confidence.toFixed(1)}% raw)
-                                          </span>
-                                        </span>
-                                      </div>
-                                      <div className="secondary-fit-bar">
-                                        <div className="secondary-fit-bar-fill" style={{ width: `${calculateProfileFit(career.raw_confidence)}%` }}></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <button
-                                    className="secondary-view-button"
-                                    onClick={() => handleViewDetailedAnalysis(career.career_path)}
-                                  >
-                                    View Analysis
-                                  </button>
-                                </div>
-                              ))}
+                          <div className="secondary-profile-fit">
+                            <div className="secondary-fit-header">
+                              <span className="secondary-fit-label">Profile Fit</span>
+                              <span className="secondary-fit-value">
+                                {fit}%
+                                <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 'normal' }}>
+                                  ({career.raw_confidence.toFixed(1)}% raw)
+                                </span>
+                              </span>
+                            </div>
+                            <div className="secondary-fit-bar">
+                              <div className="secondary-fit-bar-fill" style={{ width: `${fit}%` }}></div>
                             </div>
                           </div>
-                        );
-                      })()}
 
-                      {/* 3. Full Transparency Section */}
-                      <div className="transparency-section">
-                        <div className="transparency-header">
                           <button
-                            className="expand-button"
-                            onClick={() => setShowAllPaths(!showAllPaths)}
+                            className="secondary-view-button"
+                            onClick={() => handleViewDetailedAnalysis(career.career_path)}
                           >
-                            {showAllPaths ? "Hide All Career Paths" : "View All Career Paths"}
+                            View Analysis
                           </button>
                         </div>
-
-                        {showAllPaths && (
-                          <div className="all-paths-grid">
-                            <div className="paths-header-row">
-                              <span>Rank</span>
-                              <span>Career Path</span>
-                            </div>
-                            {predictionResults.top_predictions.map((career, index) => (
-                              <div key={index} className="path-item">
-                                <span className="path-rank">#{index + 1}</span>
-                                <span className="path-name">{career.career_path}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="placeholder-section">
-                  <div className="placeholder-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="#2563eb">
-                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
-                    </svg>
+                      );
+                    })}
                   </div>
-                  <h3>Your Career Predictions Will Appear Here</h3>
-                  <p>Upload your resume to see AI-powered career recommendations tailored to your profile</p>
                 </div>
               )}
-            </div>
-          </div>
+
+              {/* Full Transparency Section */}
+              <div className="transparency-section">
+                <button
+                  className="expand-button"
+                  onClick={() => setShowAllPaths(!showAllPaths)}
+                >
+                  {showAllPaths ? "Hide All Career Paths" : "View All Career Paths"}
+                </button>
+
+                {showAllPaths && (
+                  <div className="all-paths-grid">
+                    <div className="paths-header-row">
+                      <span>Rank</span>
+                      <span>Career Path</span>
+                    </div>
+                    {predictionResults.top_predictions.map((career, index) => (
+                      <div key={index} className="path-item">
+                        <span className="path-rank">#{index + 1}</span>
+                        <span className="path-name">{career.career_path}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
         </div>
       </main>
 

@@ -18,7 +18,7 @@ const LandingPage = () => {
     if (currentUser) {
       navigate('/dashboard');
     } else {
-      setAuthModalView('login');
+      setAuthModalView('register');
       setIsAuthModalOpen(true);
     }
   };
@@ -46,6 +46,19 @@ const LandingPage = () => {
   return (
     <div className="landing-container">
 
+      {/* Constellation Background */}
+      <div className="constellation" aria-hidden="true">
+        <div className="constellation-orb" />
+        <div className="constellation-orb" />
+        <div className="constellation-orb" />
+        <div className="constellation-orb" />
+      </div>
+
+      {/* Grain Overlay */}
+      <div className="landing-grain" aria-hidden="true" />
+
+
+      {/* ── Header ──────────────────────────────────────────────── */}
       <header className="landing-header">
         <div className="header-logo">
           <Logo variant="modern" />
@@ -68,6 +81,7 @@ const LandingPage = () => {
         </div>
       </header>
 
+      {/* Logout Confirmation */}
       {showLogoutConfirm && (
         <div className="landing-logout-bar">
           <span>Are you sure you want to logout?</span>
@@ -78,29 +92,59 @@ const LandingPage = () => {
         </div>
       )}
 
-      {/* Hero Section */}
+      {/* ── Hero Section ────────────────────────────────────────── */}
       <main className="hero-section">
         <div className="hero-content">
           <div className="hero-text">
-            <h1 className="brand-name">Find your best-fit career path, faster.</h1>
+
+
+            <h1 className="brand-name">
+              Find your best&#8209;fit{' '}
+              <span className="accent">career path</span>, faster.
+            </h1>
+
             <h2 className="hero-tagline">
-              Discover Your Perfect Career Path with AI-Powered Resume Analysis
+              Upload your resume and discover personalized career recommendations in seconds.
             </h2>
+
             <p className="hero-description">
-              Upload your resume and let our <strong>machine learning</strong>-powered AI analyze your skills,
-              experience, and qualifications to recommend the most suitable career paths tailored just for you
-              across <strong>26 career paths</strong>.
+              Our <strong>machine learning</strong> engine analyzes your skills, experience, and qualifications,
+              then matches you to the most suitable paths across <strong>26 career categories</strong>.
             </p>
+
+            <div className="hero-cta-group">
+              {!currentUser ? (
+                <>
+                  <button className="cta-primary" onClick={handleGetStarted}>
+                    Start Free Analysis
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                  <button className="cta-ghost" onClick={handleLoginClick}>
+                    I have an account
+                  </button>
+                </>
+              ) : (
+                <button className="cta-primary" onClick={() => navigate('/dashboard')}>
+                  Go to Dashboard
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
+          {/* Hero Visual — Career Results Preview */}
           <div className="hero-visual">
             <div className="career-results-card">
               <div className="card-header">
                 <div className="status-indicator">
-                  <span className="status-dot red"></span>
-                  <span className="status-dot yellow"></span>
-                  <span className="status-dot green"></span>
-                  <span className="status-text">ANALYSIS COMPLETE</span>
+                  <span className="status-dot red" />
+                  <span className="status-dot yellow" />
+                  <span className="status-dot green" />
+                  <span className="status-text">Analysis Complete</span>
                 </div>
                 <div className="file-info">
                   <span className="file-name">analysis_v2.0.pdf</span>
@@ -113,6 +157,7 @@ const LandingPage = () => {
               </div>
 
               <div className="matches-container">
+                {/* Primary Match */}
                 <div className="match-card primary">
                   <div className="match-content">
                     <div className="match-percentage">
@@ -124,22 +169,21 @@ const LandingPage = () => {
                       </svg>
                     </div>
                     <div className="match-details">
-                      <h3 className="match-title">
-                        Banking & Financial Services Careers
-                      </h3>
+                      <h3 className="match-title">Banking &amp; Financial Services</h3>
                       <div className="match-tags">
                         <span className="tag high-demand">High Demand</span>
-                        <span className="tag">Finance + Operations</span>
+                        <span className="tag">Finance + Ops</span>
                       </div>
                     </div>
                   </div>
                   <button className="match-arrow">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </div>
 
+                {/* Secondary Match 1 */}
                 <div className="match-card secondary">
                   <div className="match-content">
                     <div className="match-percentage small">
@@ -151,9 +195,7 @@ const LandingPage = () => {
                       </svg>
                     </div>
                     <div className="match-details">
-                      <h3 className="match-title">
-                        Finance & Investment Careers
-                      </h3>
+                      <h3 className="match-title">Finance &amp; Investment</h3>
                       <div className="match-tags">
                         <span className="tag">Analysis + Strategy</span>
                       </div>
@@ -161,6 +203,7 @@ const LandingPage = () => {
                   </div>
                 </div>
 
+                {/* Secondary Match 2 */}
                 <div className="match-card secondary">
                   <div className="match-content">
                     <div className="match-percentage small">
@@ -172,11 +215,9 @@ const LandingPage = () => {
                       </svg>
                     </div>
                     <div className="match-details">
-                      <h3 className="match-title">
-                        Cybersecurity Careers
-                      </h3>
+                      <h3 className="match-title">Cybersecurity</h3>
                       <div className="match-tags">
-                        <span className="tag">Security + Technology</span>
+                        <span className="tag">Security + Tech</span>
                       </div>
                     </div>
                   </div>
@@ -185,62 +226,91 @@ const LandingPage = () => {
 
               <div className="processing-badge">
                 <div className="badge-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 2v11h3v9l7-12h-4l4-8z" />
                   </svg>
                 </div>
                 <div className="badge-text">
-                  <span className="badge-label">Processing time</span>
+                  <span className="badge-label">Processing</span>
                   <span className="badge-value">0.42 seconds</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <section className="features-section">
-
-          {/* Features Grid */}
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaBolt"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Lightning Fast</h3>
-              <p className="feature-description">Get career predictions in seconds with our optimized AI engine</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaCheckCircle"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Highly Accurate</h3>
-              <p className="feature-description">Advanced machine learning ensures precise career recommendations</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["FaLock"], { size: 32, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Secure & Private</h3>
-              <p className="feature-description">Your resume data is encrypted and never shared with third parties</p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">
-                {React.createElement(otherIcons["MdInsights"], { size: 40, color: "#2563eb" })}
-              </div>
-              <h3 className="feature-title">Detailed Insights</h3>
-              <p className="feature-description">Comprehensive analysis with skill matching and career probabilities</p>
-            </div>
-          </div>
-        </section>
       </main>
 
-      {/* Footer */}
-      {/* <footer className="landing-footer">
-        <p>© 2025 CareerPath-AI. Empowering your career decisions with artificial intelligence.</p>
-      </footer> */}
+      {/* ── How It Works ────────────────────────────────────────── */}
+      <section className="steps-section">
+        <div className="steps-header">
+          <span className="steps-label">How It Works</span>
+          <h2>Three steps to your ideal career</h2>
+        </div>
+
+        <div className="steps-grid">
+          <div className="step-card">
+            <div className="step-connector" />
+            <div className="step-number">1</div>
+            <h3>Upload Your Resume</h3>
+            <p>Drop in your PDF or text resume — we accept all standard formats securely.</p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-connector" />
+            <div className="step-number">2</div>
+            <h3>AI Analyzes Your Profile</h3>
+            <p>Our trained model extracts skills and experience to match against career patterns.</p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-number">3</div>
+            <h3>Get Career Matches</h3>
+            <p>Receive ranked career paths with confidence scores and actionable learning roadmaps.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features Grid ───────────────────────────────────────── */}
+      <section className="features-section">
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaBolt"], { size: 22 })}
+            </div>
+            <h3 className="feature-title">Lightning Fast</h3>
+            <p className="feature-description">Career predictions in seconds with our optimized AI engine</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaCheckCircle"], { size: 22 })}
+            </div>
+            <h3 className="feature-title">Highly Accurate</h3>
+            <p className="feature-description">Advanced machine learning ensures precise career matching</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["FaLock"], { size: 22 })}
+            </div>
+            <h3 className="feature-title">Secure &amp; Private</h3>
+            <p className="feature-description">Resume data encrypted and never shared with third parties</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              {React.createElement(otherIcons["MdInsights"], { size: 26 })}
+            </div>
+            <h3 className="feature-title">Deep Insights</h3>
+            <p className="feature-description">Skill matching, career probabilities, and learning roadmaps</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ──────────────────────────────────────────────── */}
+      <footer className="landing-footer">
+        <p>&copy; 2025 CareerPath-AI. Empowering career decisions with artificial intelligence.</p>
+      </footer>
 
       {/* Auth Modal */}
       <AuthModal
