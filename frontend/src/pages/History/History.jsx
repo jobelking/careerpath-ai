@@ -107,12 +107,12 @@ const History = () => {
     const calculateProfileFit = (rawProbability) => {
         const p = rawProbability;
         if (p < 5) return Math.round((p / 5) * 35);
-        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);
-        if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15);
-        if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18);
-        if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2);
-        if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5);
-        return Math.round(90 + ((p - 50) / 50) * 5);
+        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);
+        if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13);
+        if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18);
+        if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3);
+        if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9);
+        return Math.round(92 + ((p - 50) / 50) * 5);
     };
 
     // ── Format date ───────────────────────────────────────────────────────────

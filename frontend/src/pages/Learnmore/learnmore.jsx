@@ -299,26 +299,26 @@ const Learnmore = () => {
         ?? extractedKeywords.length;
 
     // Calculate profile fit score (same logic as Dashboard)
-    // Uses historical accuracy from Feb 2026 calibration data (26 classes, 1583 test samples, 81.87% overall accuracy)
+    // Uses historical accuracy from Apr 2026 calibration data (26 classes, 1497 test samples, 84.97% overall accuracy)
     // Calibration bins:
-    //   0-5% raw → N/A (only 2 samples, statistically unreliable - use linear interpolation)
-    //   5-10% raw → 45% accuracy (199 samples)
-    //   10-15% raw → 65% accuracy (184 samples)
-    //   15-20% raw → 83% accuracy (145 samples)
-    //   20-30% raw → 85% accuracy (198 samples)
-    //   30-50% raw → 90% accuracy (276 samples)
-    //   50-100% raw → 95% accuracy (579 samples)
+    //   0-5% raw → 0% accuracy (2 samples, statistically unreliable - use linear interpolation)
+    //   5-10% raw → 49% accuracy (146 samples)
+    //   10-15% raw → 62% accuracy (145 samples)
+    //   15-20% raw → 80% accuracy (128 samples)
+    //   20-30% raw → 83% accuracy (191 samples)
+    //   30-50% raw → 92% accuracy (237 samples)
+    //   50-100% raw → 97% accuracy (648 samples)
     //   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
     const calculateProfileFit = (rawProbability) => {
         const p = rawProbability;
 
-        if (p < 5) return Math.round((p / 5) * 35);              // 0-5% → 0-35% (linear ramp into the 5-10% bin start)
-        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);  // 5-10% → 35-50% (centered at 45%, interpolated for UI)
-        if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15); // 10-15% → 50-65%
-        if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
-        if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2); // 20-30% → 83-85%
-        if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5); // 30-50% → 85-90%
-        return Math.round(90 + ((p - 50) / 50) * 5);             // 50-100% → 90-95%
+        if (p < 5) return Math.round((p / 5) * 35);              // 0-5%   → 0-35%
+        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);  // 5-10%  → 35-49%
+        if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13); // 10-15% → 49-62%
+        if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18); // 15-20% → 62-80%
+        if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3); // 20-30% → 80-83%
+        if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9); // 30-50% → 83-92%
+        return Math.round(92 + ((p - 50) / 50) * 5);             // 50-100% → 92-97%
     };
 
     const selectedLearningRoadmap = learningRoadmapByPath?.[careerName] ?? null;

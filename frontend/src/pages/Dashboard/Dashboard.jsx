@@ -254,28 +254,28 @@ const Dashboard = () => {
 
   /**
    * Calculates a User-Friendly "Profile Fit" score from the Raw Probability.
-   * Uses historical accuracy from Feb 2026 calibration data.
-   * Based on calibration results (26 classes, 1583 test samples, 81.87% overall accuracy):
-   *   0-5% raw → N/A (only 2 samples, statistically unreliable - use linear interpolation)
-   *   5-10% raw → 45% accuracy (199 samples)
-   *   10-15% raw → 65% accuracy (184 samples)
-   *   15-20% raw → 83% accuracy (145 samples)
-   *   20-30% raw → 85% accuracy (198 samples)
-   *   30-50% raw → 90% accuracy (276 samples)
-   *   50-100% raw → 95% accuracy (579 samples)
+   * Uses historical accuracy from Apr 2026 calibration data.
+   * Based on calibration results (26 classes, 1497 test samples, 84.97% overall accuracy):
+   *   0-5% raw → 0% accuracy (2 samples, statistically unreliable - use linear interpolation)
+   *   5-10% raw → 49% accuracy (146 samples)
+   *   10-15% raw → 62% accuracy (145 samples)
+   *   15-20% raw → 80% accuracy (128 samples)
+   *   20-30% raw → 83% accuracy (191 samples)
+   *   30-50% raw → 92% accuracy (237 samples)
+   *   50-100% raw → 97% accuracy (648 samples)
    * 
    *   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
    */
   const calculateProfileFit = (rawProbability) => {
     const p = rawProbability;
 
-    if (p < 5) return Math.round((p / 5) * 35);              // 0-5% → 0-35% (linear ramp into the 5-10% bin start)
-    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 15);  // 5-10% → 35-50% (centered at 45%, interpolated for UI)
-    if (p < 15) return Math.round(50 + ((p - 10) / 5) * 15); // 10-15% → 50-65%
-    if (p < 20) return Math.round(65 + ((p - 15) / 5) * 18); // 15-20% → 65-83%
-    if (p < 30) return Math.round(83 + ((p - 20) / 10) * 2); // 20-30% → 83-85%
-    if (p < 50) return Math.round(85 + ((p - 30) / 20) * 5); // 30-50% → 85-90%
-    return Math.round(90 + ((p - 50) / 50) * 5);             // 50-100% → 90-95%
+    if (p < 5) return Math.round((p / 5) * 35);              // 0-5%   → 0-35%  (linear ramp into the 5-10% bin start)
+    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);  // 5-10%  → 35-49% (centered at ~49%, per calibration)
+    if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13); // 10-15% → 49-62%
+    if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18); // 15-20% → 62-80%
+    if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3); // 20-30% → 80-83%
+    if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9); // 30-50% → 83-92%
+    return Math.round(92 + ((p - 50) / 50) * 5);             // 50-100% → 92-97%
   };
 
   // Determine current dashboard mode for layout
@@ -617,6 +617,38 @@ const Dashboard = () => {
                   </p>
                 </div>
               </div>
+
+              {/* Low-confidence advisory note */}
+              {(() => {
+                const topRaw = predictionResults.top_predictions[0]?.raw_confidence ?? 0;
+                if (topRaw < 5) {
+                  return (
+                    <div className="confidence-advisory confidence-advisory--warning">
+                      <span className="confidence-advisory-icon">
+                        {React.createElement(otherIcons["FaExclamationTriangle"], { size: 16 })}
+                      </span>
+                      <div className="confidence-advisory-body">
+                        <strong>Low-signal prediction</strong>
+                        <p>The model found very few distinguishing patterns in your resume (below 35% Profile Fit). At this level the prediction is essentially a guess. Try uploading a more detailed or role-specific resume for better results.</p>
+                      </div>
+                    </div>
+                  );
+                }
+                if (topRaw < 10) {
+                  return (
+                    <div className="confidence-advisory confidence-advisory--caution">
+                      <span className="confidence-advisory-icon">
+                        {React.createElement(otherIcons["FaExclamationTriangle"], { size: 16 })}
+                      </span>
+                      <div className="confidence-advisory-body">
+                        <strong>Uncertain prediction</strong>
+                        <p>The model's confidence is low (below 49% Profile Fit). At this level, predictions are correct roughly half the time. Consider adding more work experience or skills detail to your resume.</p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               {/* Primary Match — Full Width Hero Card */}
               {(() => {
