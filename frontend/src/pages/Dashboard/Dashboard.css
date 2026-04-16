@@ -304,8 +304,15 @@
 }
 
 @keyframes menuSlideDown {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .mobile-nav-greeting {
@@ -430,8 +437,15 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .logout-confirm-actions {
@@ -1094,8 +1108,13 @@
   gap: 0.85rem;
 }
 
-.secondary-prediction-card:nth-child(1) { animation-delay: 0.2s; }
-.secondary-prediction-card:nth-child(2) { animation-delay: 0.35s; }
+.secondary-prediction-card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.secondary-prediction-card:nth-child(2) {
+  animation-delay: 0.35s;
+}
 
 .secondary-prediction-card:hover {
   transform: translateY(-2px);
@@ -1330,7 +1349,7 @@
   border: 1px solid #e8ecf0;
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 80vh;
   animation: fadeIn 0.15s ease-out forwards;
 }
 
@@ -1385,7 +1404,7 @@
   height: 100%;
   border: none;
   display: block;
-  min-height: 500px;
+  min-height: 80vh;
 }
 
 /* ================================================================
@@ -1393,37 +1412,81 @@
    ================================================================ */
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(8px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 /* ================================================================
@@ -1581,11 +1644,11 @@
 
   /* Preview */
   .preview-panel {
-    min-height: 400px;
+    min-height: 75vh;
   }
 
   .preview-iframe-full {
-    min-height: 350px;
+    min-height: 70vh;
   }
 
   /* Logout bar */
