@@ -6,7 +6,9 @@ import apiService from '../../services/api/apiService';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
 import { otherIcons } from '../../utils/otherIcons';
+import { authIcons } from '../../utils/authIcons';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
+import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
 import './History.css';
 
 const History = () => {
@@ -31,7 +33,10 @@ const History = () => {
     const [analysisMenuOpenId, setAnalysisMenuOpenId] = useState(null);
     const [menuOpen, setMenuOpen] = useState(false);
     const [showCareerPaths, setShowCareerPaths] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
     const menuRef = useRef(null);
+    const userDropdownRef = useRef(null);
 
     // Close menu on outside click
     useEffect(() => {
@@ -43,6 +48,19 @@ const History = () => {
         if (menuOpen) document.addEventListener('mousedown', handleOutsideClick);
         return () => document.removeEventListener('mousedown', handleOutsideClick);
     }, [menuOpen]);
+
+    // Close user dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+                setUserDropdownOpen(false);
+            }
+        };
+        if (userDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [userDropdownOpen]);
 
     useEffect(() => {
         const handleExportMenuClick = (e) => {
@@ -318,22 +336,59 @@ const History = () => {
                     </nav>
 
                     <div className="history-header-right">
+                        {currentUser?.is_admin && (
+                            <button className="history-admin-btn" onClick={() => navigate('/admin')}>
+                                🛡 Admin
+                            </button>
+                        )}
+
+                        {/* User dropdown (profile chip → clickable) */}
                         {currentUser && (
-                            <div className="history-profile-chip">
-                                <span className="history-profile-dot" aria-hidden="true"></span>
-                                <span className="history-greeting">{currentUser.username}</span>
+                            <div className="history-user-dropdown-container" ref={userDropdownRef}>
+                                <button
+                                    className={`history-user-dropdown-trigger ${userDropdownOpen ? 'open' : ''}`}
+                                    onClick={() => setUserDropdownOpen(v => !v)}
+                                    aria-expanded={userDropdownOpen}
+                                    aria-haspopup="true"
+                                >
+                                    <span className="history-profile-dot" aria-hidden="true"></span>
+                                    <span className="history-greeting">{currentUser.username}</span>
+                                    {React.createElement(authIcons['FaChevronDown'], {
+                                        className: `history-user-dropdown-chevron ${userDropdownOpen ? 'rotated' : ''}`,
+                                        size: 11
+                                    })}
+                                </button>
+
+                                {userDropdownOpen && (
+                                    <div className="history-user-dropdown-menu">
+                                        <div className="history-user-dropdown-header">
+                                            <span className="history-user-dropdown-email">{currentUser.email}</span>
+                                        </div>
+                                        <button
+                                            className="history-user-dropdown-item"
+                                            onClick={() => {
+                                                setUserDropdownOpen(false);
+                                                setShowChangePassword(true);
+                                            }}
+                                        >
+                                            {React.createElement(authIcons['FaKey'], { size: 14 })}
+                                            Change Password
+                                        </button>
+                                        <div className="history-user-dropdown-divider"></div>
+                                        <button
+                                            className="history-user-dropdown-item history-user-dropdown-item--danger"
+                                            onClick={() => {
+                                                setUserDropdownOpen(false);
+                                                setShowLogoutConfirm(true);
+                                            }}
+                                        >
+                                            {React.createElement(authIcons['FaSignOutAlt'], { size: 14 })}
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
-                        <div className="history-action-group">
-                            {currentUser?.is_admin && (
-                                <button className="history-admin-btn" onClick={() => navigate('/admin')}>
-                                    🛡 Admin
-                                </button>
-                            )}
-                            <button className="history-logout-btn" onClick={() => setShowLogoutConfirm(true)}>
-                                Logout
-                            </button>
-                        </div>
                     </div>
 
                     {/* Hamburger Button (mobile only) */}
@@ -395,6 +450,13 @@ const History = () => {
                             🛡 Admin
                         </button>
                     )}
+                    <div className="mobile-menu-divider"></div>
+                    <button
+                        className="mobile-menu-item dashboard-item"
+                        onClick={() => { setMenuOpen(false); setShowChangePassword(true); }}
+                    >
+                        Change Password
+                    </button>
                     <button
                         className="mobile-menu-item logout-item"
                         onClick={() => { setMenuOpen(false); setShowLogoutConfirm(true); }}
@@ -734,6 +796,12 @@ const History = () => {
             {showCareerPaths && (
                 <CareerPathsModal onClose={() => setShowCareerPaths(false)} />
             )}
+
+            {/* Change Password Modal */}
+            <ChangePasswordModal
+                isOpen={showChangePassword}
+                onClose={() => setShowChangePassword(false)}
+            />
         </div>
     );
 };
