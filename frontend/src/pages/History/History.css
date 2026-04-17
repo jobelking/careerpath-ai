@@ -614,8 +614,7 @@
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
     border: 1px solid #e2e8f0;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: visible;
     animation: fadeInUp 0.5s ease-out;
 }
 
@@ -802,7 +801,7 @@
     flex-direction: column;
     gap: 0.25rem;
     min-width: 140px;
-    z-index: 20;
+    z-index: 250;
 }
 
 .export-menu-dropdown button {
@@ -863,7 +862,7 @@
     flex-direction: column;
     gap: 0.25rem;
     min-width: 140px;
-    z-index: 20;
+    z-index: 250;
 }
 
 .analysis-menu-dropdown button {
