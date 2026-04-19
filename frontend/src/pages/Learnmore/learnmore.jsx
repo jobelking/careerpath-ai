@@ -9,7 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 import apiService from '../../services/api/apiService';
 import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
+import { authIcons } from '../../utils/authIcons';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
+import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
 import { exportToPdf } from '../../utils/exportToPdf';
 import { calculateProfileFit, normalizeTop3Fits } from '../../utils/profileFit';
 import './learnmore.css';
@@ -225,6 +227,12 @@ const Learnmore = () => {
     const [skillsInsightsLoading, setSkillsInsightsLoading] = useState(false);
     const [skillsInsightsError, setSkillsInsightsError] = useState(null);
 
+    // User dropdown and modals state
+    const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const userDropdownRef = useRef(null);
+
     // Right drawer state - default to closed
     const [activePanel, setActivePanel] = useState(null);
 
@@ -247,6 +255,17 @@ const Learnmore = () => {
     // Scroll to top when component mounts
     useEffect(() => {
         window.scrollTo(0, 0);
+    }, []);
+
+    // Click outside to close user dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+                setUserDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     // ── Auto-save learning roadmap to history when generated ─────────────────────
@@ -525,6 +544,11 @@ const Learnmore = () => {
                     isOpen={showCareerPaths}
                     onClose={() => setShowCareerPaths(false)}
                 />
+
+                <ChangePasswordModal
+                    isOpen={showChangePassword}
+                    onClose={() => setShowChangePassword(false)}
+                />
             </div>
         );
     }
@@ -595,12 +619,6 @@ const Learnmore = () => {
                     </button>
 
                     <div className="learnmore-header-right">
-                        {currentUser && (
-                            <div className="learnmore-profile-chip">
-                                <span className="learnmore-profile-dot" aria-hidden="true"></span>
-                                <span className="learnmore-greeting">{currentUser.username}</span>
-                            </div>
-                        )}
                         <div className="learnmore-action-group">
                             <button className="learnmore-export-btn" onClick={handleExportPdf} disabled={isExporting}>
                                 {React.createElement(otherIcons[isExporting ? "FaSpinner" : "FaDownload"], { size: 13 })}
@@ -611,12 +629,67 @@ const Learnmore = () => {
                                     🛡 Admin
                                 </button>
                             )}
-                            <button className="learnmore-logout-btn" onClick={handleLogout}>
-                                Logout
-                            </button>
                         </div>
+
+                        {/* User dropdown */}
+                        {currentUser && (
+                            <div className="learnmore-user-dropdown-container" ref={userDropdownRef}>
+                                <button
+                                    className={`learnmore-user-dropdown-trigger ${userDropdownOpen ? 'open' : ''}`}
+                                    onClick={() => setUserDropdownOpen(v => !v)}
+                                    aria-expanded={userDropdownOpen}
+                                    aria-haspopup="true"
+                                >
+                                    <span className="learnmore-profile-dot" aria-hidden="true"></span>
+                                    <span className="learnmore-greeting">{currentUser.username}</span>
+                                    {React.createElement(authIcons['FaChevronDown'], {
+                                        className: `learnmore-user-dropdown-chevron ${userDropdownOpen ? 'rotated' : ''}`,
+                                        size: 11
+                                    })}
+                                </button>
+
+                                {userDropdownOpen && (
+                                    <div className="learnmore-user-dropdown-menu">
+                                        <div className="learnmore-user-dropdown-header">
+                                            <span className="learnmore-user-dropdown-email">{currentUser.email}</span>
+                                        </div>
+                                        <button
+                                            className="learnmore-user-dropdown-item"
+                                            onClick={() => {
+                                                setUserDropdownOpen(false);
+                                                setShowChangePassword(true);
+                                            }}
+                                        >
+                                            {React.createElement(authIcons['FaKey'], { size: 14 })}
+                                            Change Password
+                                        </button>
+                                        <div className="learnmore-user-dropdown-divider"></div>
+                                        <button
+                                            className="learnmore-user-dropdown-item learnmore-user-dropdown-item--danger"
+                                            onClick={() => {
+                                                setUserDropdownOpen(false);
+                                                setShowLogoutConfirm(true);
+                                            }}
+                                        >
+                                            {React.createElement(authIcons['FaSignOutAlt'], { size: 14 })}
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {showLogoutConfirm && (
+                    <div className="learnmore-logout-bar">
+                        <span>Are you sure you want to logout?</span>
+                        <div className="learnmore-logout-actions">
+                            <button className="logout-yes-btn" onClick={handleLogout}>Yes, Logout</button>
+                            <button className="logout-cancel-btn" onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Mobile nav drawer */}
                 {menuOpen && (
@@ -642,7 +715,7 @@ const Learnmore = () => {
                                 🛡 Admin
                             </button>
                         )}
-                        <button className="mobile-nav-btn mobile-nav-btn-logout" onClick={handleLogout}>
+                        <button className="mobile-nav-btn mobile-nav-btn-logout" onClick={() => { setMenuOpen(false); setShowLogoutConfirm(true); }}>
                             Logout
                         </button>
                     </div>

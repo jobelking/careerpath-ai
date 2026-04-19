@@ -21,7 +21,7 @@
 
 .history-header-content {
     margin: 0 auto;
-    padding: 1rem 3rem;
+    padding: 0.85rem 2.5rem;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
