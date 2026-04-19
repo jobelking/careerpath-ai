@@ -9,6 +9,7 @@ import { useDashboard } from '../../context/DashboardContext';
 import { useAuth } from '../../context/AuthContext';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
+import { calculateProfileFit, normalizeTop3Fits } from '../../utils/profileFit';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -141,11 +142,67 @@ const Dashboard = () => {
       const result = await apiService.predictCareerPath(uploadedFile);
 
       if (result.success) {
-        setPredictionResults(result);
+        let finalResult = result;
+
+        // ── LLM Fallback Verification ─────────────────────────────────────
+        // If the model's raw confidence is below 10%, verify top 3 via LLM
+        const topRawConfidence = result.top_predictions?.[0]?.raw_confidence ?? 0;
+        if (topRawConfidence < 10 && result.resume_text) {
+          try {
+            // Fetch the list of all career paths for the LLM prompt
+            let allCareerPaths = [];
+            try {
+              const careersData = await apiService.getAvailableCareers();
+              allCareerPaths = careersData.careers || [];
+            } catch {
+              // If careers fetch fails, proceed without — backend will use its own list
+            }
+
+            const verifyResult = await apiService.verifyPrediction(
+              result.resume_text,
+              result.prediction,
+              result.top_predictions.slice(0, 3),
+              allCareerPaths
+            );
+
+            if (verifyResult.success && verifyResult.verification?.verified_predictions) {
+              const { verified_predictions } = verifyResult.verification;
+              const correctedPreds = [...result.top_predictions];
+              let anyCorrection = false;
+
+              // Apply corrections to each of the top 3 positions
+              // IMPORTANT: only replace the career_path name — keep raw_confidence
+              // unchanged so Profile Fit percentages stay the same
+              for (const vp of verified_predictions) {
+                const idx = (vp.position ?? 0) - 1; // 1-indexed → 0-indexed
+                if (idx >= 0 && idx < correctedPreds.length && !vp.is_correct && vp.verified_career) {
+                  correctedPreds[idx] = {
+                    ...correctedPreds[idx],           // preserves raw_confidence
+                    career_path: vp.verified_career,   // only swap the name
+                  };
+                  anyCorrection = true;
+                }
+              }
+
+              if (anyCorrection) {
+                finalResult = {
+                  ...result,
+                  prediction: correctedPreds[0].career_path, // top-1 might have changed
+                  top_predictions: correctedPreds,
+                };
+              }
+            }
+          } catch (verifyErr) {
+            // Verification failed — proceed with original prediction (non-critical)
+            console.warn('LLM verification failed (non-critical):', verifyErr);
+          }
+        }
+
+        setPredictionResults(finalResult);
         setUploadedFileName(uploadedFile.name);
         // Save resume text for learning roadmap
-        if (result.resume_text) {
-          setResumeText(result.resume_text);
+        if (finalResult.resume_text) {
+          setResumeText(finalResult.resume_text);
         }
 
         // ── Auto-save prediction to history (fire-and-forget) ──────────────
@@ -153,18 +210,18 @@ const Dashboard = () => {
         if (token) {
           const fileSnapshot = uploadedFile; // capture before any state reset
           apiService.saveHistory(token, {
-            prediction_result: result.prediction,
-            confidence_score: result.raw_confidence,
-            top_predictions: result.top_predictions?.slice(0, 3) ?? [],
+            prediction_result: finalResult.prediction,
+            confidence_score: finalResult.raw_confidence,
+            top_predictions: finalResult.top_predictions?.slice(0, 3) ?? [],
             filename: uploadedFile.name,
             // Strip NUL bytes (0x00) — PostgreSQL rejects them in string literals
-            input_data: result.resume_text
-              ? result.resume_text.replace(/\0/g, '').slice(0, 500)
+            input_data: finalResult.resume_text
+              ? finalResult.resume_text.replace(/\0/g, '').slice(0, 500)
               : null,
-            extracted_keywords: result.extracted_keywords ?? [],
-            extracted_keywords_by_path: result.extracted_keywords_by_path ?? {},
-            total_distinctive_keywords: result.total_distinctive_keywords ?? 0,
-            total_distinctive_keywords_by_path: result.total_distinctive_keywords_by_path ?? {},
+            extracted_keywords: finalResult.extracted_keywords ?? [],
+            extracted_keywords_by_path: finalResult.extracted_keywords_by_path ?? {},
+            total_distinctive_keywords: finalResult.total_distinctive_keywords ?? 0,
+            total_distinctive_keywords_by_path: finalResult.total_distinctive_keywords_by_path ?? {},
           }).then((saved) => {
             // Store the record ID so LearnMore can PATCH roadmap/certs onto it
             if (saved?.id) {
@@ -194,6 +251,7 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
 
   const handleReset = () => {
     setUploadedFile(null);
@@ -237,50 +295,24 @@ const Dashboard = () => {
 
   // Get career icon based on career name using react-icons mapping
   const getCareerIcon = (careerName) => {
-    const Icon = careerIcons[careerName] || careerIcons["Software Engineer"]; // fallback icon
+    // Some backend paths might differ slightly from the map keys (e.g., missing 's')
+    const Icon = careerIcons[careerName] || 
+                 careerIcons[careerName + "s"] ||
+                 careerIcons["Software Development Careers"]; // valid fallback icon
+                 
+    if (!Icon) return null; // Ultimate safety check
     return <Icon size={32} color="#2563eb" />;
-  };
-
-  // --------------------
-  // Confidence (26 classes) - Non-technical UI text
-  // --------------------
-
-  const NUM_CLASSES = 26;
-
-  const toNum = (v) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  };
-
-  /**
-   * Calculates a User-Friendly "Profile Fit" score from the Raw Probability.
-   * Uses historical accuracy from Apr 2026 calibration data.
-   * Based on calibration results (26 classes, 1497 test samples, 84.97% overall accuracy):
-   *   0-5% raw → 0% accuracy (2 samples, statistically unreliable - use linear interpolation)
-   *   5-10% raw → 49% accuracy (146 samples)
-   *   10-15% raw → 62% accuracy (145 samples)
-   *   15-20% raw → 80% accuracy (128 samples)
-   *   20-30% raw → 83% accuracy (191 samples)
-   *   30-50% raw → 92% accuracy (237 samples)
-   *   50-100% raw → 97% accuracy (648 samples)
-   * 
-   *   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
-   */
-  const calculateProfileFit = (rawProbability) => {
-    const p = rawProbability;
-
-    if (p < 5) return Math.round((p / 5) * 35);              // 0-5%   → 0-35%  (linear ramp into the 5-10% bin start)
-    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);  // 5-10%  → 35-49% (centered at ~49%, per calibration)
-    if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13); // 10-15% → 49-62%
-    if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18); // 15-20% → 62-80%
-    if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3); // 20-30% → 80-83%
-    if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9); // 30-50% → 83-92%
-    return Math.round(92 + ((p - 50) / 50) * 5);             // 50-100% → 92-97%
   };
 
   // Determine current dashboard mode for layout
   const hasFile = uploadedFile || (showResults && uploadedFileName);
   const isCompactUpload = showResults || isLoading || showPreview;
+
+  // Normalized Profile Fit so top 3 always sum to 100%
+  const normalizedFits = React.useMemo(
+    () => normalizeTop3Fits(predictionResults?.top_predictions),
+    [predictionResults]
+  );
 
   return (
     <div className="dashboard-container">
@@ -297,6 +329,7 @@ const Dashboard = () => {
             <button className="dashboard-nav-tab active" type="button" disabled>Dashboard</button>
             <button className="dashboard-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
             <button className="dashboard-nav-tab" onClick={() => navigate('/history')}>History</button>
+            <button className="dashboard-nav-tab" onClick={() => navigate('/learnmore')}>Detailed</button>
           </nav>
 
           {/* Hamburger Button (mobile only) */}
@@ -396,6 +429,12 @@ const Dashboard = () => {
               onClick={() => { navigate('/history'); setMenuOpen(false); }}
             >
               History
+            </button>
+            <button
+              className="dashboard-history-btn mobile-nav-btn"
+              onClick={() => { navigate('/learnmore'); setMenuOpen(false); }}
+            >
+              Detailed
             </button>
             {/* Admin Panel button in mobile drawer — only for admins */}
             {currentUser?.is_admin && (
@@ -618,42 +657,11 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Low-confidence advisory note */}
-              {(() => {
-                const topRaw = predictionResults.top_predictions[0]?.raw_confidence ?? 0;
-                if (topRaw < 5) {
-                  return (
-                    <div className="confidence-advisory confidence-advisory--warning">
-                      <span className="confidence-advisory-icon">
-                        {React.createElement(otherIcons["FaExclamationTriangle"], { size: 16 })}
-                      </span>
-                      <div className="confidence-advisory-body">
-                        <strong>Low-signal prediction</strong>
-                        <p>The model found very few distinguishing patterns in your resume (below 35% Profile Fit). At this level the prediction is essentially a guess. Try uploading a more detailed or role-specific resume for better results.</p>
-                      </div>
-                    </div>
-                  );
-                }
-                if (topRaw < 10) {
-                  return (
-                    <div className="confidence-advisory confidence-advisory--caution">
-                      <span className="confidence-advisory-icon">
-                        {React.createElement(otherIcons["FaExclamationTriangle"], { size: 16 })}
-                      </span>
-                      <div className="confidence-advisory-body">
-                        <strong>Uncertain prediction</strong>
-                        <p>The model's confidence is low (below 49% Profile Fit). At this level, predictions are correct roughly half the time. Consider adding more work experience or skills detail to your resume.</p>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
 
               {/* Primary Match — Full Width Hero Card */}
               {(() => {
                 const top = predictionResults.top_predictions[0];
-                const reliability = calculateProfileFit(top.raw_confidence);
+                const reliability = normalizedFits[0] ?? calculateProfileFit(top.raw_confidence ?? 0);
                 return (
                   <div className="primary-prediction-card">
                     <div className="primary-card-header">
@@ -668,7 +676,7 @@ const Dashboard = () => {
                       <div className="primary-fit-badge">
                         <span className="fit-number">{reliability}%</span>
                         <span className="fit-label">Profile Fit</span>
-                        <span className="fit-raw">({top.raw_confidence.toFixed(1)}% raw)</span>
+                        <span className="fit-raw">({(top.raw_confidence ?? 0).toFixed(1)}% raw)</span>
                       </div>
                     </div>
 
@@ -695,7 +703,7 @@ const Dashboard = () => {
                   <h4 className="section-label">Also Strong Matches</h4>
                   <div className="secondary-cards-row">
                     {predictionResults.top_predictions.slice(1, 3).map((career, index) => {
-                      const fit = calculateProfileFit(career.raw_confidence);
+                      const fit = normalizedFits[index + 1] ?? calculateProfileFit(career.raw_confidence ?? 0);
                       return (
                         <div key={index + 1} className="secondary-prediction-card">
                           <div className="secondary-card-top">
@@ -714,7 +722,7 @@ const Dashboard = () => {
                               <span className="secondary-fit-value">
                                 {fit}%
                                 <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginLeft: '4px', fontWeight: 'normal' }}>
-                                  ({career.raw_confidence.toFixed(1)}% raw)
+                                  ({(career.raw_confidence ?? 0).toFixed(1)}% raw)
                                 </span>
                               </span>
                             </div>

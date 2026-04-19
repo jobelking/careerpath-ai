@@ -11,6 +11,7 @@ import { careerIcons } from '../../utils/careerIcons';
 import { otherIcons } from '../../utils/otherIcons';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import { exportToPdf } from '../../utils/exportToPdf';
+import { calculateProfileFit, normalizeTop3Fits } from '../../utils/profileFit';
 import './learnmore.css';
 
 // Career-specific content for all 26 career paths
@@ -298,28 +299,8 @@ const Learnmore = () => {
         ?? selectedExtractedKeywords.length
         ?? extractedKeywords.length;
 
-    // Calculate profile fit score (same logic as Dashboard)
-    // Uses historical accuracy from Apr 2026 calibration data (26 classes, 1497 test samples, 84.97% overall accuracy)
-    // Calibration bins:
-    //   0-5% raw → 0% accuracy (2 samples, statistically unreliable - use linear interpolation)
-    //   5-10% raw → 49% accuracy (146 samples)
-    //   10-15% raw → 62% accuracy (145 samples)
-    //   15-20% raw → 80% accuracy (128 samples)
-    //   20-30% raw → 83% accuracy (191 samples)
-    //   30-50% raw → 92% accuracy (237 samples)
-    //   50-100% raw → 97% accuracy (648 samples)
-    //   0-5% raw → ramps 0→35% (linear, connects smoothly to the 5-10% bin)
-    const calculateProfileFit = (rawProbability) => {
-        const p = rawProbability;
-
-        if (p < 5) return Math.round((p / 5) * 35);              // 0-5%   → 0-35%
-        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);  // 5-10%  → 35-49%
-        if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13); // 10-15% → 49-62%
-        if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18); // 15-20% → 62-80%
-        if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3); // 20-30% → 80-83%
-        if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9); // 30-50% → 83-92%
-        return Math.round(92 + ((p - 50) / 50) * 5);             // 50-100% → 92-97%
-    };
+    // Calculate profile fit score — now imported from shared utility
+    // calculateProfileFit is imported from '../../utils/profileFit'
 
     const selectedLearningRoadmap = learningRoadmapByPath?.[careerName] ?? null;
     const selectedCertificationData = certificationDataByPath?.[careerName] ?? null;
@@ -373,10 +354,17 @@ const Learnmore = () => {
         }
     }, [isExporting, predictionResults, selectedLearningRoadmap, selectedCertificationData, selectedExtractedKeywords, calculateProfileFit, careerContent, logoRef]);
 
-    const profileFitScore = calculateProfileFit(rawConfidence);
-    const nextMatchScore = topThree[resolvedIndex + 1]
-        ? calculateProfileFit(topThree[resolvedIndex + 1].raw_confidence)
-        : 0;
+    const profileFitScore = React.useMemo(() => {
+        const nFits = normalizeTop3Fits(topThree);
+        return nFits[resolvedIndex] ?? calculateProfileFit(rawConfidence);
+    }, [topThree, resolvedIndex, rawConfidence]);
+
+    const nextMatchScore = React.useMemo(() => {
+        const nFits = normalizeTop3Fits(topThree);
+        return topThree[resolvedIndex + 1]
+            ? (nFits[resolvedIndex + 1] ?? calculateProfileFit(topThree[resolvedIndex + 1].raw_confidence))
+            : 0;
+    }, [topThree, resolvedIndex]);
 
     // Calculate evidence breakdown factors (based on actual data)
     const keywordCount = totalDistinctiveKeywords;
@@ -420,10 +408,11 @@ const Learnmore = () => {
 
     // Generate why others ranked lower
     const generateComparisonExplanation = () => {
+        const nFits = normalizeTop3Fits(topThree);
         return topThree
             .filter((_, index) => index !== resolvedIndex)
-            .map((item) => {
-                const score = calculateProfileFit(item.raw_confidence);
+            .map((item, _, __, origIdx = topThree.indexOf(item)) => {
+                const score = nFits[origIdx] ?? calculateProfileFit(item.raw_confidence);
                 const gap = profileFitScore - score;
                 const absGap = Math.abs(gap);
                 const direction = gap >= 0 ? 'lower' : 'higher';
@@ -825,19 +814,22 @@ const Learnmore = () => {
                         <h3 className="comparison-title">Your Top Career Matches</h3>
                         <p className="comparison-subtitle">Compared against 26 career paths</p>
                         <div className="comparison-bars">
-                            {topThree.map((career, index) => (
-                                <div key={index} className={`comparison-row ${index === resolvedIndex ? 'top' : ''}`}>
-                                    <div className="comparison-rank">#{index + 1}</div>
-                                    <div className="comparison-name">{career.career_path}</div>
-                                    <div className="comparison-bar-wrap">
-                                        <div
-                                            className="comparison-bar-fill"
-                                            style={{ width: `${calculateProfileFit(career.raw_confidence)}%` }}
-                                        />
+                            {(() => {
+                                const nFits = normalizeTop3Fits(topThree);
+                                return topThree.map((career, index) => (
+                                    <div key={index} className={`comparison-row ${index === resolvedIndex ? 'top' : ''}`}>
+                                        <div className="comparison-rank">#{index + 1}</div>
+                                        <div className="comparison-name">{career.career_path}</div>
+                                        <div className="comparison-bar-wrap">
+                                            <div
+                                                className="comparison-bar-fill"
+                                                style={{ width: `${nFits[index] ?? calculateProfileFit(career.raw_confidence)}%` }}
+                                            />
+                                        </div>
+                                        <div className="comparison-percent">{nFits[index] ?? calculateProfileFit(career.raw_confidence)}%</div>
                                     </div>
-                                    <div className="comparison-percent">{calculateProfileFit(career.raw_confidence)}%</div>
-                                </div>
-                            ))}
+                                ));
+                            })()}
                         </div>
 
                         {/* Why Others Ranked Lower - Collapsible */}

@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { calculateProfileFit, normalizeTop3Fits } from './profileFit';
 
 /**
  * Generates and downloads a Career Path Recommendation PDF report.
@@ -181,10 +182,11 @@ export const exportToPdf = async ({
             color: [120, 120, 120],
         });
     } else {
+        const nFits = normalizeTop3Fits(topThree);
         topThree.forEach((career, idx) => {
             checkPage(28);
 
-            const score = calculateProfileFit(career.raw_confidence);
+            const score = nFits[idx] ?? calculateProfileFit(career.raw_confidence);
 
             // Rank pill
             doc.setFillColor(239, 246, 255);

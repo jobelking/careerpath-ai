@@ -21,6 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 import apiService from '../../services/api/apiService';
 import Logo from '../../components/common/Logo';
 import { exportToPdf } from '../../utils/exportToPdf';
+import { calculateProfileFit, normalizeTop3Fits } from '../../utils/profileFit';
 import {
   FiAlertTriangle,
   FiCheckCircle,
@@ -474,16 +475,8 @@ const AdminDashboard = () => {
   const fmtConfidence = (score) =>
     score != null ? `${parseFloat(score).toFixed(1)}%` : '—';
 
-  const calculateProfileFit = (rawProbability) => {
-    const p = rawProbability;
-    if (p < 5) return Math.round((p / 5) * 35);
-    if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);
-    if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13);
-    if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18);
-    if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3);
-    if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9);
-    return Math.round(92 + ((p - 50) / 50) * 5);
-  };
+  // calculateProfileFit is now imported from '../../utils/profileFit'
+
 
   // ════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -839,9 +832,13 @@ const AdminDashboard = () => {
                             </div>
                           </td>
                           <td>
-                            {rec.confidence_score != null
-                              ? `${calculateProfileFit(parseFloat(rec.confidence_score))}%`
-                              : '—'}
+                            {(() => {
+                              if (rec.confidence_score == null) return '—';
+                              const topPreds = getTopPredictions(rec);
+                              const nFits = normalizeTop3Fits(topPreds);
+                              const topFit = nFits[0] ?? calculateProfileFit(parseFloat(rec.confidence_score));
+                              return `${topFit}%`;
+                            })()}
                           </td>
                           <td className="adm-cell-muted">{rec.filename || '—'}</td>
                           <td className="adm-cell-muted">{fmtDate(rec.date_created)}</td>

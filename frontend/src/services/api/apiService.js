@@ -273,6 +273,49 @@ class ApiService {
     }
   }
   /**
+   * Verify an uncertain prediction using LLM fallback.
+   * Called when the ML model's raw confidence is below 10%.
+   * @param {string} resumeText - Raw resume text
+   * @param {string} predictedCareer - The model's top prediction
+   * @param {Array} topPredictions - Top 3 predictions with raw_confidence
+   * @param {Array} allCareerPaths - All 26 career paths
+   * @returns {Promise} Verification result { is_correct, verified_career, explanation }
+   */
+  async verifyPrediction(resumeText, predictedCareer, topPredictions, allCareerPaths) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/verify-prediction`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resume_text: resumeText,
+          predicted_career: predictedCareer,
+          top_predictions: topPredictions,
+          all_career_paths: allCareerPaths,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to verify prediction';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error verifying prediction:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Parse FastAPI error detail — handles both string and Pydantic array responses.
    * e.g. [{loc:[...], msg:"...", type:"..."}]  →  "Password must be at least 6 characters"
    */

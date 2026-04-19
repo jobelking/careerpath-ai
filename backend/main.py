@@ -13,6 +13,7 @@ from app.prediction.predictor import CareerPathPredictor
 from app.utils.pdf_extractor import extract_text_from_pdf
 from app.services.groq_service import generate_learning_roadmap, generate_certifications
 from app.services.groq_learnmore_service import generate_skills_and_improvements
+from app.services.groq_fallback_service import verify_prediction
 from app.services.jsearch_service import search_jobs as jsearch_search_jobs
 from app.database import init_db
 from app.auth.auth_routes import router as auth_router
@@ -305,6 +306,70 @@ async def generate_skills_insights(request: Dict):
         )
 
 
+@app.post("/api/verify-prediction")
+async def verify_prediction_endpoint(request: Dict):
+    """
+    Verify an uncertain prediction using LLM fallback.
+    Called when the ML model's raw confidence is below 10%.
+
+    Request body:
+        {
+            "resume_text": str,
+            "predicted_career": str,
+            "top_predictions": [{"career_path": str, "raw_confidence": float}, ...],
+            "all_career_paths": [str, ...]
+        }
+
+    Returns:
+        JSON with verification result
+    """
+    try:
+        resume_text = request.get("resume_text")
+        predicted_career = request.get("predicted_career")
+        top_predictions = request.get("top_predictions", [])
+        all_career_paths = request.get("all_career_paths", [])
+
+        if not resume_text or not predicted_career:
+            raise HTTPException(
+                status_code=400,
+                detail="Both resume_text and predicted_career are required"
+            )
+
+        if not all_career_paths:
+            # Fallback: use the predictor's known classes (display names)
+            if predictor.is_loaded():
+                all_career_paths = [
+                    predictor.classifier.get_display_name(c)
+                    for c in predictor.classes
+                ]
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="all_career_paths is required when model is not loaded"
+                )
+
+        verification = verify_prediction(
+            resume_text=resume_text,
+            predicted_career=predicted_career,
+            top_predictions=top_predictions,
+            all_career_paths=all_career_paths
+        )
+
+        return JSONResponse(content={
+            "success": True,
+            "verification": verification
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error verifying prediction: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to verify prediction: {str(e)}"
+        )
+
+
 @app.post("/api/jobs")
 async def search_jobs_endpoint(request: Dict):
     """
@@ -359,18 +424,25 @@ async def search_jobs_endpoint(request: Dict):
 
 @app.get("/api/careers")
 async def get_available_careers():
-    """Get list of all available career paths the model can predict"""
+    """Get list of all available career paths the model can predict (display names)"""
     try:
         if not predictor.is_loaded():
             raise HTTPException(
                 status_code=500,
                 detail="Model not loaded"
             )
-        
+
+        # Return human-readable display names — these are what the frontend
+        # and LLM fallback use, not raw internal class labels.
+        display_careers = sorted(
+            predictor.classifier.get_display_name(c)
+            for c in predictor.classes
+        )
+
         return {
             "success": True,
-            "careers": sorted(predictor.classes),
-            "total": len(predictor.classes)
+            "careers": display_careers,
+            "total": len(display_careers)
         }
     except Exception as e:
         raise HTTPException(

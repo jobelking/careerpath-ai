@@ -9,6 +9,7 @@ import { otherIcons } from '../../utils/otherIcons';
 import { authIcons } from '../../utils/authIcons';
 import CareerPathsModal from '../../components/common/CareerPathsModal/CareerPathsModal';
 import ChangePasswordModal from '../../components/auth/ChangePasswordModal';
+import { calculateProfileFit, normalizeTop3Fits } from '../../utils/profileFit';
 import './History.css';
 
 const History = () => {
@@ -122,16 +123,7 @@ const History = () => {
     const paginatedHistory = history.slice(startIndex, startIndex + RECORDS_PER_PAGE);
 
     // ── Profile Fit (mirrors Dashboard logic exactly) ──────────────────────
-    const calculateProfileFit = (rawProbability) => {
-        const p = rawProbability;
-        if (p < 5) return Math.round((p / 5) * 35);
-        if (p < 10) return Math.round(35 + ((p - 5) / 5) * 14);
-        if (p < 15) return Math.round(49 + ((p - 10) / 5) * 13);
-        if (p < 20) return Math.round(62 + ((p - 15) / 5) * 18);
-        if (p < 30) return Math.round(80 + ((p - 20) / 10) * 3);
-        if (p < 50) return Math.round(83 + ((p - 30) / 20) * 9);
-        return Math.round(92 + ((p - 50) / 50) * 5);
-    };
+    // Now imported from shared utility: calculateProfileFit, normalizeTop3Fits
 
     // ── Format date ───────────────────────────────────────────────────────────
     const formatDate = (isoString) => {
@@ -333,6 +325,7 @@ const History = () => {
                         <button className="history-nav-tab" onClick={() => navigate('/dashboard')}>Dashboard</button>
                         <button className="history-nav-tab" onClick={() => setShowCareerPaths(true)}>Career Paths</button>
                         <button className="history-nav-tab active" type="button" disabled>History</button>
+                        <button className="history-nav-tab" onClick={() => navigate('/learnmore')}>Detailed</button>
                     </nav>
 
                     <div className="history-header-right">
@@ -442,6 +435,12 @@ const History = () => {
                     >
                         Dashboard
                     </button>
+                    <button
+                        className="mobile-menu-item dashboard-item"
+                        onClick={() => { setMenuOpen(false); navigate('/learnmore'); }}
+                    >
+                        Detailed
+                    </button>
                     {currentUser?.is_admin && (
                         <button
                             className="mobile-menu-item dashboard-item"
@@ -522,6 +521,8 @@ const History = () => {
                                     <tbody>
                                         {paginatedHistory.map((record, idx) => {
                                             const topThree = (record.top_predictions ?? []).slice(0, 3);
+                                            const nFits = normalizeTop3Fits(topThree);
+                                            const topFit = nFits[0] ?? calculateProfileFit(parseFloat(record.confidence_score));
                                             return (
                                             <tr key={record.id} className="history-row">
                                                 <td className="history-rank">{startIndex + idx + 1}</td>
@@ -542,12 +543,12 @@ const History = () => {
                                                     {record.confidence_score != null ? (
                                                         <div className="confidence-wrapper">
                                                             <span className="confidence-value">
-                                                                {calculateProfileFit(parseFloat(record.confidence_score))}%
+                                                                {topFit}%
                                                             </span>
                                                             <div className="confidence-bar-track">
                                                                 <div
                                                                     className="confidence-bar-fill"
-                                                                    style={{ width: `${calculateProfileFit(parseFloat(record.confidence_score))}%` }}
+                                                                    style={{ width: `${topFit}%` }}
                                                                 />
                                                             </div>
                                                         </div>
@@ -648,6 +649,8 @@ const History = () => {
                             <div className="history-cards">
                                 {paginatedHistory.map((record, idx) => {
                                     const topThree = (record.top_predictions ?? []).slice(0, 3);
+                                    const nFits = normalizeTop3Fits(topThree);
+                                    const topFit = nFits[0] ?? calculateProfileFit(parseFloat(record.confidence_score));
                                     return (
                                     <div key={record.id} className="history-card">
                                         <div className="history-card-top">
@@ -672,12 +675,12 @@ const History = () => {
                                                 <span className="history-card-label">Profile Fit</span>
                                                 <div className="confidence-wrapper" style={{ flex: 1 }}>
                                                     <span className="confidence-value">
-                                                        {calculateProfileFit(parseFloat(record.confidence_score))}%
+                                                        {topFit}%
                                                     </span>
                                                     <div className="confidence-bar-track">
                                                         <div
                                                             className="confidence-bar-fill"
-                                                            style={{ width: `${calculateProfileFit(parseFloat(record.confidence_score))}%` }}
+                                                            style={{ width: `${topFit}%` }}
                                                         />
                                                     </div>
                                                 </div>
