@@ -5,6 +5,7 @@ Reads credentials from environment variables.
 """
 
 import os
+from datetime import datetime
 import resend
 from dotenv import load_dotenv
 
@@ -12,6 +13,7 @@ load_dotenv()
 
 resend.api_key = os.getenv("RESEND_API_KEY", "")
 FROM_ADDRESS = os.getenv("RESEND_FROM", "CareerPath AI <info@careerpathai.tech>")
+CURRENT_YEAR = datetime.now().year
 
 
 def _send_email(to_email: str, subject: str, body_text: str, body_html: str | None = None) -> None:
@@ -96,7 +98,7 @@ def send_verification_email(to_email: str, otp_code: str) -> None:
                 If you did not create an account, you can safely ignore this email.
               </p>
               <p style="margin:8px 0 0;color:#94a3b8;font-size:12px;">
-                &copy; 2025 CareerPath AI &bull; info@careerpathai.tech
+                &copy; {CURRENT_YEAR} CareerPath AI &bull; info@careerpathai.tech
               </p>
             </td>
           </tr>
@@ -174,7 +176,7 @@ def send_password_reset_email(to_email: str, otp_code: str) -> None:
                 If you did not request a password reset, you can safely ignore this email.
               </p>
               <p style="margin:8px 0 0;color:#94a3b8;font-size:12px;">
-                &copy; 2025 CareerPath AI &bull; info@careerpathai.tech
+                &copy; {CURRENT_YEAR} CareerPath AI &bull; info@careerpathai.tech
               </p>
             </td>
           </tr>

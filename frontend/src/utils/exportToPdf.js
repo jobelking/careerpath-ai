@@ -138,6 +138,7 @@ export const exportToPdf = async ({
     const dateStr = new Date().toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
     });
+    const reportYear = new Date().getFullYear();
     const dateLabel = `Scan Date: ${dateStr}`;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
@@ -455,7 +456,7 @@ export const exportToPdf = async ({
         doc.setFontSize(7.5);
         doc.setTextColor(148, 163, 184);
         doc.text(
-            `CareerPath AI  •  Career Path Recommendation Report  •  Page ${p} of ${totalPages}`,
+            `CareerPath AI © ${reportYear}  •  Career Path Recommendation Report  •  Page ${p} of ${totalPages}`,
             PW / 2, PH - 8, { align: 'center' }
         );
     }

@@ -309,7 +309,7 @@ const LandingPage = () => {
 
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="landing-footer">
-        <p>&copy; 2025 CareerPath-AI. Empowering career decisions with artificial intelligence.</p>
+        <p>&copy; {new Date().getFullYear()} CareerPath-AI. Empowering career decisions with artificial intelligence.</p>
       </footer>
 
       {/* Auth Modal */}
