@@ -1,39 +1,63 @@
 """
 Email Service for CareerPath AI
-Sends transactional emails via Resend (https://resend.com).
+Sends transactional emails via Brevo (https://www.brevo.com).
 Reads credentials from environment variables.
 """
 
+import json
 import os
 from datetime import datetime
-import resend
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 from dotenv import load_dotenv
 
 load_dotenv()
 
-resend.api_key = os.getenv("RESEND_API_KEY", "")
-FROM_ADDRESS = os.getenv("RESEND_FROM", "CareerPath AI <info@careerpathai.tech>")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
+FROM_ADDRESS = os.getenv("BREVO_FROM", "CareerPath AI <info@careerpathai.tech>")
 CURRENT_YEAR = datetime.now().year
 
 
 def _send_email(to_email: str, subject: str, body_text: str, body_html: str | None = None) -> None:
-    """
-    Internal helper — sends an email via Resend.
-    Raises an exception if sending fails (caller should handle).
-    """
-    params: resend.Emails.SendParams = {
-        "from": FROM_ADDRESS,
-        "to": [to_email],
-        "subject": subject,
-        "text": body_text,
-    }
+  """
+  Internal helper -- sends an email via Brevo.
+  Raises an exception if sending fails (caller should handle).
+  """
+  if not BREVO_API_KEY:
+    raise ValueError("BREVO_API_KEY is not set")
 
-    if body_html:
-        params["html"] = body_html
+  payload = {
+    "sender": {"email": FROM_ADDRESS},
+    "to": [{"email": to_email}],
+    "subject": subject,
+    "textContent": body_text,
+  }
 
-    print(f"📧 Sending email via Resend to {to_email} ...")
-    response = resend.Emails.send(params)
-    print(f"✅ Resend response: {response}")
+  if body_html:
+    payload["htmlContent"] = body_html
+
+  request = Request(
+    url="https://api.brevo.com/v3/smtp/email",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+      "accept": "application/json",
+      "api-key": BREVO_API_KEY,
+      "content-type": "application/json",
+    },
+    method="POST",
+  )
+
+  print(f"📧 Sending email via Brevo to {to_email} ...")
+
+  try:
+    with urlopen(request, timeout=20) as response:
+      response_body = response.read().decode("utf-8")
+      print(f"✅ Brevo response: {response.status} {response_body}")
+  except HTTPError as exc:
+    error_body = exc.read().decode("utf-8") if exc.fp else ""
+    raise RuntimeError(f"Brevo API error {exc.code}: {error_body}") from exc
+  except URLError as exc:
+    raise RuntimeError(f"Brevo connection error: {exc}") from exc
 
 
 def send_verification_email(to_email: str, otp_code: str) -> None:
