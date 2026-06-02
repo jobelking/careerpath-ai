@@ -14,7 +14,7 @@ const Logo = ({ variant = 'modern', className = '', style }) => {
       {/* Design 1: Modern (The default, clean look) */}
       {variant === 'modern' && (
         <>
-          <span className="text-primary">CareerPath</span>
+          <span className="text-primary">CareerPath- </span>
           <span className="text-accent">AI</span>
         </>
       )}
